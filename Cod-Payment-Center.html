@@ -24,6 +24,8 @@
   --red:            #dc2626;
   --red-light:      #fef2f2;
   --red-border:     #fca5a5;
+  --red-row-bg:     #fff1f2;
+  --red-row-border: #fecdd3;
   --amber:          #d97706;
   --amber-light:    #fffbeb;
   --amber-border:   #fde68a;
@@ -114,6 +116,7 @@ body {
   font-family: 'IBM Plex Mono', monospace;
 }
 .tab-badge.green { background: var(--green-light); color: var(--green); }
+.tab-badge.red   { background: var(--red-light);   color: var(--red); }
 
 /* ── Page wrapper ── */
 .page { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
@@ -128,6 +131,23 @@ body {
 }
 .not-configured-banner.show { display: block; }
 
+/* ── Refund alert banner ── */
+.refund-alert-banner {
+  display: none;
+  background: #fff1f2;
+  border: 2px solid #fda4af;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  align-items: center;
+  gap: 10px;
+}
+.refund-alert-banner.show { display: flex; }
+.refund-alert-icon { font-size: 18px; flex-shrink: 0; }
+.refund-alert-text { flex: 1; }
+.refund-alert-title { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 1px; }
+.refund-alert-detail { font-size: 11px; color: #9f1239; font-family: 'IBM Plex Mono', monospace; }
+
 /* ── Card ── */
 .card {
   background: var(--surface); border: 1px solid var(--border);
@@ -141,7 +161,6 @@ body {
   margin-bottom: 12px;
 }
 .card-body { padding: 0 16px 16px; }
-.card-body-full { padding: 16px; }
 
 /* ── Scanner input ── */
 .scanner-wrap { position: relative; }
@@ -198,6 +217,7 @@ body {
 .stat-val.accent { color: var(--accent); }
 .stat-val.green  { color: var(--green); }
 .stat-val.amber  { color: var(--amber); }
+.stat-val.red    { color: var(--red); }
 .stat-lbl { font-size: 10px; color: var(--text-secondary); display: block; margin-top: 2px; text-transform: uppercase; letter-spacing: .4px; }
 
 /* ── Progress ── */
@@ -277,6 +297,7 @@ body {
 }
 .btn-pay:hover:not(:disabled) { background: var(--accent-dark); }
 .btn-pay:disabled { opacity: .4; cursor: not-allowed; }
+.btn-pay.has-refund { background: linear-gradient(135deg, var(--accent) 60%, #be123c 100%); }
 
 /* ── Table ── */
 .table-wrap { display: none; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 16px; }
@@ -296,6 +317,15 @@ tbody tr.order-row { border-bottom: 1px solid var(--border); cursor: default; tr
 tbody tr.order-row:hover { background: var(--surface-2); }
 tbody tr.order-row.row-new { animation: rowIn .5s ease; }
 tbody tr.order-row.expanded { background: var(--accent-light); border-bottom: none; }
+
+/* ── Refund row highlight ── */
+tbody tr.order-row.refund-row {
+  background: var(--red-row-bg);
+  border-right: 3px solid var(--red);
+}
+tbody tr.order-row.refund-row:hover { background: #ffe4e6; }
+tbody tr.order-row.refund-row.expanded { background: #ffe4e6; }
+
 @keyframes rowIn { from { background: rgba(37,99,235,.08); } to { background: transparent; } }
 
 tbody td { padding: 10px 12px; vertical-align: middle; }
@@ -337,7 +367,8 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 .badge-done      { background: var(--green-light);   color: var(--green);   border: 1px solid var(--green-border); }
 .badge-paid      { background: var(--green-light);   color: var(--green);   border: 1px solid var(--green-border); }
 .badge-cancelled { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
-.badge-refund    { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
+.badge-refund    { background: #ffe4e6; color: var(--red); border: 2px solid #fda4af; font-weight: 800; }
+.badge-refund-done { background: var(--green-light); color: var(--green);   border: 1px solid var(--green-border); }
 .badge-skipped   { background: var(--surface-2);     color: var(--text-secondary); border: 1px solid var(--border-strong); }
 .badge-notfound  { background: var(--surface-2);     color: var(--text-muted);     border: 1px solid var(--border); }
 .badge-error     { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
@@ -379,8 +410,8 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
   font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
   font-family: 'IBM Plex Mono', monospace;
 }
-.log-sync-badge.synced { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
-.log-sync-badge.local  { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+.log-sync-badge.synced  { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+.log-sync-badge.local   { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
 .log-sync-badge.loading { background: var(--accent-light); color: var(--accent); border: 1px solid #bfdbfe; }
 
 .log-actions { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -431,7 +462,6 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
   transition: border-color .2s;
 }
 .log-entry:hover { border-color: var(--border-strong); }
-.log-entry.type-prereg { border-color: var(--purple-border); }
 
 .log-entry-header {
   display: flex; align-items: center; gap: 8px;
@@ -478,6 +508,7 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 .log-detail-amount { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); }
 .log-detail-ok  { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; }
 .log-detail-err { background: var(--red-light);   color: var(--red);   border: 1px solid var(--red-border);   padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; }
+.log-detail-refund { background: #ffe4e6; color: var(--red); border: 1px solid #fda4af; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 700; }
 .log-detail-sub { display: none; padding: 8px 14px 10px; border-top: 1px solid var(--border); background: rgba(0,0,0,.015); }
 .log-detail-item.open .log-detail-sub { display: block; }
 .log-sub-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; margin-top: 6px; }
@@ -494,21 +525,24 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
   background: var(--surface); border-radius: var(--radius);
-  width: 100%; max-width: 480px;
+  width: 100%; max-width: 520px;
   box-shadow: 0 20px 60px rgba(0,0,0,.2);
   transform: translateY(14px);
   transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+  max-height: 90vh; overflow-y: auto;
 }
 .modal-overlay.open .modal { transform: translateY(0); }
 .modal-header {
   padding: 16px 18px; border-bottom: 1px solid var(--border);
   font-size: 14px; font-weight: 700;
   display: flex; align-items: center; gap: 8px;
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
 }
 .modal-body { padding: 16px 18px; }
 .modal-footer {
   padding: 12px 18px; border-top: 1px solid var(--border);
   display: flex; gap: 8px; justify-content: flex-end;
+  position: sticky; bottom: 0; background: var(--surface); z-index: 1;
 }
 
 .field-group { margin-bottom: 14px; }
@@ -551,6 +585,35 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 .confirm-detail-val   { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .confirm-detail-val.green { color: var(--green); }
 .confirm-detail-val.red   { color: var(--red); }
+
+/* ── Refund section inside confirm modal ── */
+.confirm-refund-section {
+  background: #fff1f2;
+  border: 2px solid #fda4af;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+.confirm-refund-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.confirm-refund-title {
+  font-size: 13px; font-weight: 800; color: #9f1239;
+}
+.confirm-refund-subtitle {
+  font-size: 11px; color: #be123c; margin-bottom: 10px;
+}
+.confirm-refund-list { display: flex; flex-direction: column; gap: 6px; }
+.confirm-refund-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; border: 1px solid #fecdd3;
+  border-radius: 6px; padding: 7px 10px;
+  font-size: 12px;
+}
+.confirm-refund-order { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: var(--text-primary); }
+.confirm-refund-amount { font-family: 'IBM Plex Mono', monospace; font-weight: 800; color: var(--red); }
+
 .confirm-note {
   font-size: 12px; color: var(--text-secondary);
   background: var(--surface-2); border: 1px solid var(--border);
@@ -597,6 +660,7 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
   <button class="tab-btn active" data-tab="scan" onclick="switchTab('scan')">
     🔫 المسح والتحصيل
     <span class="tab-badge" id="tabBadgeReady" style="display:none"></span>
+    <span class="tab-badge red" id="tabBadgeRefund" style="display:none"></span>
   </button>
   <button class="tab-btn" data-tab="log" onclick="switchTab('log')">
     📜 السجل
@@ -611,6 +675,15 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 
   <div class="not-configured-banner" id="notConfigBanner">
     ⚠ الأداة غير مضبوطة — افتح الإعدادات وأدخل بيانات الاتصال
+  </div>
+
+  <!-- Refund alert banner -->
+  <div class="refund-alert-banner" id="refundAlertBanner">
+    <span class="refund-alert-icon">💸</span>
+    <div class="refund-alert-text">
+      <div class="refund-alert-title" id="refundAlertTitle">يوجد أوردرات مستحقة استرداد</div>
+      <div class="refund-alert-detail" id="refundAlertDetail"></div>
+    </div>
   </div>
 
   <!-- Scanner card -->
@@ -654,6 +727,10 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
     <div class="stat-chip">
       <span class="stat-val green" id="statDone">0</span>
       <span class="stat-lbl">تم التحصيل</span>
+    </div>
+    <div class="stat-chip" id="statRefundChip" style="display:none">
+      <span class="stat-val red" id="statRefund">0</span>
+      <span class="stat-lbl">استرداد</span>
     </div>
   </div>
 
@@ -830,15 +907,8 @@ function getConfig() {
   };
 }
 
-function isConfigured() {
-  const c = getConfig();
-  return c.url.startsWith('http') && c.secret.length > 0;
-}
-
-function isLogConfigured() {
-  const c = getConfig();
-  return c.logUrl.startsWith('http') && c.logSecret.length > 0;
-}
+function isConfigured()    { const c = getConfig(); return c.url.startsWith('http') && c.secret.length > 0; }
+function isLogConfigured() { const c = getConfig(); return c.logUrl.startsWith('http') && c.logSecret.length > 0; }
 
 let orders      = [];
 let isProcessing = false;
@@ -877,43 +947,26 @@ function loadSettingsToForm() {
   $('cfLogSecret').value    = c.logSecret;
 }
 
-function openSettings() {
-  loadSettingsToForm();
-  $('settingsOverlay').classList.add('open');
-}
-
+function openSettings()  { loadSettingsToForm(); $('settingsOverlay').classList.add('open'); }
 function closeSettings() { $('settingsOverlay').classList.remove('open'); }
-
-function closeSettingsOnBackdrop(e) {
-  if (e.target === $('settingsOverlay')) closeSettings();
-}
+function closeSettingsOnBackdrop(e) { if (e.target === $('settingsOverlay')) closeSettings(); }
 
 function saveSettings() {
   const url       = $('cfWorkerUrl').value.trim();
   const secret    = $('cfWorkerSecret').value.trim();
   const logUrl    = $('cfLogUrl').value.trim();
   const logSecret = $('cfLogSecret').value.trim();
-
   if (!url || !secret) { showToast('أدخل Worker URL و Secret', 'error'); return; }
-
   localStorage.setItem(LS.URL,        url);
   localStorage.setItem(LS.SECRET,     secret);
   localStorage.setItem(LS.LOG_URL,    logUrl);
   localStorage.setItem(LS.LOG_SECRET, logSecret);
-
-  updateSettingsBtn();
-  updateConfigBanner();
-  closeSettings();
+  updateSettingsBtn(); updateConfigBanner(); closeSettings();
   showToast('تم حفظ الإعدادات ✓', 'success');
 }
 
-function updateSettingsBtn() {
-  $('settingsBtn').classList.toggle('configured', isConfigured());
-}
-
-function updateConfigBanner() {
-  $('notConfigBanner').classList.toggle('show', !isConfigured());
-}
+function updateSettingsBtn()   { $('settingsBtn').classList.toggle('configured', isConfigured()); }
+function updateConfigBanner()  { $('notConfigBanner').classList.toggle('show', !isConfigured()); }
 
 // ══════════════════════════════════════════════════════════════
 // SCANNER
@@ -922,9 +975,8 @@ const scannerInput = $('scannerInput');
 let lastKeyTime = 0, scanTimer = null;
 
 function refocus() {
-  if (document.getElementById('page-scan').classList.contains('active')) {
+  if (document.getElementById('page-scan').classList.contains('active'))
     scannerInput.focus();
-  }
 }
 
 document.addEventListener('click', e => {
@@ -971,10 +1023,7 @@ async function handleManualAdd() {
   input.disabled = true;
 
   try {
-    // تحويل رقم الأوردر لـ ID
-    if (orders.find(o => o.orderName === '#' + raw)) {
-      showToast('⚠ موجود بالفعل'); return;
-    }
+    if (orders.find(o => o.orderName === '#' + raw)) { showToast('⚠ موجود بالفعل'); return; }
     const c   = getConfig();
     const res = await fetch(c.url, {
       method: 'POST',
@@ -1002,6 +1051,8 @@ async function addOrder(numericId) {
     canMarkAsPaid: null, skipReason: null, financialStatus: null,
     courier: null, lineItems: [], status: 'scanning', error: null,
     preRegistered: false, cancelled: false,
+    // refund fields
+    refundAmount: null, parentTransactionId: null,
   };
   orders.unshift(order);
   showTable(); updateStats(); renderTable();
@@ -1017,25 +1068,32 @@ async function addOrder(numericId) {
     const d = await res.json();
 
     if (d.success) {
-      // ── الأوردر الملغي ──────────────────────────────────────
       if (d.cancelled) {
         order.orderName       = d.orderName;
         order.financialStatus = d.financialStatus;
         order.cancelled       = true;
         order.status          = 'cancelled';
       } else {
-        order.orderName       = d.orderName;
-        order.amount          = parseFloat(d.amount);
-        order.subtotal        = parseFloat(d.subtotal);
-        order.shippingAmount  = parseFloat(d.shippingAmount);
-        order.canMarkAsPaid   = d.canMarkAsPaid;
-        order.skipReason      = d.skipReason || null;
-        order.financialStatus = d.financialStatus;
-        order.courier         = d.courier || null;
-        order.lineItems       = d.lineItems || [];
-        order.preRegistered   = d.preRegistered || false;
-        order.orderDiscount   = d.orderDiscount ?? null;
-        order.status          = d.canMarkAsPaid ? 'ready' : 'skipped';
+        order.orderName             = d.orderName;
+        order.amount                = parseFloat(d.amount);
+        order.subtotal              = parseFloat(d.subtotal);
+        order.shippingAmount        = parseFloat(d.shippingAmount);
+        order.canMarkAsPaid         = d.canMarkAsPaid;
+        order.skipReason            = d.skipReason || null;
+        order.financialStatus       = d.financialStatus;
+        order.courier               = d.courier || null;
+        order.lineItems             = d.lineItems || [];
+        order.preRegistered         = d.preRegistered || false;
+        order.orderDiscount         = d.orderDiscount ?? null;
+        order.parentTransactionId   = d.parentTransactionId || null;
+
+        // ── استرداد مستحق ──
+        if (d.skipReason === 'مستحق استرداد') {
+          order.status       = 'refund';
+          order.refundAmount = Math.abs(order.amount); // outstanding سالب
+        } else {
+          order.status = d.canMarkAsPaid ? 'ready' : 'skipped';
+        }
       }
     } else if (d.notFound) {
       order.status = 'notfound';
@@ -1046,7 +1104,8 @@ async function addOrder(numericId) {
     order.status = 'error'; order.error = 'خطأ في الاتصال';
   }
 
-  updateStats(); renderTable(); updatePayBtn(); updatePayMethodsCard(); refocus();
+  updateStats(); renderTable(); updatePayBtn(); updatePayMethodsCard();
+  updateRefundBanner(); refocus();
 }
 
 function deleteOrder(idx) {
@@ -1055,8 +1114,8 @@ function deleteOrder(idx) {
     $('tableWrap').classList.remove('show');
     $('statsBar').classList.remove('show');
   }
-  updateStats(); updatePayBtn(); renderTable(); hideResult(); updatePayMethodsCard();
-  refocus();
+  updateStats(); updatePayBtn(); renderTable(); hideResult();
+  updatePayMethodsCard(); updateRefundBanner(); refocus();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1077,51 +1136,61 @@ function showTable() {
 
 function renderTable() {
   const tbody = $('tableBody');
-  const rows = [];
+  const rows  = [];
 
   orders.forEach((o, i) => {
     const nameDisplay = o.orderName || `ID: ${o.id}`;
     const hasDetails  = o.lineItems && o.lineItems.length > 0;
     const expandIcon  = hasDetails ? `<span class="expand-icon">▶</span>` : '';
-
-    // ── الأوردر الملغي: كل الأعمدة المالية شرطة ──────────────
     const isCancelled = o.cancelled || o.status === 'cancelled';
+    const isRefund    = o.status === 'refund' || o.status === 'refund-done' || o.status === 'refund-error';
 
-    function moneyCell(val) {
+    function moneyCell(val, forceColor) {
       if (isCancelled || val == null) return `<span style="color:var(--text-muted)">—</span>`;
-      const color = val < 0 ? 'var(--red)' : 'var(--amber)';
-      return `<span style="color:${color}">${fmt(val)}</span>`;
+      const color = forceColor || (val < 0 ? 'var(--red)' : 'var(--amber)');
+      return `<span style="color:${color}">${fmt(Math.abs(val))}</span>`;
     }
 
-    const courierCollect = (!isCancelled && o.amount != null && o.shippingAmount != null)
+    const courierCollect = (!isCancelled && !isRefund && o.amount != null && o.shippingAmount != null)
       ? o.amount - o.shippingAmount : null;
 
-    const courierDisplay = isCancelled
+    const courierDisplay = (isCancelled || isRefund)
       ? `<span style="color:var(--text-muted)">—</span>`
       : (o.courier || `<span style="color:var(--text-muted)">—</span>`);
 
-    // ── Badge ─────────────────────────────────────────────────
+    // ── Badge ──────────────────────────────────────────────────
     let badge;
-    if      (o.status === 'scanning')  badge = `<span class="badge badge-scanning"><span class="spinner"></span> مسح...</span>`;
-    else if (o.status === 'loading')   badge = `<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`;
-    else if (o.status === 'cancelled') badge = `<span class="badge badge-cancelled">ملغي</span>`;
+    if      (o.status === 'scanning')    badge = `<span class="badge badge-scanning"><span class="spinner"></span> مسح...</span>`;
+    else if (o.status === 'loading')     badge = `<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`;
+    else if (o.status === 'cancelled')   badge = `<span class="badge badge-cancelled">ملغي</span>`;
+    else if (o.status === 'refund')      badge = `<span class="badge badge-refund">💸 استرداد ${o.refundAmount != null ? fmt(o.refundAmount) : ''}</span>`;
+    else if (o.status === 'refund-done') badge = `<span class="badge badge-refund-done">✓ تم الاسترداد</span>`;
+    else if (o.status === 'refund-error') badge = `<span class="badge badge-error" title="${o.error||''}">خطأ استرداد</span>`;
     else if (o.status === 'ready') {
       badge = o.preRegistered
         ? `<span class="badge badge-prereg">📋 مسجل مسبقاً</span>`
         : `<span class="badge badge-ready">جاهز</span>`;
     }
-    else if (o.status === 'done')      badge = `<span class="badge badge-done">✓ تم التحصيل</span>`;
+    else if (o.status === 'done')        badge = `<span class="badge badge-done">✓ تم التحصيل</span>`;
     else if (o.status === 'skipped') {
       if      (o.skipReason === 'مدفوع بالكامل')   badge = `<span class="badge badge-paid">مدفوع بالكامل</span>`;
-      else if (o.skipReason === 'مستحق استرداد') badge = `<span class="badge badge-refund">استرداد</span>`;
       else badge = `<span class="badge badge-skipped">${o.skipReason || 'مُتخطى'}</span>`;
     }
-    else if (o.status === 'notfound')  badge = `<span class="badge badge-notfound">غير موجود</span>`;
-    else                               badge = `<span class="badge badge-error" title="${o.error || ''}">خطأ</span>`;
+    else if (o.status === 'notfound')    badge = `<span class="badge badge-notfound">غير موجود</span>`;
+    else                                 badge = `<span class="badge badge-error" title="${o.error||''}">خطأ</span>`;
 
-    const finLabel = isCancelled ? `<span style="color:var(--red);font-size:11px">Cancelled</span>` : financialLabel(o.financialStatus);
+    const finLabel = isCancelled
+      ? `<span style="color:var(--red);font-size:11px">Cancelled</span>`
+      : financialLabel(o.financialStatus);
 
-    rows.push(`<tr class="order-row${i === 0 ? ' row-new' : ''}${hasDetails ? ' clickable' : ''}" data-idx="${i}">
+    // الأوردر المستحق استرداد: نعرض مبلغ الاسترداد في عمود الإجمالي باللون الأحمر
+    const totalCell = isRefund
+      ? moneyCell(o.refundAmount, 'var(--red)')
+      : moneyCell(isCancelled ? null : o.amount);
+
+    const rowClass = `order-row${i === 0 ? ' row-new' : ''}${isRefund ? ' refund-row' : ''}`;
+
+    rows.push(`<tr class="${rowClass}" data-idx="${i}">
       <td style="padding:6px 8px;text-align:center">
         <button class="row-del-btn" onclick="deleteOrder(${i})" title="حذف">🗑</button>
       </td>
@@ -1129,9 +1198,9 @@ function renderTable() {
         ${expandIcon}${nameDisplay}
       </td>
       <td class="cell-courier">${courierDisplay}</td>
-      <td class="cell-money">${moneyCell(courierCollect)}</td>
-      <td class="cell-money">${moneyCell(isCancelled ? null : o.shippingAmount)}</td>
-      <td class="cell-money">${moneyCell(isCancelled ? null : o.amount)}</td>
+      <td class="cell-money">${isRefund ? `<span style="color:var(--text-muted)">—</span>` : moneyCell(courierCollect)}</td>
+      <td class="cell-money">${isRefund || isCancelled ? `<span style="color:var(--text-muted)">—</span>` : moneyCell(o.shippingAmount)}</td>
+      <td class="cell-money">${totalCell}</td>
       <td class="cell-financial">${finLabel}</td>
       <td class="cell-center">${badge}</td>
     </tr>`);
@@ -1176,17 +1245,16 @@ function toggleRow(idx) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// STATS
+// STATS & REFUND BANNER
 // ══════════════════════════════════════════════════════════════
 function updateStats() {
   const active = orders.filter(o => o.status === 'ready' || o.status === 'done');
   const done   = orders.filter(o => o.status === 'done');
+  const refunds = orders.filter(o => o.status === 'refund');
 
   const sumTotal          = active.reduce((s, o) => s + (o.amount        || 0), 0);
   const sumShipping       = active.reduce((s, o) => s + (o.shippingAmount || 0), 0);
-  const sumCourierCollect = active.reduce((s, o) => {
-    return s + ((o.amount != null && o.shippingAmount != null) ? o.amount - o.shippingAmount : 0);
-  }, 0);
+  const sumCourierCollect = active.reduce((s, o) => s + ((o.amount != null && o.shippingAmount != null) ? o.amount - o.shippingAmount : 0), 0);
 
   $('statCount').textContent          = orders.length;
   $('statCourierCollect').textContent = sumCourierCollect > 0 ? fmt(sumCourierCollect) : '—';
@@ -1194,11 +1262,35 @@ function updateStats() {
   $('statTotal').textContent          = sumTotal > 0 ? fmt(sumTotal) : '—';
   $('statDone').textContent           = done.length;
 
-  // Tab badge
+  // Refund stat chip
+  const refundChip = $('statRefundChip');
+  if (refunds.length > 0) {
+    const sumRefund = refunds.reduce((s, o) => s + (o.refundAmount || 0), 0);
+    $('statRefund').textContent = fmt(sumRefund);
+    refundChip.style.display = '';
+  } else {
+    refundChip.style.display = 'none';
+  }
+
+  // Tab badges
   const ready = orders.filter(o => o.status === 'ready').length;
-  const badge = $('tabBadgeReady');
+  const badge  = $('tabBadgeReady');
   badge.style.display = ready > 0 ? '' : 'none';
   badge.textContent   = ready;
+
+  const refundBadge = $('tabBadgeRefund');
+  refundBadge.style.display = refunds.length > 0 ? '' : 'none';
+  refundBadge.textContent   = `💸${refunds.length}`;
+}
+
+function updateRefundBanner() {
+  const refunds = orders.filter(o => o.status === 'refund');
+  const banner  = $('refundAlertBanner');
+  if (!refunds.length) { banner.classList.remove('show'); return; }
+  banner.classList.add('show');
+  const total = refunds.reduce((s, o) => s + (o.refundAmount || 0), 0);
+  $('refundAlertTitle').textContent  = `${refunds.length} أوردر مستحق استرداد — سيتم تنفيذه تلقائياً عند التأكيد`;
+  $('refundAlertDetail').textContent = `إجمالي الاسترداد: ${fmt(total)} EGP`;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1213,9 +1305,9 @@ function getCourierCollectTotal() {
 function getExtra()     { return parseFloat($('pmExtra').value) || 0; }
 function getNetTarget() { return Math.max(0, getCourierCollectTotal() - getExtra()); }
 function getPaySum()    {
-  return (parseFloat($('pmCash').value) || 0) +
+  return (parseFloat($('pmCash').value)     || 0) +
          (parseFloat($('pmInstapay').value) || 0) +
-         (parseFloat($('pmWallet').value) || 0);
+         (parseFloat($('pmWallet').value)   || 0);
 }
 function isPayEmpty() { return !$('pmCash').value && !$('pmInstapay').value && !$('pmWallet').value; }
 
@@ -1227,14 +1319,13 @@ function updatePayMethodsCard() {
 
   const courier    = getReadyCourier();
   const courierErr = getReadyCourierError();
-  $('courierBannerName').textContent  = courierErr ? '⚠ خطأ في المندوب' : (courier || '—');
-  $('courierBannerName').style.color  = courierErr ? 'var(--red)' : 'var(--purple)';
+  $('courierBannerName').textContent = courierErr ? '⚠ خطأ في المندوب' : (courier || '—');
+  $('courierBannerName').style.color = courierErr ? 'var(--red)' : 'var(--purple)';
 
   const target = getCourierCollectTotal();
   const extra  = getExtra();
-  const net    = getNetTarget();
   $('courierBannerTotal').textContent = extra > 0
-    ? `${fmt(target)} − ${fmt(extra)} = ${fmt(net)} EGP`
+    ? `${fmt(target)} − ${fmt(extra)} = ${fmt(getNetTarget())} EGP`
     : `${fmt(target)} EGP`;
 
   updatePayValidation();
@@ -1246,7 +1337,6 @@ function updatePayValidation() {
   const extra  = getExtra();
   const target = getNetTarget();
   const entered = getPaySum();
-
   $('extraNet').textContent = extra > 0 ? `← صافي: ${fmt(target)}` : '';
 
   if (isPayEmpty()) {
@@ -1288,39 +1378,62 @@ function getReadyCourierError() {
 }
 
 function updatePayBtn() {
-  const hasReady   = orders.filter(o => o.status === 'ready').length > 0;
-  const courierErr = getReadyCourierError();
-  $('payBtn').disabled = !hasReady || !!courierErr || !isPayValid() || isProcessing;
+  const hasReady    = orders.filter(o => o.status === 'ready').length > 0;
+  const hasRefund   = orders.filter(o => o.status === 'refund').length > 0;
+  const courierErr  = getReadyCourierError();
+  const btn         = $('payBtn');
+  const payValid    = hasReady ? isPayValid() : true; // لو مفيش ready، الـ validation مش مطلوبة
+
+  // الزرار يظهر لو في ready أو في refund
+  const canAct = (hasReady || hasRefund) && !courierErr && !isProcessing;
+  btn.disabled = !canAct || (hasReady && !isPayValid());
+
+  // تغيير نص الزرار
+  if (hasReady && hasRefund) {
+    btn.textContent = '💵 تسجيل الدفع + 💸 تنفيذ الاسترداد';
+    btn.classList.add('has-refund');
+  } else if (hasRefund && !hasReady) {
+    btn.textContent = '💸 تنفيذ الاسترداد';
+    btn.classList.add('has-refund');
+  } else {
+    btn.textContent = '💵 تسجيل الدفع على شوبيفاي';
+    btn.classList.remove('has-refund');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
-// BULK PAY
+// BULK PAY + REFUND
 // ══════════════════════════════════════════════════════════════
 async function confirmBulkPay() {
-  const readyOrders = orders.filter(o => o.status === 'ready');
-  if (!readyOrders.length) return;
+  const readyOrders  = orders.filter(o => o.status === 'ready');
+  const refundOrders = orders.filter(o => o.status === 'refund');
+  if (!readyOrders.length && !refundOrders.length) return;
 
   const courierErr = getReadyCourierError();
   if (courierErr) { showResult(false, '⚠ لا يمكن تسجيل الدفع', courierErr); return; }
-  if (!isPayValid()) { showResult(false, '⚠ طريقة الدفع غير مكتملة', 'المجموع لا يساوي تحصيل المندوب'); return; }
+  if (readyOrders.length && !isPayValid()) { showResult(false, '⚠ طريقة الدفع غير مكتملة', 'المجموع لا يساوي تحصيل المندوب'); return; }
 
-  const courierName   = getReadyCourier();
-  const cash          = parseFloat($('pmCash').value)     || 0;
-  const instapay      = parseFloat($('pmInstapay').value) || 0;
-  const wallet        = parseFloat($('pmWallet').value)   || 0;
-  const extra         = getExtra();
-  const collectTotal  = getCourierCollectTotal();
-  const net           = getNetTarget();
-  const preregCount   = readyOrders.filter(o => o.preRegistered).length;
-  const shopifyTotal  = readyOrders.reduce((s, o) => s + o.amount, 0);
+  const courierName    = getReadyCourier();
+  const cash           = parseFloat($('pmCash').value)     || 0;
+  const instapay       = parseFloat($('pmInstapay').value) || 0;
+  const wallet         = parseFloat($('pmWallet').value)   || 0;
+  const extra          = getExtra();
+  const collectTotal   = getCourierCollectTotal();
+  const net            = getNetTarget();
+  const preregCount    = readyOrders.filter(o => o.preRegistered).length;
+  const shopifyTotal   = readyOrders.reduce((s, o) => s + o.amount, 0);
+  const totalRefund    = refundOrders.reduce((s, o) => s + (o.refundAmount || 0), 0);
 
-  const bodyHTML = `
+  // ── Payment section ────────────────────────────────────────
+  let paySection = '';
+  if (readyOrders.length) {
+    paySection = `
     <div class="confirm-detail-row">
       <span class="confirm-detail-label">المندوب</span>
       <span class="confirm-detail-val">${courierName}</span>
     </div>
     <div class="confirm-detail-row">
-      <span class="confirm-detail-label">عدد الأوردرات</span>
+      <span class="confirm-detail-label">أوردرات التحصيل</span>
       <span class="confirm-detail-val">${readyOrders.length}${preregCount > 0 ? ` <span style="font-size:11px;color:var(--purple)">(${preregCount} مسجل مسبقاً)</span>` : ''}</span>
     </div>
     <div class="confirm-detail-row">
@@ -1339,45 +1452,76 @@ async function confirmBulkPay() {
       <span class="confirm-detail-label">صافي التحصيل</span>
       <span class="confirm-detail-val green">${fmt(net)} جنيه</span>
     </div>` : ''}
-    ${cash > 0 ? `<div class="confirm-detail-row">
-      <span class="confirm-detail-label">💵 نقدي</span>
-      <span class="confirm-detail-val">${fmt(cash)} جنيه</span>
-    </div>` : ''}
-    ${instapay > 0 ? `<div class="confirm-detail-row">
-      <span class="confirm-detail-label">📱 انستاباي</span>
-      <span class="confirm-detail-val">${fmt(instapay)} جنيه</span>
-    </div>` : ''}
-    ${wallet > 0 ? `<div class="confirm-detail-row">
-      <span class="confirm-detail-label">👛 محفظة</span>
-      <span class="confirm-detail-val">${fmt(wallet)} جنيه</span>
-    </div>` : ''}
+    ${cash > 0 ? `<div class="confirm-detail-row"><span class="confirm-detail-label">💵 نقدي</span><span class="confirm-detail-val">${fmt(cash)} جنيه</span></div>` : ''}
+    ${instapay > 0 ? `<div class="confirm-detail-row"><span class="confirm-detail-label">📱 انستاباي</span><span class="confirm-detail-val">${fmt(instapay)} جنيه</span></div>` : ''}
+    ${wallet > 0 ? `<div class="confirm-detail-row"><span class="confirm-detail-label">👛 محفظة</span><span class="confirm-detail-val">${fmt(wallet)} جنيه</span></div>` : ''}
+    `;
+  }
+
+  // ── Refund section ─────────────────────────────────────────
+  let refundSection = '';
+  if (refundOrders.length) {
+    const refundItems = refundOrders.map(o => `
+      <div class="confirm-refund-item">
+        <span class="confirm-refund-order">${o.orderName || o.id}</span>
+        <span class="confirm-refund-amount">− ${fmt(o.refundAmount)} EGP</span>
+      </div>`).join('');
+
+    refundSection = `
+    <div class="confirm-refund-section">
+      <div class="confirm-refund-header">
+        <span style="font-size:20px">💸</span>
+        <div class="confirm-refund-title">استرداد تلقائي — ${refundOrders.length} أوردر</div>
+      </div>
+      <div class="confirm-refund-subtitle">سيتم تنفيذ الاسترداد على شوبيفاي لهذه الأوردرات تلقائياً</div>
+      <div class="confirm-refund-list">${refundItems}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #fecdd3">
+        <span style="font-size:12px;color:#9f1239;font-weight:700">إجمالي الاسترداد</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:800;color:var(--red)">− ${fmt(totalRefund)} EGP</span>
+      </div>
+    </div>`;
+  }
+
+  const bodyHTML = `
+    ${paySection}
+    ${refundSection}
     <div class="confirm-warning">
       <span class="confirm-warning-icon">⚠️</span>
       <div>
         <div class="confirm-warning-title">تحذير — لا يمكن التراجع</div>
-        <div class="confirm-warning-text">سيتم تسجيل transaction على شوبيفاي لكل أوردر من الأوردرات المدرجة — هذه العملية نهائية ولا يمكن التراجع عنها</div>
+        <div class="confirm-warning-text">العملية نهائية ولا يمكن التراجع عنها — تحصيل ال${readyOrders.length ? ` ${readyOrders.length} أوردر` : ''}${refundOrders.length ? ` واسترداد ${refundOrders.length} أوردر` : ''}</div>
       </div>
     </div>
   `;
 
-  openConfirm('💵 تأكيد تسجيل التحصيل', bodyHTML, 'تأكيد وتسجيل', 'green-btn', doBulkPay);
+  const btnLabel = readyOrders.length && refundOrders.length
+    ? 'تأكيد التحصيل والاسترداد'
+    : refundOrders.length ? 'تأكيد الاسترداد' : 'تأكيد وتسجيل';
+
+  openConfirm('✅ تأكيد العملية', bodyHTML, btnLabel, 'green-btn', doBulkPayAndRefund);
 }
 
-async function doBulkPay() {
-  const readyOrders = orders.filter(o => o.status === 'ready');
-  const c           = getConfig();
-  const courierName = getReadyCourier();
-  const cash        = parseFloat($('pmCash').value)     || 0;
-  const instapay    = parseFloat($('pmInstapay').value) || 0;
-  const wallet      = parseFloat($('pmWallet').value)   || 0;
-  const extra       = getExtra();
+async function doBulkPayAndRefund() {
+  const readyOrders  = orders.filter(o => o.status === 'ready');
+  const refundOrders = orders.filter(o => o.status === 'refund');
+  const c            = getConfig();
+  const courierName  = getReadyCourier();
+  const cash         = parseFloat($('pmCash').value)     || 0;
+  const instapay     = parseFloat($('pmInstapay').value) || 0;
+  const wallet       = parseFloat($('pmWallet').value)   || 0;
+  const extra        = getExtra();
 
   isProcessing = true;
   $('payBtn').disabled = true;
   setProgress(0); hideResult();
 
-  let successCount = 0, failCount = 0, done = 0;
+  const allOrders    = [...readyOrders, ...refundOrders];
+  const total        = allOrders.length;
+  let successPay     = 0, failPay = 0;
+  let successRefund  = 0, failRefund = 0;
+  let done           = 0;
 
+  // ── Process pay orders ─────────────────────────────────────
   for (const order of readyOrders) {
     order.status = 'loading'; renderTable();
     try {
@@ -1387,79 +1531,121 @@ async function doBulkPay() {
         body: JSON.stringify({ action: 'pay', orderId: order.id, amount: order.amount.toFixed(2) }),
       });
       const data = await res.json();
-      if (data.success) { order.status = 'done'; order.financialStatus = 'PAID'; successCount++; }
-      else { order.status = 'error'; order.error = data.error || 'فشل'; failCount++; }
-    } catch (e) { order.status = 'error'; order.error = 'خطأ في الاتصال'; failCount++; }
-
+      if (data.success) { order.status = 'done'; order.financialStatus = 'PAID'; successPay++; }
+      else { order.status = 'error'; order.error = data.error || 'فشل'; failPay++; }
+    } catch (e) { order.status = 'error'; order.error = 'خطأ في الاتصال'; failPay++; }
     done++;
-    setProgress(done / readyOrders.length * 100);
+    setProgress(done / total * 100);
+    updateStats(); renderTable();
+  }
+
+  // ── Process refund orders ──────────────────────────────────
+  for (const order of refundOrders) {
+    order.status = 'loading'; renderTable();
+    try {
+      if (!order.parentTransactionId) {
+        order.status = 'refund-error';
+        order.error  = 'لا يوجد transaction صالح';
+        failRefund++;
+      } else {
+        const res  = await fetch(c.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.secret}` },
+          body: JSON.stringify({
+            action:               'refund',
+            orderId:              order.id,
+            refundAmount:         order.refundAmount.toFixed(2),
+            parentTransactionId:  order.parentTransactionId,
+            currency:             'EGP',
+          }),
+        });
+        const data = await res.json();
+        if (data.success) { order.status = 'refund-done'; order.financialStatus = 'REFUNDED'; successRefund++; }
+        else { order.status = 'refund-error'; order.error = data.error || 'فشل'; failRefund++; }
+      }
+    } catch (e) { order.status = 'refund-error'; order.error = 'خطأ في الاتصال'; failRefund++; }
+    done++;
+    setProgress(done / total * 100);
     updateStats(); renderTable();
   }
 
   isProcessing = false;
   updatePayBtn();
   updatePayMethodsCard();
+  updateRefundBanner();
 
-  // ── Log entry ────────────────────────────────────────────────
-  const paidOrders       = readyOrders.filter(o => o.status === 'done');
-  const paidTotal        = paidOrders.reduce((s, o) => s + o.amount, 0);
+  // ── Log entry ──────────────────────────────────────────────
+  const paidOrders         = readyOrders.filter(o => o.status === 'done');
+  const paidTotal          = paidOrders.reduce((s, o) => s + o.amount, 0);
   const paidCourierCollect = paidOrders.reduce((s, o) => s + (o.amount - o.shippingAmount), 0);
+  const refundedOrders     = refundOrders.filter(o => o.status === 'refund-done');
+  const refundedTotal      = refundedOrders.reduce((s, o) => s + (o.refundAmount || 0), 0);
 
+  const allProcessed = [...readyOrders, ...refundOrders];
   const logEntry = {
-    date:          new Date().toISOString(),
-    type:          'payment',
-    courier:       courierName,
-    totalOrders:   readyOrders.length,
-    success:       successCount,
-    errors:        failCount,
-    totalAmount:   paidTotal.toFixed(2),
+    date:           new Date().toISOString(),
+    type:           'payment',
+    courier:        courierName,
+    totalOrders:    allProcessed.length,
+    success:        successPay + successRefund,
+    errors:         failPay + failRefund,
+    totalAmount:    paidTotal.toFixed(2),
     courierCollect: paidCourierCollect.toFixed(2),
-    extraShipping: extra.toFixed(2),
-    netCollect:    Math.max(0, paidCourierCollect - extra).toFixed(2),
-    paymentMethods: {
-      cash:      cash.toFixed(2),
-      instapay:  instapay.toFixed(2),
-      wallet:    wallet.toFixed(2),
-    },
-    orders: readyOrders.map(o => ({
+    extraShipping:  extra.toFixed(2),
+    netCollect:     Math.max(0, paidCourierCollect - extra).toFixed(2),
+    totalRefund:    refundedTotal.toFixed(2),
+    paymentMethods: { cash: cash.toFixed(2), instapay: instapay.toFixed(2), wallet: wallet.toFixed(2) },
+    orders: allProcessed.map(o => ({
       order:          o.id,
       orderName:      o.orderName || '',
       courier:        o.courier   || '',
-      amount:         o.amount        != null ? o.amount.toFixed(2)         : '0.00',
-      subtotal:       o.subtotal      != null ? o.subtotal.toFixed(2)       : '0.00',
+      amount:         o.amount        != null ? o.amount.toFixed(2)        : '0.00',
+      subtotal:       o.subtotal      != null ? o.subtotal.toFixed(2)      : '0.00',
       shippingAmount: o.shippingAmount != null ? o.shippingAmount.toFixed(2) : '0.00',
       lineItems:      o.lineItems || [],
       orderDiscount:  o.orderDiscount ?? null,
       preRegistered:  o.preRegistered || false,
-      status:         o.status === 'done' ? 'success' : 'error',
+      isRefund:       o.status === 'refund-done' || o.status === 'refund-error',
+      refundAmount:   o.refundAmount != null ? o.refundAmount.toFixed(2) : null,
+      status:         (o.status === 'done' || o.status === 'refund-done') ? 'success' : 'error',
       error:          o.error || null,
     })),
   };
   saveLogEntry(logEntry);
 
-  if (successCount > 0 && failCount === 0) {
-    // تفريغ الجدول من الأوردرات الناجحة + إخفاء الجدول لو فضي
-    orders = orders.filter(o => o.status !== 'done');
-    if (!orders.length) {
-      $('tableWrap').classList.remove('show');
-      $('statsBar').classList.remove('show');
-    }
-    updateStats(); renderTable(); updatePayMethodsCard();
+  // ── Cleanup & result ───────────────────────────────────────
+  const anySuccess = successPay > 0 || successRefund > 0;
+  const anyFail    = failPay > 0 || failRefund > 0;
 
-    showResult(true, `✅ تم تسجيل التحصيل بنجاح لـ ${successCount} أوردر`, `المندوب: ${courierName} — ${fmt(paidCourierCollect)} جنيه`);
+  orders = orders.filter(o => o.status !== 'done' && o.status !== 'refund-done');
+  if (!orders.length) {
+    $('tableWrap').classList.remove('show');
+    $('statsBar').classList.remove('show');
+  }
+  updateStats(); renderTable(); updatePayMethodsCard(); updateRefundBanner();
+
+  let title = '', detail = '';
+  if (anySuccess && !anyFail) {
+    const parts = [];
+    if (successPay > 0)    parts.push(`✅ تحصيل ${successPay} أوردر`);
+    if (successRefund > 0) parts.push(`💸 استرداد ${successRefund} أوردر`);
+    title  = parts.join(' — ');
+    detail = courierName ? `المندوب: ${courierName}` : '';
+    showResult(true, title, detail);
     setTimeout(hideResult, 5000);
+  } else if (anySuccess) {
+    title  = `${successPay + successRefund} نجح ⚠ ${failPay + failRefund} فشل`;
+    showResult(true, title, 'راجع الجدول للتفاصيل');
+  } else {
+    showResult(false, 'فشلت جميع العمليات', 'راجع الجدول للتفاصيل');
+  }
 
+  if (anySuccess && !anyFail) {
     $('pmCash').value = ''; $('pmInstapay').value = '';
     $('pmWallet').value = ''; $('pmExtra').value = '';
     updatePayValidation();
-  } else if (successCount > 0) {
-    // بعض نجح وبعض فشل — أبقِ الفاشلين في الجدول
-    orders = orders.filter(o => o.status !== 'done');
-    updateStats(); renderTable(); updatePayMethodsCard();
-    showResult(true, `✅ ${successCount} نجح  ⚠ ${failCount} فشل`, 'راجع الجدول للتفاصيل');
-  } else {
-    showResult(false, 'فشل التحصيل لكل الأوردرات', 'راجع الجدول للتفاصيل');
   }
+
   refocus();
 }
 
@@ -1494,20 +1680,15 @@ function showToast(msg, type = '') {
 function openConfirm(headerHTML, bodyHTML, okLabel, okClass, onConfirm) {
   $('confirmHeader').innerHTML = headerHTML;
   $('confirmBody').innerHTML   = bodyHTML;
-
   const okBtn     = $('confirmOkBtn');
   const cancelBtn = $('confirmCancelBtn');
   const newOk     = okBtn.cloneNode(true);
   const newCancel = cancelBtn.cloneNode(true);
   okBtn.parentNode.replaceChild(newOk, okBtn);
   cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
-
   newOk.textContent  = okLabel;
   newOk.className    = 'btn-confirm-ok ' + okClass;
-  newOk.addEventListener('click', () => {
-    $('confirmOverlay').classList.remove('open');
-    onConfirm();
-  });
+  newOk.addEventListener('click', () => { $('confirmOverlay').classList.remove('open'); onConfirm(); });
   newCancel.addEventListener('click', () => $('confirmOverlay').classList.remove('open'));
   $('confirmOverlay').classList.add('open');
 }
@@ -1545,23 +1726,17 @@ async function saveLogEntry(entry) {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.logSecret}` },
         body: JSON.stringify(entry),
       });
-      if (res.ok) setSyncBadge('synced');
-      else setSyncBadge('local');
+      if (res.ok) setSyncBadge('synced'); else setSyncBadge('local');
     } catch { setSyncBadge('local'); }
   }
 }
 
 async function syncFromCloud() {
-  if (!isLogConfigured()) {
-    showToast('أدخل Log Worker URL و Secret في الإعدادات', 'error');
-    openSettings(); return;
-  }
+  if (!isLogConfigured()) { showToast('أدخل Log Worker URL و Secret في الإعدادات', 'error'); openSettings(); return; }
   try {
     setSyncBadge('loading');
     const c   = getConfig();
-    const res = await fetch(`${c.logUrl}/log`, {
-      headers: { 'Authorization': `Bearer ${c.logSecret}` },
-    });
+    const res = await fetch(`${c.logUrl}/log`, { headers: { 'Authorization': `Bearer ${c.logSecret}` } });
     if (!res.ok) throw new Error('فشل الاتصال');
     const data   = await res.json();
     const merged = mergeAndDedupe(getLocalLog(), data.log || []);
@@ -1579,7 +1754,7 @@ async function syncFromCloud() {
 
 function setSyncBadge(state) {
   const el = $('logSyncBadge');
-  el.className  = `log-sync-badge ${state}`;
+  el.className   = `log-sync-badge ${state}`;
   el.textContent = state === 'synced' ? '☁ متزامن' : state === 'loading' ? '⏳ جاري...' : '💾 محلي';
 }
 
@@ -1597,14 +1772,12 @@ async function checkMigrationStatus() {
   if (!isLogConfigured()) return;
   try {
     const c   = getConfig();
-    const res = await fetch(`${c.logUrl}/log/stats`, {
-      headers: { 'Authorization': `Bearer ${c.logSecret}` },
-    });
+    const res = await fetch(`${c.logUrl}/log/stats`, { headers: { 'Authorization': `Bearer ${c.logSecret}` } });
     if (!res.ok) return;
     const data = await res.json();
     if (data.legacyCount > 0) {
       $('migrateBanner').classList.add('show');
-      $('migrateStats').textContent = `Legacy (array قديمة): ${data.legacyCount} | New (individual keys): ${data.newCount} | الإجمالي: ${data.total}`;
+      $('migrateStats').textContent = `Legacy: ${data.legacyCount} | New: ${data.newCount} | الإجمالي: ${data.total}`;
     } else {
       $('migrateBanner').classList.remove('show');
     }
@@ -1622,16 +1795,14 @@ async function runMigration(dryRun) {
     });
     const data = await res.json();
     if (dryRun) {
-      showToast(`معاينة: سيتم ترحيل ${data.migrated} entry (تم تخطي ${data.skipped})`);
+      showToast(`معاينة: سيتم ترحيل ${data.migrated} entry`);
     } else {
       showToast(`✓ تم ترحيل ${data.migrated} entry بنجاح`, 'success');
       $('deleteOldBtn').style.display = 'inline-block';
       await checkMigrationStatus();
       await syncFromCloud();
     }
-  } catch (err) {
-    showToast('فشل الترحيل: ' + err.message, 'error');
-  }
+  } catch (err) { showToast('فشل الترحيل: ' + err.message, 'error'); }
 }
 
 function confirmDeleteLegacy() {
@@ -1642,9 +1813,7 @@ function confirmDeleteLegacy() {
        <span class="confirm-detail-val red">حذف array "cod_payment_log" من KV</span>
      </div>
      <div class="confirm-note">البيانات تم ترحيلها بالفعل كـ individual keys — هذا الحذف آمن بعد التأكد من اكتمال الترحيل</div>`,
-    'حذف السجل القديم',
-    'red-btn',
-    doDeleteLegacy
+    'حذف السجل القديم', 'red-btn', doDeleteLegacy
   );
 }
 
@@ -1658,13 +1827,8 @@ async function doDeleteLegacy() {
       body: JSON.stringify({ dry_run: false, confirm_delete: true }),
     });
     const data = await res.json();
-    if (data.deleted) {
-      showToast('✓ تم حذف السجل القديم', 'success');
-      $('migrateBanner').classList.remove('show');
-    }
-  } catch (err) {
-    showToast('فشل الحذف: ' + err.message, 'error');
-  }
+    if (data.deleted) { showToast('✓ تم حذف السجل القديم', 'success'); $('migrateBanner').classList.remove('show'); }
+  } catch (err) { showToast('فشل الحذف: ' + err.message, 'error'); }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1682,7 +1846,7 @@ function formatDateTime(iso) {
 
 function renderLog(log) {
   if (!log) log = getLocalLog();
-  const payLog = log.filter(e => e.type !== 'preRegister');
+  const payLog    = log.filter(e => e.type !== 'preRegister');
   const container = $('logContainer');
   updateLogTabBadge(log);
 
@@ -1691,14 +1855,13 @@ function renderLog(log) {
     return;
   }
 
-  const hasChecked = () => document.querySelectorAll('.log-check:checked').length > 0;
-
   container.innerHTML = `<div class="log-list">${payLog.map(entry => {
     const pm      = entry.paymentMethods || {};
     const pmChips = [];
     if (parseFloat(pm.cash)     > 0) pmChips.push(`<span class="log-pm-chip">💵 نقدي <span>${fmt(pm.cash)}</span></span>`);
     if (parseFloat(pm.instapay) > 0) pmChips.push(`<span class="log-pm-chip">📱 انستاباي <span>${fmt(pm.instapay)}</span></span>`);
     if (parseFloat(pm.wallet)   > 0) pmChips.push(`<span class="log-pm-chip">👛 محفظة <span>${fmt(pm.wallet)}</span></span>`);
+    if (parseFloat(entry.totalRefund) > 0) pmChips.push(`<span class="log-pm-chip" style="background:#fff1f2;border-color:#fecdd3;color:var(--red)">💸 استرداد <span>${fmt(entry.totalRefund)}</span></span>`);
 
     const detailRows = (entry.orders || []).map(o => {
       const hasSkus = o.lineItems && o.lineItems.length > 0;
@@ -1711,14 +1874,23 @@ function renderLog(log) {
             <td class="td-total">${fmt(li.totalPrice)}</td>
           </tr>`).join('') : '';
 
-      return `<div class="log-detail-item">
+      const statusBadge = o.isRefund
+        ? (o.status === 'success' ? `<span class="log-detail-refund">💸 استرداد</span>` : `<span class="log-detail-err">✗ فشل الاسترداد</span>`)
+        : (o.status === 'success' ? `<span class="log-detail-ok">✓ ناجح</span>` : `<span class="log-detail-err">✗ فشل</span>`);
+
+      return `<div class="log-detail-item${o.isRefund ? '" style="background:#fff8f8' : ''}">
         <div class="log-detail-main" onclick="${hasSub ? 'toggleLogItem(this)' : ''}">
-          <span class="log-detail-order">${o.preRegistered ? '<span style="font-size:10px;color:var(--purple);margin-left:4px">📋</span>' : ''}${o.orderName || ''}
+          <span class="log-detail-order">
+            ${o.isRefund ? '<span style="font-size:10px;margin-left:4px">💸</span>' : ''}
+            ${o.preRegistered ? '<span style="font-size:10px;color:var(--purple);margin-left:4px">📋</span>' : ''}
+            ${o.orderName || ''}
             <span style="color:var(--text-muted);font-size:10px;margin-right:4px">${o.order}</span>
             ${o.courier ? `<span style="color:var(--purple);font-size:11px;font-weight:600">${o.courier}</span>` : ''}
           </span>
-          <span class="log-detail-amount">${o.amount || ''}</span>
-          <span class="${o.status === 'success' ? 'log-detail-ok' : 'log-detail-err'}">${o.status === 'success' ? '✓ ناجح' : '✗ فشل'}</span>
+          <span class="log-detail-amount" style="${o.isRefund ? 'color:var(--red)' : ''}">
+            ${o.isRefund ? `−${o.refundAmount || ''}` : (o.amount || '')}
+          </span>
+          ${statusBadge}
           ${hasSub ? '<span style="color:var(--text-muted);font-size:9px">▶</span>' : ''}
         </div>
         ${hasSub ? `<div class="log-detail-sub">
@@ -1735,7 +1907,7 @@ function renderLog(log) {
 
     return `<div class="log-entry">
       <div class="log-entry-header" onclick="toggleLogEntry(this)">
-        <input type="checkbox" class="log-check" data-date="${entry.date}" onclick="event.stopPropagation(); onCheckChange()" >
+        <input type="checkbox" class="log-check" data-date="${entry.date}" onclick="event.stopPropagation(); onCheckChange()">
         <div class="log-entry-info">
           <div class="log-entry-date">${formatDateTime(entry.date)}</div>
           <div class="log-entry-tags">
@@ -1809,10 +1981,12 @@ async function exportXLSX(selectedOnly) {
     { header: 'النتيجة',               key: 'result',        width: 9  },
     { header: 'الخطأ',                 key: 'error',         width: 18 },
     { header: 'مسجل مسبقاً',           key: 'prereg',        width: 13 },
+    { header: 'استرداد',               key: 'refund',        width: 13 },
   ];
 
   const HEADER_BG = 'FFD700'; const GRAND_BG = '1F4E79';
   const NUM_FMT   = '#,##0';  const FAIL_BG  = 'FFCCCC';
+  const REFUND_BG = 'FFEBEE';
 
   function applyHeader(row) {
     row.eachCell(cell => {
@@ -1824,7 +1998,7 @@ async function exportXLSX(selectedOnly) {
     row.height = 20;
   }
 
-  function applyData(row, isFailed, qty) {
+  function applyData(row, isFailed, qty, isRefund) {
     row.eachCell({ includeEmpty: false }, (cell, col) => {
       cell.font      = { size: 10, name: 'Arial' };
       cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
@@ -1832,32 +2006,32 @@ async function exportXLSX(selectedOnly) {
         cell.numFmt = NUM_FMT;
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
+      if (isRefund) {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + REFUND_BG } };
+        return;
+      }
       if (isFailed) {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + FAIL_BG } };
         return;
       }
-      // عمود الشحن (col 11) — رمادي فاتح
       if (col === 11 && cell.value !== null && cell.value !== '') {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } };
         cell.font = { size: 10, name: 'Arial', color: { argb: 'FF666666' } };
       }
-      // عمود خصم الوحدة (col 7) — أصفر فاتح + أحمر
       if (col === 7 && cell.value !== null && cell.value !== '') {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
         cell.font = { size: 10, name: 'Arial', bold: true, color: { argb: 'FFC00000' } };
       }
-      // عمود خصم الأوردر (col 9) — أصفر فاتح + أحمر
       if (col === 9 && cell.value !== null && cell.value !== '') {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
         cell.font = { size: 10, name: 'Arial', bold: true, color: { argb: 'FFC00000' } };
       }
-      // عمود الكمية (col 5) — أزرق فاتح لو qty > 1
       if (col === 5 && qty > 1) {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEEFF' } };
         cell.font = { size: 10, name: 'Arial', bold: true };
       }
     });
-    if (isFailed) {
+    if (isFailed && !isRefund) {
       const rc = row.getCell(12);
       rc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
       rc.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10, name: 'Arial' };
@@ -1881,18 +2055,22 @@ async function exportXLSX(selectedOnly) {
 
     for (const o of (entry.orders || [])) {
       const isFailed = o.status !== 'success';
+      const isRefund = o.isRefund === true;
       const cc       = (parseFloat(o.amount) || 0) - (parseFloat(o.shippingAmount) || 0);
       const ship     = parseFloat(o.shippingAmount) || 0;
 
-      if (isFailed) {
-        const r = ws.addRow({ date, courier, order: o.orderName || '', sku: null, qty: null, unit: null, unitDiscount: null, collect: null, orderDiscount: null, netCollect: null, ship: null, result: 'فشل', error: o.error || '', prereg: o.preRegistered ? 'نعم' : 'لا' });
-        applyData(r, true, 0);
+      if (isRefund) {
+        const r = ws.addRow({ date, courier, order: o.orderName || '', sku: null, qty: null, unit: null, unitDiscount: null, collect: null, orderDiscount: null, netCollect: null, ship: null, result: isFailed ? 'فشل استرداد' : 'استرداد', error: o.error || '', prereg: null, refund: o.refundAmount ? parseFloat(o.refundAmount) : null });
+        applyData(r, isFailed, 0, true);
+      } else if (isFailed) {
+        const r = ws.addRow({ date, courier, order: o.orderName || '', sku: null, qty: null, unit: null, unitDiscount: null, collect: null, orderDiscount: null, netCollect: null, ship: null, result: 'فشل', error: o.error || '', prereg: o.preRegistered ? 'نعم' : 'لا', refund: null });
+        applyData(r, true, 0, false);
       } else if (o.lineItems && o.lineItems.length > 0) {
         const odv = o.orderDiscount ? parseFloat(o.orderDiscount) : null;
         const liTotal   = o.lineItems.reduce((s, li) => s + (parseFloat(li.totalPrice) || 0), 0);
         const netCollect = odv !== null ? parseFloat((liTotal + odv).toFixed(2)) : parseFloat(liTotal.toFixed(2));
         o.lineItems.forEach((li, idx) => {
-          const udv  = (li.unitDiscount !== null && li.unitDiscount !== undefined) ? parseFloat(li.unitDiscount) : null;
+          const udv = (li.unitDiscount !== null && li.unitDiscount !== undefined) ? parseFloat(li.unitDiscount) : null;
           const qty  = parseFloat(li.quantity) || 0;
           const r    = ws.addRow({
             date: idx === 0 ? date : null, courier,
@@ -1903,14 +2081,15 @@ async function exportXLSX(selectedOnly) {
             netCollect: idx === 0 ? netCollect : null,
             ship: idx === 0 ? ship : null, result: idx === 0 ? 'ناجح' : null,
             error: idx === 0 ? (o.error || '') : null, prereg: idx === 0 ? (o.preRegistered ? 'نعم' : 'لا') : null,
+            refund: null,
           });
-          applyData(r, false, qty);
+          applyData(r, false, qty, false);
         });
       } else {
         const odv        = o.orderDiscount ? parseFloat(o.orderDiscount) : null;
         const netCollect = odv !== null ? cc + odv : cc;
-        const r          = ws.addRow({ date, courier, order: o.orderName || '', sku: '', qty: null, unit: null, unitDiscount: null, collect: cc, orderDiscount: odv, netCollect: parseFloat(netCollect.toFixed(2)), ship, result: 'ناجح', error: o.error || '', prereg: o.preRegistered ? 'نعم' : 'لا' });
-        applyData(r, false, 0);
+        const r          = ws.addRow({ date, courier, order: o.orderName || '', sku: '', qty: null, unit: null, unitDiscount: null, collect: cc, orderDiscount: odv, netCollect: parseFloat(netCollect.toFixed(2)), ship, result: 'ناجح', error: o.error || '', prereg: o.preRegistered ? 'نعم' : 'لا', refund: null });
+        applyData(r, false, 0, false);
       }
     }
   }
@@ -1927,6 +2106,7 @@ async function exportXLSX(selectedOnly) {
     { header: 'محفظة',          key: 'wallet',   width: 14 },
     { header: 'شحن إضافي',      key: 'extra',    width: 14 },
     { header: 'صافي التحصيل',   key: 'net',      width: 16 },
+    { header: 'إجمالي الاسترداد', key: 'refund', width: 16 },
     { header: 'عدد الأوردرات',  key: 'orders',   width: 14 },
   ];
 
@@ -1941,31 +2121,33 @@ async function exportXLSX(selectedOnly) {
   for (const entry of log) {
     const cr = entry.courier || '—';
     const pm = entry.paymentMethods || {};
-    if (!courierTotals[cr]) courierTotals[cr] = { collect:0, cash:0, instapay:0, wallet:0, extra:0, orders:0 };
+    if (!courierTotals[cr]) courierTotals[cr] = { collect:0, cash:0, instapay:0, wallet:0, extra:0, refund:0, orders:0 };
     courierTotals[cr].collect  += parseFloat(entry.courierCollect) || 0;
     courierTotals[cr].cash     += parseFloat(pm.cash)     || 0;
     courierTotals[cr].instapay += parseFloat(pm.instapay) || 0;
     courierTotals[cr].wallet   += parseFloat(pm.wallet)   || 0;
     courierTotals[cr].extra    += parseFloat(entry.extraShipping) || 0;
+    courierTotals[cr].refund   += parseFloat(entry.totalRefund)   || 0;
     courierTotals[cr].orders   += entry.totalOrders || 0;
   }
 
   Object.entries(courierTotals).forEach(([cr, t]) => {
-    const r = ws2.addRow({ courier: cr, collect: t.collect, cash: t.cash, instapay: t.instapay, wallet: t.wallet, extra: t.extra > 0 ? t.extra : null, net: Math.max(0, t.collect - t.extra), orders: t.orders });
+    const r = ws2.addRow({ courier: cr, collect: t.collect, cash: t.cash, instapay: t.instapay, wallet: t.wallet, extra: t.extra > 0 ? t.extra : null, net: Math.max(0, t.collect - t.extra), refund: t.refund > 0 ? t.refund : null, orders: t.orders });
     r.eachCell({ includeEmpty: false }, (cell, col) => {
       cell.font      = { size: 10, name: 'Arial' };
       cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
-      if (col >= 2 && col <= 7) cell.numFmt = NUM_FMT;
+      if (col >= 2 && col <= 8) cell.numFmt = NUM_FMT;
     });
   });
 
-  const gt = ws2.addRow({ courier: 'جميع المناديب', collect: grandCollect, cash: grandCash, instapay: grandInstapay, wallet: grandWallet, extra: grandExtra > 0 ? grandExtra : null, net: Math.max(0, grandCollect - grandExtra), orders: log.reduce((s, e) => s + (e.totalOrders || 0), 0) });
+  const grandRefund = log.reduce((s, e) => s + (parseFloat(e.totalRefund) || 0), 0);
+  const gt = ws2.addRow({ courier: 'جميع المناديب', collect: grandCollect, cash: grandCash, instapay: grandInstapay, wallet: grandWallet, extra: grandExtra > 0 ? grandExtra : null, net: Math.max(0, grandCollect - grandExtra), refund: grandRefund > 0 ? grandRefund : null, orders: log.reduce((s, e) => s + (e.totalOrders || 0), 0) });
   gt.eachCell({ includeEmpty: true }, cell => {
     cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + GRAND_BG } };
     cell.font      = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11, name: 'Arial' };
     cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
   });
-  [2,3,4,5,6,7].forEach(c => { gt.getCell(c).numFmt = NUM_FMT; });
+  [2,3,4,5,6,7,8].forEach(c => { gt.getCell(c).numFmt = NUM_FMT; });
   gt.height = 20;
   ws2.views = [{ state: 'frozen', ySplit: 1, rightToLeft: true }];
 
