@@ -68,11 +68,7 @@ body { font-family:'Noto Sans Arabic',sans-serif; background:var(--bg); color:va
 /* ── Banners ── */
 .not-configured-banner { background:var(--amber-light); border:1px solid var(--amber-border); border-radius:var(--radius-sm); padding:9px 13px; font-size:12px; color:var(--amber); margin-bottom:16px; display:none; }
 .not-configured-banner.show { display:block; }
-.refund-alert-banner { display:none; background:#fff1f2; border:2px solid #fda4af; border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:16px; align-items:center; gap:10px; }
-.refund-alert-banner.show { display:flex; }
-.refund-alert-icon { font-size:18px; flex-shrink:0; }
-.refund-alert-title { font-size:12px; font-weight:700; color:var(--red); margin-bottom:1px; }
-.refund-alert-detail { font-size:11px; color:#9f1239; font-family:'IBM Plex Mono',monospace; }
+/* refund-alert-banner removed */
 
 /* ── Card ── */
 .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:16px; }
@@ -98,6 +94,9 @@ body { font-family:'Noto Sans Arabic',sans-serif; background:var(--bg); color:va
 .stats-bar { display:none; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
 .stats-bar.show { display:flex; }
 .stat-chip { flex:1; min-width:80px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; text-align:center; box-shadow:var(--shadow); }
+.stat-chip-highlight { border:2px solid var(--border-strong); background:var(--surface); box-shadow:var(--shadow-md); padding:12px 14px; position:relative; }
+.stat-chip-highlight .stat-val { font-size:22px; }
+.stat-chip-highlight .stat-lbl { font-weight:700; color:var(--text-primary); font-size:11px; }
 .stat-val { font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:700; display:block; color:var(--text-primary); }
 .stat-val.accent { color:var(--accent); }
 .stat-val.green  { color:var(--green); }
@@ -365,13 +364,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 
 <div class="page active" id="page-scan">
   <div class="not-configured-banner" id="notConfigBanner">⚠ الأداة غير مضبوطة — افتح الإعدادات وأدخل بيانات الاتصال</div>
-  <div class="refund-alert-banner" id="refundAlertBanner">
-    <span class="refund-alert-icon">💸</span>
-    <div>
-      <div class="refund-alert-title" id="refundAlertTitle"></div>
-      <div class="refund-alert-detail" id="refundAlertDetail"></div>
-    </div>
-  </div>
+
 
   <div class="card">
     <div class="card-header">ماسح الباركود</div>
@@ -390,11 +383,10 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 
   <div class="stats-bar" id="statsBar">
     <div class="stat-chip"><span class="stat-val accent" id="statCount">0</span><span class="stat-lbl">أوردر</span></div>
-    <div class="stat-chip"><span class="stat-val" id="statCourierCollect">—</span><span class="stat-lbl">تحصيل المندوب</span></div>
-    <div class="stat-chip"><span class="stat-val" id="statShipping">—</span><span class="stat-lbl">شحن</span></div>
-    <div class="stat-chip"><span class="stat-val amber" id="statTotal">—</span><span class="stat-lbl">إجمالي شوبيفاي</span></div>
-    <div class="stat-chip"><span class="stat-val green" id="statDone">0</span><span class="stat-lbl">تم التحصيل</span></div>
-    <div class="stat-chip" id="statRefundChip" style="display:none"><span class="stat-val red" id="statRefundVal">0</span><span class="stat-lbl">استرداد</span></div>
+    <div class="stat-chip"><span class="stat-val amber" id="statTotal">—</span><span class="stat-lbl">تحصيل شوبيفاي</span></div>
+    <div class="stat-chip"><span class="stat-val red" id="statRefundVal">—</span><span class="stat-lbl">استرداد شوبيفاي</span></div>
+    <div class="stat-chip"><span class="stat-val" id="statShipping">—</span><span class="stat-lbl">مصاريف الشحن</span></div>
+    <div class="stat-chip stat-chip-highlight" id="statNetChip"><span class="stat-val" id="statCourierCollect">—</span><span class="stat-lbl">صافي تحصيل المندوب</span></div>
   </div>
 
   <div class="card pay-methods-card" id="payMethodsCard">
@@ -436,7 +428,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
           <th class="col-ltr">تحصيل المندوب</th>
           <th class="col-ltr">شحن</th>
           <th class="col-ltr">إجمالي شوبيفاي</th>
-          <th class="col-center">استبدال/استرجاع</th>
+          <th class="col-center">نوع الأوردر</th>
           <th class="col-center">Payment Status</th>
           <th class="col-center">الحالة</th>
         </tr>
@@ -722,24 +714,46 @@ function renderTable(){
     const courierCollect=(isCancelled||o.status==='scanning'||o.status==='loading'||o.status==='notfound'||o.status==='error')
       ? null : calcCourierCollect(o);
 
-    // ── شحن ── (للمرتجع = returnShipping، للعادي = shippingAmount)
-    const displayShipping = isCancelled||isRefundStatus ? null
-      : (o.hasReturn ? parseFloat(o.returnShipping)||null : o.shippingAmount);
+    // ── شحن: للعادي = shippingAmount، للمرتجع = returnShipping (دايماً موجب) ──
+    let displayShipping = null;
+    if(!isCancelled && !isRefundStatus){
+      if(o.hasReturn && parseFloat(o.returnShipping)>0){
+        displayShipping = parseFloat(o.returnShipping);
+      } else if(!o.hasReturn && o.shippingAmount){
+        displayShipping = o.shippingAmount;
+      }
+    } else if(isRefundStatus){
+      // أوردرات الاسترداد: returnShipping لو موجود
+      if(parseFloat(o.returnShipping)>0) displayShipping = parseFloat(o.returnShipping);
+    }
 
-    // ── إجمالي شوبيفاي ──
+    // ── نوع الأوردر ──
+    let orderTypeCol;
+    if(isCancelled) orderTypeCol=`<span style="color:var(--text-muted);font-size:11px">—</span>`;
+    else if(o.status==='scanning'||o.status==='loading'||o.status==='notfound'||o.status==='error')
+      orderTypeCol=`<span style="color:var(--text-muted);font-size:11px">—</span>`;
+    else if(o.hasReturn){
+      // نحدد استرجاع أو استبدال بناءً على بيانات الأوردر
+      // لو returnedItems موجود ولا يوجد lineItems جديدة = استرجاع
+      // لو في lineItems = استبدال
+      const hasNewItems = o.lineItems && o.lineItems.length > 0;
+      orderTypeCol = hasNewItems
+        ? `<span style="background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استبدال</span>`
+        : `<span style="background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استرجاع</span>`;
+    } else {
+      orderTypeCol=`<span style="background:var(--accent-light);color:var(--accent);border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600">عادي</span>`;
+    }
     let shopifyTotal=null;
     if(!isCancelled&&o.amount!=null){
       shopifyTotal=isRefundStatus?-Math.abs(o.refundAmount||o.amount):o.amount;
     }
 
-    // ── المندوب ──
+    // ── إجمالي شوبيفاي ──
     const courierDisplay=(isCancelled)?`<span style="color:var(--text-muted)">—</span>`
       :(o.courier||`<span style="color:var(--text-muted)">—</span>`);
 
     // ── استبدال/استرجاع ──
-    const returnCol = o.hasReturn && parseFloat(o.returnShipping)>0
-      ? `<span style="color:var(--red);font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px">−${fmt(parseFloat(o.returnShipping))}</span>`
-      : (o.hasReturn ? `<span style="color:var(--red);font-size:11px">✓</span>` : `<span style="color:var(--text-muted)">—</span>`);
+    // نوع الأوردر تم حسابه أعلى
 
     // ── Payment Status ──
     let paymentStatusDisplay;
@@ -781,7 +795,7 @@ function renderTable(){
       <td class="cell-money">${courierCollect!=null?moneyCell(courierCollect,courierCollect<0?'var(--red)':null):`<span style="color:var(--text-muted)">—</span>`}</td>
       <td class="cell-money">${displayShipping!=null?moneyCell(displayShipping):`<span style="color:var(--text-muted)">—</span>`}</td>
       <td class="cell-money">${shopifyTotal!=null?moneyCell(shopifyTotal):`<span style="color:var(--text-muted)">—</span>`}</td>
-      <td class="cell-center">${returnCol}</td>
+      <td class="cell-center">${orderTypeCol}</td>
       <td class="cell-center">${paymentStatusDisplay}</td>
       <td class="cell-center">${badge}</td>
     </tr>`);
@@ -852,23 +866,37 @@ function updateStats(){
   const done     = orders.filter(o=>o.status==='done');
   const refunds  = orders.filter(o=>o.status==='refund');
 
-  // إجمالي تحصيل المندوب = مجموع calcCourierCollect لكل الأوردرات النشطة والاسترداد
-  const allActive=[...active,...refunds];
-  const sumCourierCollect=allActive.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
-  const sumShipping=active.reduce((s,o)=>s+((o.hasReturn?parseFloat(o.returnShipping):o.shippingAmount)||0),0);
-  const sumTotal=active.reduce((s,o)=>s+(o.amount||0),0);
+  // إجمالي تحصيل شوبيفاي (الأوردرات العادية فقط، موجب)
+  const sumTotal = active.reduce((s,o)=>s+(o.amount||0),0);
+
+  // إجمالي استرداد شوبيفاي (سالب)
+  const sumRefund = refunds.reduce((s,o)=>s+(o.refundAmount||0),0);
+
+  // مصاريف الشحن الكلية (عادي = shippingAmount، مرتجع = returnShipping)
+  const sumShipping = [...active,...refunds].reduce((s,o)=>{
+    if(o.status==='refund') return s+(parseFloat(o.returnShipping)||0);
+    return s+((o.hasReturn?parseFloat(o.returnShipping):o.shippingAmount)||0);
+  },0);
+
+  // صافي تحصيل المندوب الكلي
+  const allForCollect=[...active,...refunds];
+  const sumCourierCollect=allForCollect.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
 
   $('statCount').textContent=orders.length;
-  $('statCourierCollect').textContent=sumCourierCollect!==0?fmtSigned(sumCourierCollect):'—';
-  $('statCourierCollect').className='stat-val'+(sumCourierCollect<0?' red':sumCourierCollect>0?' green':'');
-  $('statShipping').textContent=sumShipping>0?fmt(sumShipping):'—';
   $('statTotal').textContent=sumTotal>0?fmt(sumTotal):'—';
-  $('statDone').textContent=done.length;
+  $('statRefundVal').textContent=sumRefund>0?'−'+fmt(sumRefund):'—';
+  $('statShipping').textContent=sumShipping>0?fmt(sumShipping):'—';
 
-  const sumRefund=refunds.reduce((s,o)=>s+(o.refundAmount||0),0);
-  $('statRefundChip').style.display=refunds.length>0?'':'none';
-  $('statRefundVal').textContent=sumRefund>0?fmt(sumRefund):'0';
+  // صافي تحصيل المندوب — مع تلوين وإبراز
+  const netEl=$('statCourierCollect');
+  netEl.textContent=sumCourierCollect!==0?fmtSigned(sumCourierCollect):'—';
+  netEl.className='stat-val '+(sumCourierCollect<0?'red':sumCourierCollect>0?'green':'');
 
+  // حد المربع الأخير يتغير بالحالة
+  const chip=$('statNetChip');
+  chip.style.borderColor=sumCourierCollect<0?'var(--red)':sumCourierCollect>0?'var(--green)':'var(--border-strong)';
+
+  // Tab badges
   const ready=orders.filter(o=>o.status==='ready').length;
   const badge=$('tabBadgeReady');
   badge.style.display=ready>0?'':'none';
@@ -878,26 +906,18 @@ function updateStats(){
   refundBadge.textContent=`💸${refunds.length}`;
 }
 
-function updateRefundBanner(){
-  const refunds=orders.filter(o=>o.status==='refund');
-  const banner=$('refundAlertBanner');
-  if(!refunds.length){banner.classList.remove('show');return;}
-  banner.classList.add('show');
-  const total=refunds.reduce((s,o)=>s+(o.refundAmount||0),0);
-  const totalWithShip=refunds.reduce((s,o)=>s+(o.refundAmount||0)+(parseFloat(o.returnShipping)||0),0);
-  $('refundAlertTitle').textContent=`${refunds.length} أوردر مستحق استرداد — سيتم تنفيذه تلقائياً عند التأكيد`;
-  $('refundAlertDetail').textContent=`استرداد: ${fmt(total)} + شحن مرتجع: ${fmt(totalWithShip-total)} = إجمالي للمندوب: ${fmt(totalWithShip)} EGP`;
-}
+function updateRefundBanner(){ /* removed — banner deleted */ }
 
 // ══════════════════════════════════════════════════════════════
 // PAYMENT METHODS
 // ══════════════════════════════════════════════════════════════
 function getCourierCollectNet(){
-  // إجمالي تحصيل المندوب الصافي (شامل الاسترداد)
   const all=orders.filter(o=>o.status==='ready'||o.status==='refund'||o.status==='done');
   return all.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
 }
 function getExtra(){return parseFloat($('pmExtra').value)||0;}
+// الـ target هو القيمة المطلقة للمبلغ الذي يدخله المستخدم
+// لو صافي سالب (ندفع للمندوب) → نُدخل المبلغ الموجب
 function getNetTarget(){return getCourierCollectNet()-getExtra();}
 function getPaySum(){return(parseFloat($('pmCash').value)||0)+(parseFloat($('pmInstapay').value)||0)+(parseFloat($('pmWallet').value)||0);}
 function isPayEmpty(){return!$('pmCash').value&&!$('pmInstapay').value&&!$('pmWallet').value;}
@@ -915,12 +935,14 @@ function updatePayMethodsCard(){
 
   const net=getCourierCollectNet();
   const extra=getExtra();
-  const finalNet=getNetTarget();
+  const finalNet=net-extra;
   const totalEl=$('courierBannerTotal');
+  // نعرض: صافي تحصيل الأوردرات العادية (للـ ready فقط) بشكل منفصل عن الاسترداد
+  const readyCollect=readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
   totalEl.textContent=extra>0
-    ?`${fmtSigned(net)} − ${fmt(extra)} = ${fmtSigned(finalNet)} EGP`
-    :`${fmtSigned(net)} EGP`;
-  totalEl.className='courier-banner-total '+(finalNet<0?'negative':'positive');
+    ?`${fmtSigned(readyCollect)} − ${fmt(extra)} = ${fmtSigned(readyCollect-extra)} EGP`
+    :`${fmtSigned(readyCollect)} EGP`;
+  totalEl.className='courier-banner-total '+(readyCollect<0?'negative':'positive');
 
   updatePayValidation();
 }
@@ -930,35 +952,35 @@ function updatePayValidation(){
   const extra=getExtra(),target=getNetTarget(),entered=getPaySum();
   $('extraNet').textContent=extra>0?`← صافي: ${fmtSigned(target)}`:'';
 
-  // لو الـ net target سالب (ندفع للمندوب) — مش محتاجين payment methods
-  if(target<=0){
-    el.className='pay-validation ok';
-    textEl.textContent=`المندوب يستحق منا ${fmt(Math.abs(target))} EGP — لا يلزم إدخال طريقة دفع`;
-    updatePayBtn(); return;
-  }
-
   if(isPayEmpty()){
     el.className='pay-validation';
-    textEl.textContent=`أدخل طرق الدفع — المجموع يجب يساوي ${fmtSigned(target)}`;
+    textEl.textContent=target<0
+      ? `المندوب يستحق منا ${fmt(Math.abs(target))} EGP — أدخل المبلغ الذي ستدفعه له`
+      : `أدخل طرق الدفع — المجموع يجب يساوي ${fmtSigned(target)}`;
   } else {
-    const diff=Math.abs(entered-target);
+    const absTarget=Math.abs(target);
+    const absEntered=Math.abs(entered);
+    // لو target سالب، المبلغ المدخل يُقارن بالقيمة المطلقة
+    const effectiveTarget = target < 0 ? -absTarget : target;
+    const diff=Math.abs(entered - effectiveTarget);
     if(diff<0.01){
       el.className='pay-validation ok';
-      textEl.textContent=`✓ المجموع مظبوط — ${fmt(entered)}`;
+      textEl.textContent=`✓ المجموع مظبوط — ${fmt(Math.abs(entered))}`;
     } else {
       el.className='pay-validation mismatch';
-      const dir=entered>target?`زيادة ${fmt(entered-target)}`:`ناقص ${fmt(target-entered)}`;
-      textEl.textContent=`المجموع ${fmt(entered)} — ${dir}`;
+      const dir=Math.abs(entered)>absTarget?`زيادة ${fmt(Math.abs(entered)-absTarget)}`:`ناقص ${fmt(absTarget-Math.abs(entered))}`;
+      textEl.textContent=`المجموع ${fmt(Math.abs(entered))} — ${dir}`;
     }
   }
   updatePayBtn();
 }
 
 function isPayValid(){
-  const target=getNetTarget();
-  if(target<=0) return true; // ندفع للمندوب — مش محتاج validation
   if(isPayEmpty()) return false;
-  return Math.abs(getPaySum()-target)<0.01;
+  const target=getNetTarget();
+  const entered=getPaySum();
+  // لو target سالب، نقارن بـ Math.abs
+  return Math.abs(Math.abs(entered)-Math.abs(target))<0.01;
 }
 
 function getReadyCourier(){
@@ -1004,9 +1026,11 @@ async function confirmBulkPay(){
   const wallet       =parseFloat($('pmWallet').value)||0;
   const extra        =getExtra();
   const net          =getNetTarget();
+  const readyCollectOnly = readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
+  const refundCollectOnly= refundOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
+  const totalNet     = readyCollectOnly + refundCollectOnly - extra;
   const preregCount  =readyOrders.filter(o=>o.preRegistered).length;
   const shopifyTotal =readyOrders.reduce((s,o)=>s+o.amount,0);
-  const collectNet   =readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
   const totalRefund  =refundOrders.reduce((s,o)=>s+(o.refundAmount||0),0);
   const totalRetShip =refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
@@ -1016,36 +1040,49 @@ async function confirmBulkPay(){
     <div class="confirm-detail-row"><span class="confirm-detail-label">المندوب</span><span class="confirm-detail-val">${courierName}</span></div>
     <div class="confirm-detail-row"><span class="confirm-detail-label">أوردرات التحصيل</span><span class="confirm-detail-val">${readyOrders.length}${preregCount>0?` <span style="font-size:11px;color:var(--purple)">(${preregCount} مسجل مسبقاً)</span>`:''}</span></div>
     <div class="confirm-detail-row"><span class="confirm-detail-label">إجمالي شوبيفاي</span><span class="confirm-detail-val">${fmt(shopifyTotal)} جنيه</span></div>
-    <div class="confirm-detail-row"><span class="confirm-detail-label">تحصيل المندوب</span><span class="confirm-detail-val green">${fmtSigned(collectNet)} جنيه</span></div>
-    ${extra>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">شحن إضافي</span><span class="confirm-detail-val red">− ${fmt(extra)} جنيه</span></div>`:``}
-    ${net!==collectNet?`<div class="confirm-detail-row"><span class="confirm-detail-label">صافي التحصيل</span><span class="confirm-detail-val ${net<0?'red':'green'}">${fmtSigned(net)} جنيه</span></div>`:''}
+    <div class="confirm-detail-row"><span class="confirm-detail-label">تحصيل المندوب (أوردرات عادية)</span><span class="confirm-detail-val green">${fmtSigned(readyCollectOnly)} جنيه</span></div>
+    ${refundOrders.length>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">استرداد + شحن مرتجع</span><span class="confirm-detail-val red">− ${fmt(totalRefund+totalRetShip)} جنيه</span></div>`:''}
+    ${extra>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">شحن إضافي</span><span class="confirm-detail-val red">− ${fmt(extra)} جنيه</span></div>`:''}
+    <div class="confirm-detail-row" style="border-top:2px solid var(--border-strong);margin-top:4px;padding-top:12px">
+      <span class="confirm-detail-label" style="font-weight:700;color:var(--text-primary)">صافي تحصيل المندوب</span>
+      <span class="confirm-detail-val ${totalNet<0?'red':'green'}" style="font-size:15px">${fmtSigned(totalNet)} جنيه</span>
+    </div>
     ${cash>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">💵 نقدي</span><span class="confirm-detail-val">${fmt(cash)} جنيه</span></div>`:''}
     ${instapay>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">📱 انستاباي</span><span class="confirm-detail-val">${fmt(instapay)} جنيه</span></div>`:''}
     ${wallet>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">👛 محفظة</span><span class="confirm-detail-val">${fmt(wallet)} جنيه</span></div>`:''}`;
   }
 
-  let refundSection='';
-  if(refundOrders.length){
-    const items=refundOrders.map(o=>`
-      <div class="confirm-refund-item">
-        <span class="confirm-refund-order">${o.orderName||o.id}${o.courier?` <span style="color:var(--purple);font-size:10px">${o.courier}</span>`:''}</span>
-        <span class="confirm-refund-amount">
-          استرداد ${fmt(o.refundAmount)} ${parseFloat(o.returnShipping)>0?`+ شحن ${fmt(parseFloat(o.returnShipping))} = ${fmt((o.refundAmount||0)+parseFloat(o.returnShipping))} EGP`:'EGP'}
-        </span>
-      </div>`).join('');
-    refundSection=`
-    <div class="confirm-refund-section">
-      <div class="confirm-refund-header"><span style="font-size:20px">💸</span><div class="confirm-refund-title">استرداد تلقائي — ${refundOrders.length} أوردر</div></div>
-      <div class="confirm-refund-subtitle">إجمالي الاسترداد: ${fmt(totalRefund)} + شحن مرتجع: ${fmt(totalRetShip)} = <strong>${fmt(totalRefund+totalRetShip)} EGP</strong> ستُدفع للمندوب</div>
-      <div class="confirm-refund-list">${items}</div>
-    </div>`;
-  }
+  // تفاصيل التحذير
+  const normalCount  = readyOrders.filter(o=>!(o.hasReturn&&o.lineItems&&o.lineItems.length>0)&&!o.hasReturn).length;
+  const exchangeOrders=readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0);
+  const returnOnlyOrders=readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0));
+  const refundExchange=refundOrders.filter(o=>o.lineItems&&o.lineItems.length>0).length;
+  const refundReturn =refundOrders.length-refundExchange;
+  const totalRetShip2=refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
-  const bodyHTML=`${paySection}${refundSection}
+  const warningLines=[];
+  const pureNormal=readyOrders.filter(o=>!o.hasReturn).length;
+  const readyExch  =readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0).length;
+  const readyRet   =readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0)).length;
+  if(pureNormal>0) warningLines.push(`${pureNormal} أوردر عادي`);
+  if(readyExch>0)  warningLines.push(`${readyExch} أوردر استبدال`);
+  if(readyRet>0)   warningLines.push(`${readyRet} أوردر استرجاع`);
+  if(refundExchange>0) warningLines.push(`${refundExchange} استرداد استبدال`);
+  if(refundReturn>0)   warningLines.push(`${refundReturn} استرداد استرجاع`);
+  const refundSummary = refundOrders.length>0
+    ? `<br>إجمالي الاسترداد للمندوب: ${fmt(totalRefund)} + شحن مرتجع: ${fmt(totalRetShip2)} = <strong>${fmt(totalRefund+totalRetShip2)} EGP</strong>`
+    : '';
+
+  const bodyHTML=`${paySection}
     <div class="confirm-warning">
       <span class="confirm-warning-icon">⚠️</span>
-      <div><div class="confirm-warning-title">تحذير — لا يمكن التراجع</div>
-      <div class="confirm-warning-text">العملية نهائية — تحصيل ${readyOrders.length?readyOrders.length+' أوردر':''}${refundOrders.length?' واسترداد '+refundOrders.length+' أوردر':''}</div></div>
+      <div>
+        <div class="confirm-warning-title">تحذير — لا يمكن التراجع</div>
+        <div class="confirm-warning-text">
+          برجاء مراجعة الأرقام جيداً مع المندوب وعد الفلوس مرة أخرى قبل تنفيذ العملية<br>
+          <strong>تفاصيل العملية:</strong> ${warningLines.join(' · ')}${refundSummary}
+        </div>
+      </div>
     </div>`;
 
   const btnLabel=readyOrders.length&&refundOrders.length?'تأكيد التحصيل والاسترداد':refundOrders.length?'تأكيد الاسترداد':'تأكيد وتسجيل';
