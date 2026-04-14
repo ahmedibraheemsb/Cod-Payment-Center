@@ -704,9 +704,9 @@ function renderTable(){
     const isReady=o.status==='ready'||o.status==='done'||o.status==='prereg';
 
     // ── Money cells ──
-    function moneyCell(val,forceRed){
+    function moneyCell(val,forceColor){
       if(val==null)return`<span style="color:var(--text-muted)">—</span>`;
-      const color=forceRed||(val<0?'var(--red)':'var(--amber)');
+      const color=forceColor||(val<0?'var(--red)':'var(--green)');
       return`<span style="color:${color}">${val<0?'−':''}${fmt(Math.abs(val))}</span>`;
     }
 
@@ -739,9 +739,9 @@ function renderTable(){
       const hasNewItems = o.lineItems && o.lineItems.length > 0;
       orderTypeCol = hasNewItems
         ? `<span style="background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استبدال</span>`
-        : `<span style="background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استرجاع</span>`;
+        : `<span style="background:var(--red-light);color:var(--red);border:1px solid var(--red-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استرجاع</span>`;
     } else {
-      orderTypeCol=`<span style="background:var(--accent-light);color:var(--accent);border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600">عادي</span>`;
+      orderTypeCol=`<span style="background:var(--green-light);color:var(--green);border:1px solid var(--green-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">عادي</span>`;
     }
     let shopifyTotal=null;
     if(!isCancelled&&o.amount!=null){
@@ -766,7 +766,7 @@ function renderTable(){
     if(o.status==='scanning')    badge=`<span class="badge badge-scanning"><span class="spinner"></span> مسح...</span>`;
     else if(o.status==='loading')badge=`<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`;
     else if(o.status==='cancelled')badge=`<span class="badge badge-cancelled">ملغي</span>`;
-    else if(o.status==='refund') badge=`<span class="badge badge-refund">💸 استرداد</span>`;
+    else if(o.status==='refund') badge=`<span class="badge badge-refund">استرداد</span>`;
     else if(o.status==='refund-done')badge=`<span class="badge badge-refund-done">✓ تم الاسترداد</span>`;
     else if(o.status==='refund-error')badge=`<span class="badge badge-error" title="${o.error||''}">خطأ استرداد</span>`;
     else if(o.status==='ready')  badge=o.preRegistered?`<span class="badge badge-prereg">📋 مسجل مسبقاً</span>`:`<span class="badge badge-collect">تحصيل</span>`;
@@ -896,14 +896,19 @@ function updateStats(){
   const chip=$('statNetChip');
   chip.style.borderColor=sumCourierCollect<0?'var(--red)':sumCourierCollect>0?'var(--green)':'var(--border-strong)';
 
-  // Tab badges
+  // Tab badge — دمج ready+refund في مربع عدد الأوردرات
   const ready=orders.filter(o=>o.status==='ready').length;
-  const badge=$('tabBadgeReady');
-  badge.style.display=ready>0?'':'none';
-  badge.textContent=ready;
-  const refundBadge=$('tabBadgeRefund');
-  refundBadge.style.display=refunds.length>0?'':'none';
-  refundBadge.textContent=`💸${refunds.length}`;
+  const refundCount=refunds.length;
+  // نعرض الأرقام في مربع عدد الأوردرات نفسه
+  const countEl=$('statCount');
+  if(ready>0||refundCount>0){
+    countEl.innerHTML=`${ready>0?`<span style="color:var(--green);font-weight:800">${ready}</span>`:''}${ready>0&&refundCount>0?`<span style="color:var(--text-muted);font-size:14px;margin:0 2px">+</span>`:''}${refundCount>0?`<span style="color:var(--red);font-weight:800">${refundCount}</span>`:''}`;
+  } else {
+    countEl.innerHTML=`<span>${orders.length}</span>`;
+  }
+  // إخفاء الـ tab badges القديمة
+  $('tabBadgeReady').style.display='none';
+  $('tabBadgeRefund').style.display='none';
 }
 
 function updateRefundBanner(){ /* removed — banner deleted */ }
@@ -932,17 +937,10 @@ function updatePayMethodsCard(){
   const courierErr=getReadyCourierError();
   $('courierBannerName').textContent=courierErr?'⚠ خطأ في المندوب':(courier||'—');
   $('courierBannerName').style.color=courierErr?'var(--red)':'var(--purple)';
-
-  const net=getCourierCollectNet();
-  const extra=getExtra();
-  const finalNet=net-extra;
+  // حذف المبلغ من الشريط — يظهر في الـ stats bar فقط
   const totalEl=$('courierBannerTotal');
-  // نعرض: صافي تحصيل الأوردرات العادية (للـ ready فقط) بشكل منفصل عن الاسترداد
-  const readyCollect=readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
-  totalEl.textContent=extra>0
-    ?`${fmtSigned(readyCollect)} − ${fmt(extra)} = ${fmtSigned(readyCollect-extra)} EGP`
-    :`${fmtSigned(readyCollect)} EGP`;
-  totalEl.className='courier-banner-total '+(readyCollect<0?'negative':'positive');
+  totalEl.textContent='';
+  totalEl.className='courier-banner-total';
 
   updatePayValidation();
 }
@@ -1034,54 +1032,41 @@ async function confirmBulkPay(){
   const totalRefund  =refundOrders.reduce((s,o)=>s+(o.refundAmount||0),0);
   const totalRetShip =refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
-  let paySection='';
-  if(readyOrders.length){
-    paySection=`
-    <div class="confirm-detail-row"><span class="confirm-detail-label">المندوب</span><span class="confirm-detail-val">${courierName}</span></div>
-    <div class="confirm-detail-row"><span class="confirm-detail-label">أوردرات التحصيل</span><span class="confirm-detail-val">${readyOrders.length}${preregCount>0?` <span style="font-size:11px;color:var(--purple)">(${preregCount} مسجل مسبقاً)</span>`:''}</span></div>
-    <div class="confirm-detail-row"><span class="confirm-detail-label">إجمالي شوبيفاي</span><span class="confirm-detail-val">${fmt(shopifyTotal)} جنيه</span></div>
-    <div class="confirm-detail-row"><span class="confirm-detail-label">تحصيل المندوب (أوردرات عادية)</span><span class="confirm-detail-val green">${fmtSigned(readyCollectOnly)} جنيه</span></div>
+  // تصنيف الأوردرات
+  const pureNormal = readyOrders.filter(o=>!o.hasReturn).length;
+  const readyExch  = readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0).length;
+  const readyRet   = readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0)).length;
+  const refundExch = refundOrders.filter(o=>o.lineItems&&o.lineItems.length>0).length;
+  const refundRet  = refundOrders.length-refundExch;
+
+  // سطر ملخص الأوردرات (ألوان)
+  const orderParts=[];
+  if(pureNormal>0) orderParts.push(`<span style="color:var(--green);font-weight:700">${pureNormal} عادي</span>`);
+  if(readyExch>0)  orderParts.push(`<span style="color:var(--purple);font-weight:700">${readyExch} استبدال</span>`);
+  if(readyRet>0)   orderParts.push(`<span style="color:var(--amber);font-weight:700">${readyRet} استرجاع</span>`);
+  if(refundExch>0) orderParts.push(`<span style="color:var(--purple);font-weight:700">${refundExch} استرداد استبدال</span>`);
+  if(refundRet>0)  orderParts.push(`<span style="color:var(--red);font-weight:700">${refundRet} استرداد استرجاع</span>`);
+
+  const paySection=`
+    <div class="confirm-detail-row"><span class="confirm-detail-label">المندوب</span><span class="confirm-detail-val">${courierName||'—'}</span></div>
+    <div class="confirm-detail-row"><span class="confirm-detail-label">الأوردرات</span><span class="confirm-detail-val" style="font-size:12px">${orderParts.join(' + ')}</span></div>
+    <div class="confirm-detail-row"><span class="confirm-detail-label">تحصيل المندوب</span><span class="confirm-detail-val green">${fmtSigned(readyCollectOnly)} جنيه</span></div>
     ${refundOrders.length>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">استرداد + شحن مرتجع</span><span class="confirm-detail-val red">− ${fmt(totalRefund+totalRetShip)} جنيه</span></div>`:''}
     ${extra>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">شحن إضافي</span><span class="confirm-detail-val red">− ${fmt(extra)} جنيه</span></div>`:''}
-    <div class="confirm-detail-row" style="border-top:2px solid var(--border-strong);margin-top:4px;padding-top:12px">
-      <span class="confirm-detail-label" style="font-weight:700;color:var(--text-primary)">صافي تحصيل المندوب</span>
-      <span class="confirm-detail-val ${totalNet<0?'red':'green'}" style="font-size:15px">${fmtSigned(totalNet)} جنيه</span>
+    <div style="background:${totalNet<0?'var(--red-light)':'var(--green-light)'};border:2px solid ${totalNet<0?'var(--red-border)':'var(--green-border)'};border-radius:var(--radius-sm);padding:10px 14px;margin:8px 0;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:13px;font-weight:700;color:var(--text-primary)">صافي تحصيل المندوب</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:${totalNet<0?'var(--red)':'var(--green)'}">${fmtSigned(totalNet)} جنيه</span>
     </div>
     ${cash>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">💵 نقدي</span><span class="confirm-detail-val">${fmt(cash)} جنيه</span></div>`:''}
     ${instapay>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">📱 انستاباي</span><span class="confirm-detail-val">${fmt(instapay)} جنيه</span></div>`:''}
     ${wallet>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">👛 محفظة</span><span class="confirm-detail-val">${fmt(wallet)} جنيه</span></div>`:''}`;
-  }
-
-  // تفاصيل التحذير
-  const normalCount  = readyOrders.filter(o=>!(o.hasReturn&&o.lineItems&&o.lineItems.length>0)&&!o.hasReturn).length;
-  const exchangeOrders=readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0);
-  const returnOnlyOrders=readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0));
-  const refundExchange=refundOrders.filter(o=>o.lineItems&&o.lineItems.length>0).length;
-  const refundReturn =refundOrders.length-refundExchange;
-  const totalRetShip2=refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
-
-  const warningLines=[];
-  const pureNormal=readyOrders.filter(o=>!o.hasReturn).length;
-  const readyExch  =readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0).length;
-  const readyRet   =readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0)).length;
-  if(pureNormal>0) warningLines.push(`${pureNormal} أوردر عادي`);
-  if(readyExch>0)  warningLines.push(`${readyExch} أوردر استبدال`);
-  if(readyRet>0)   warningLines.push(`${readyRet} أوردر استرجاع`);
-  if(refundExchange>0) warningLines.push(`${refundExchange} استرداد استبدال`);
-  if(refundReturn>0)   warningLines.push(`${refundReturn} استرداد استرجاع`);
-  const refundSummary = refundOrders.length>0
-    ? `<br>إجمالي الاسترداد للمندوب: ${fmt(totalRefund)} + شحن مرتجع: ${fmt(totalRetShip2)} = <strong>${fmt(totalRefund+totalRetShip2)} EGP</strong>`
-    : '';
 
   const bodyHTML=`${paySection}
     <div class="confirm-warning">
       <span class="confirm-warning-icon">⚠️</span>
       <div>
         <div class="confirm-warning-title">تحذير — لا يمكن التراجع</div>
-        <div class="confirm-warning-text">
-          برجاء مراجعة الأرقام جيداً مع المندوب وعد الفلوس مرة أخرى قبل تنفيذ العملية<br>
-          <strong>تفاصيل العملية:</strong> ${warningLines.join(' · ')}${refundSummary}
-        </div>
+        <div class="confirm-warning-text">برجاء مراجعة الأرقام جيداً مع المندوب وعد الفلوس مرة أخرى قبل تنفيذ العملية</div>
       </div>
     </div>`;
 
@@ -1308,7 +1293,9 @@ function renderLog(log){
       const hasSub=hasSkus||hasReturned||(parseFloat(o.shippingAmount)>0);
       const skuRows=hasSkus?o.lineItems.map(li=>`<tr><td class="td-sku">${li.sku}</td><td class="td-qty">${li.quantity}</td><td class="td-price">${fmt(li.unitPrice)}</td><td class="td-total">${fmt(li.totalPrice)}</td></tr>`).join(''):'';
       const retRows=hasReturned?o.returnedItems.map(ri=>`<tr style="background:#fff8f8"><td class="td-sku returned">↩ ${ri.sku}</td><td class="td-qty negative">−${ri.quantity}</td><td class="td-price negative">−${fmt(ri.discountedUnitPrice)}</td><td class="td-total negative">−${fmt(parseFloat(ri.discountedUnitPrice)*ri.quantity)}</td></tr>`).join(''):'';
-      const statusBadge=o.isRefund?(o.status==='success'?`<span class="log-detail-refund">💸 استرداد</span>`:`<span class="log-detail-err">✗ فشل</span>`):(o.status==='success'?`<span class="log-detail-ok">✓ ناجح</span>`:`<span class="log-detail-err">✗ فشل</span>`);
+      const statusBadge=o.isRefund
+        ?(o.status==='success'?`<span class="log-detail-ok">✓ ناجح</span>`:`<span class="log-detail-err">✗ فشل</span>`)
+        :(o.status==='success'?`<span class="log-detail-ok">✓ ناجح</span>`:`<span class="log-detail-err">✗ فشل</span>`);
       return`<div class="log-detail-item">
         <div class="log-detail-main" onclick="${hasSub?'toggleLogItem(this)':''}">
           <span class="log-detail-order">${o.isRefund?'<span style="font-size:10px;margin-left:4px">💸</span>':''}${o.preRegistered?'<span style="font-size:10px;color:var(--purple);margin-left:4px">📋</span>':''}${o.orderName||''} <span style="color:var(--text-muted);font-size:10px">${o.order}</span>${o.courier?` <span style="color:var(--purple);font-size:11px">${o.courier}</span>`:''}</span>
@@ -1371,27 +1358,29 @@ async function exportXLSX(selectedOnly){
   const ws=wb.addWorksheet('سجل التحصيل',{views:[{rightToLeft:true}]});
 
   ws.columns=[
-    {header:'التاريخ',          key:'date',          width:14},
-    {header:'المندوب',          key:'courier',       width:14},
-    {header:'رقم الأوردر',      key:'order',         width:14},
-    {header:'نوع السطر',        key:'lineType',      width:12},
-    {header:'SKU',              key:'sku',           width:24},
-    {header:'الكمية',           key:'qty',           width:8},
-    {header:'سعر الوحدة',       key:'unit',          width:13},
-    {header:'خصم الوحدة',       key:'unitDiscount',  width:13},
-    {header:'سعر بعد الخصم',    key:'collect',       width:18},
-    {header:'خصم إضافي الأوردر',key:'orderDiscount', width:18},
-    {header:'صافي تحصيل الأوردر',key:'netCollect',   width:18},
-    {header:'شحن',              key:'ship',          width:10},
-    {header:'شحن مرتجع',        key:'retShip',       width:12},
-    {header:'تحصيل المندوب',    key:'courierCollect',width:16},
-    {header:'النتيجة',          key:'result',        width:9},
-    {header:'الخطأ',            key:'error',         width:18},
-    {header:'مسجل مسبقاً',      key:'prereg',        width:13},
+    {header:'التاريخ',            key:'date',          width:14},
+    {header:'المندوب',            key:'courier',       width:14},
+    {header:'رقم الأوردر',        key:'order',         width:14},
+    {header:'نوع الأوردر',        key:'orderType',     width:12},
+    {header:'SKU',                key:'sku',           width:24},
+    {header:'الكمية',             key:'qty',           width:8},
+    {header:'سعر الوحدة',         key:'unit',          width:13},
+    {header:'خصم الوحدة',         key:'unitDiscount',  width:13},
+    {header:'سعر بعد الخصم',      key:'collect',       width:18},
+    {header:'خصم إضافي الأوردر',  key:'orderDiscount', width:18},
+    {header:'صافي تحصيل الأوردر', key:'netCollect',    width:18},
+    {header:'شحن',                key:'ship',          width:12},
+    {header:'تحصيل المندوب',      key:'courierCollect',width:16},
+    {header:'النتيجة',            key:'result',        width:9},
+    {header:'الخطأ',              key:'error',         width:18},
+    {header:'مسجل مسبقاً',        key:'prereg',        width:13},
   ];
 
   const HEADER_BG='FFD700',GRAND_BG='1F4E79';
   const NUM_FMT='#,##0',FAIL_BG='FFCCCC',RETURN_BG='FFF0F0',REFUND_BG='FFEBEE';
+
+  // col indices (1-based): date=1,courier=2,order=3,orderType=4,sku=5,qty=6,unit=7,unitDisc=8,collect=9,ordDisc=10,netCollect=11,ship=12,courierCollect=13,result=14,error=15,prereg=16
+  const NUM_COLS=[6,7,8,9,10,11,12,13];
 
   function applyHeader(row){
     row.eachCell(cell=>{
@@ -1403,30 +1392,40 @@ async function exportXLSX(selectedOnly){
     row.height=20;
   }
 
-  function applyData(row,isFailed,qty,isReturn,isRefundRow){
+  function applyData(row,isFailed,qty,isReturnLine,isRefundRow){
     row.eachCell({includeEmpty:false},(cell,col)=>{
       cell.font={size:10,name:'Arial'};
       cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};
-      if([6,7,8,9,10,11,12,13,14].includes(col)&&cell.value!==null&&cell.value!==''){
-        cell.numFmt=NUM_FMT;cell.alignment={horizontal:'center',vertical:'middle'};
+      if(NUM_COLS.includes(col)&&cell.value!==null&&cell.value!==''){
+        cell.numFmt=NUM_FMT; cell.alignment={horizontal:'center',vertical:'middle'};
       }
-      if(isReturn){
+      if(isReturnLine){
         cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+RETURN_BG}};
         cell.font={size:10,name:'Arial',color:{argb:'FFCC0000'},italic:true};
         return;
       }
-      if(isRefundRow){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+REFUND_BG}};return;}
-      if(isFailed){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+FAIL_BG}};return;}
+      if(isRefundRow){ cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+REFUND_BG}}; return; }
+      if(isFailed){ cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+FAIL_BG}}; return; }
+      // شحن col 12 — رمادي
       if(col===12&&cell.value!==null&&cell.value!==''){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF2F2F2'}};cell.font={size:10,name:'Arial',color:{argb:'FF666666'}};}
-      if(col===13&&cell.value!==null&&cell.value!==''){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFEEEE'}};cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFCC0000'}};}
+      // خصم col 8 — أصفر أحمر
       if(col===8&&cell.value!==null&&cell.value!==''){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF2CC'}};cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFC00000'}};}
+      // خصم أوردر col 10
       if(col===10&&cell.value!==null&&cell.value!==''){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF2CC'}};cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFC00000'}};}
+      // qty > 1 col 6
       if(col===6&&qty>1){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFDDEEFF'}};cell.font={size:10,name:'Arial',bold:true};}
     });
-    if(isFailed&&!isReturn&&!isRefundRow){
-      const rc=row.getCell(15);rc.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF0000'}};
+    if(isFailed&&!isReturnLine&&!isRefundRow){
+      const rc=row.getCell(14);rc.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF0000'}};
       rc.font={bold:true,color:{argb:'FFFFFFFF'},size:10,name:'Arial'};rc.alignment={horizontal:'center',vertical:'middle'};
     }
+  }
+
+  // دالة لتحديد نوع الأوردر من بيانات اللوج
+  function getOrderType(o){
+    if(o.isRefund) return o.returnedItems&&o.returnedItems.length>0&&o.lineItems&&o.lineItems.length>0 ? 'استبدال' : 'استرجاع';
+    if(o.hasReturn) return o.lineItems&&o.lineItems.length>0 ? 'استبدال' : 'استرجاع';
+    return 'عادي';
   }
 
   applyHeader(ws.getRow(1));
@@ -1437,66 +1436,124 @@ async function exportXLSX(selectedOnly){
     const date=new Date(entry.date).toLocaleDateString('en-GB');
     const courier=entry.courier||'—';
     const pm=entry.paymentMethods||{};
-    grandCollect   +=parseFloat(entry.courierCollect)||0;
-    grandCash      +=parseFloat(pm.cash)||0;
-    grandInstapay  +=parseFloat(pm.instapay)||0;
-    grandWallet    +=parseFloat(pm.wallet)||0;
-    grandExtra     +=parseFloat(entry.extraShipping)||0;
+    grandCollect       +=parseFloat(entry.courierCollect)||0;
+    grandCash          +=parseFloat(pm.cash)||0;
+    grandInstapay      +=parseFloat(pm.instapay)||0;
+    grandWallet        +=parseFloat(pm.wallet)||0;
+    grandExtra         +=parseFloat(entry.extraShipping)||0;
 
     for(const o of(entry.orders||[])){
-      const isFailed=o.status!=='success';
-      const isRefundRow=o.isRefund===true;
-      const cc=parseFloat(o.courierCollect)||0;
+      const isFailed   = o.status!=='success';
+      const isRefundRow= o.isRefund===true;
+      const cc         = parseFloat(o.courierCollect)||0;
+      const orderType  = getOrderType(o);
       grandCourierCollect+=cc;
 
+      // ── أوردر استرداد (مستحق استرداد = outstanding سالب) ──────────
       if(isRefundRow){
-        const r=ws.addRow({date,courier,order:o.orderName||'',lineType:'استرداد',sku:null,qty:null,unit:null,unitDiscount:null,collect:null,orderDiscount:null,netCollect:null,ship:null,retShip:o.returnShipping?parseFloat(o.returnShipping):null,courierCollect:cc||null,result:isFailed?'فشل استرداد':'استرداد',error:o.error||'',prereg:null});
+        // السطر الرئيسي للاسترداد
+        const retShipVal = parseFloat(o.returnShipping)||0;
+        // عمود الشحن = returnShipping (مدموج)
+        const shipDisplay = retShipVal>0 ? retShipVal : null;
+        const r=ws.addRow({
+          date, courier, order:o.orderName||'', orderType,
+          sku:null, qty:null, unit:null, unitDiscount:null,
+          collect:null, orderDiscount:null, netCollect:null,
+          ship:shipDisplay, courierCollect:cc||null,
+          result:isFailed?'فشل':'ناجح', error:o.error||'', prereg:null
+        });
         applyData(r,isFailed,0,false,true);
+
+        // أسطر SKU المرتجعة للأوردر الاسترداد
+        if(o.returnedItems&&o.returnedItems.length>0){
+          o.returnedItems.forEach(ri=>{
+            const qty=-(ri.quantity||1);
+            const unitPrice=-(parseFloat(ri.discountedUnitPrice)||0);
+            const total=unitPrice*(ri.quantity||1);
+            const r2=ws.addRow({
+              date:null, courier, order:null, orderType:null,
+              sku:`↩ ${ri.sku}`, qty, unit:unitPrice,
+              unitDiscount:null, collect:total,
+              orderDiscount:null, netCollect:null,
+              ship:null, courierCollect:null,
+              result:null, error:null, prereg:null
+            });
+            applyData(r2,false,0,true,false);
+          });
+        }
+
+      // ── أوردر فشل ────────────────────────────────────────────────
       } else if(isFailed){
-        const r=ws.addRow({date,courier,order:o.orderName||'',lineType:'تحصيل',sku:null,qty:null,unit:null,unitDiscount:null,collect:null,orderDiscount:null,netCollect:null,ship:null,retShip:null,courierCollect:null,result:'فشل',error:o.error||'',prereg:o.preRegistered?'نعم':'لا'});
+        const r=ws.addRow({
+          date, courier, order:o.orderName||'', orderType,
+          sku:null, qty:null, unit:null, unitDiscount:null,
+          collect:null, orderDiscount:null, netCollect:null,
+          ship:null, courierCollect:null,
+          result:'فشل', error:o.error||'', prereg:o.preRegistered?'نعم':'لا'
+        });
         applyData(r,true,0,false,false);
+
+      // ── أوردر ناجح ────────────────────────────────────────────────
       } else {
-        // أسطر المنتجات العادية
-        const odv=o.orderDiscount?parseFloat(o.orderDiscount):null;
-        const ship=parseFloat(o.shippingAmount)||0;
-        const retShip=parseFloat(o.returnShipping)||0;
+        const odv     = o.orderDiscount?parseFloat(o.orderDiscount):null;
+        // الشحن: لو hasReturn → returnShipping، وإلا → shippingAmount
+        const shipVal = o.hasReturn
+          ? (parseFloat(o.returnShipping)||0)
+          : (parseFloat(o.shippingAmount)||0);
+        const shipDisplay = shipVal>0 ? shipVal : null;
 
         if(o.lineItems&&o.lineItems.length>0){
-          const liTotal=o.lineItems.reduce((s,li)=>s+(parseFloat(li.totalPrice)||0),0);
-          const netCollect=odv!==null?parseFloat((liTotal+odv).toFixed(2)):parseFloat(liTotal.toFixed(2));
+          const liTotal   = o.lineItems.reduce((s,li)=>s+(parseFloat(li.totalPrice)||0),0);
+          const netCollect= odv!==null ? parseFloat((liTotal+odv).toFixed(2)) : parseFloat(liTotal.toFixed(2));
+
           o.lineItems.forEach((li,idx)=>{
-            const udv=(li.unitDiscount!==null&&li.unitDiscount!==undefined)?parseFloat(li.unitDiscount):null;
-            const qty=parseFloat(li.quantity)||0;
+            const udv = (li.unitDiscount!==null&&li.unitDiscount!==undefined) ? parseFloat(li.unitDiscount) : null;
+            const qty = parseFloat(li.quantity)||0;
             const r=ws.addRow({
-              date:idx===0?date:null,courier,order:idx===0?(o.orderName||''):null,
-              lineType:idx===0?'تحصيل':null,
-              sku:li.sku||'',qty,unit:parseFloat(li.unitPrice)||0,
-              unitDiscount:udv,collect:parseFloat(li.totalPrice)||0,
-              orderDiscount:idx===0?odv:null,netCollect:idx===0?netCollect:null,
-              ship:idx===0?(ship||null):null,retShip:idx===0?(retShip||null):null,
+              date:idx===0?date:null, courier,
+              order:idx===0?(o.orderName||''):null,
+              orderType:idx===0?orderType:null,
+              sku:li.sku||'', qty,
+              unit:parseFloat(li.unitPrice)||0,
+              unitDiscount:udv,
+              collect:parseFloat(li.totalPrice)||0,
+              orderDiscount:idx===0?odv:null,
+              netCollect:idx===0?netCollect:null,
+              ship:idx===0?shipDisplay:null,
               courierCollect:idx===0?(cc||null):null,
-              result:idx===0?'ناجح':null,error:idx===0?(o.error||''):null,
+              result:idx===0?'ناجح':null,
+              error:idx===0?(o.error||''):null,
               prereg:idx===0?(o.preRegistered?'نعم':'لا'):null,
             });
             applyData(r,false,qty,false,false);
           });
         } else {
-          const netCollect=odv!==null?(cc+odv):cc;
-          const r=ws.addRow({date,courier,order:o.orderName||'',lineType:'تحصيل',sku:'',qty:null,unit:null,unitDiscount:null,collect:cc||null,orderDiscount:odv,netCollect:parseFloat(netCollect.toFixed(2))||null,ship:ship||null,retShip:retShip||null,courierCollect:cc||null,result:'ناجح',error:o.error||'',prereg:o.preRegistered?'نعم':'لا'});
+          const netCollect= odv!==null ? (cc+odv) : cc;
+          const r=ws.addRow({
+            date, courier, order:o.orderName||'', orderType,
+            sku:'', qty:null, unit:null, unitDiscount:null,
+            collect:cc||null, orderDiscount:odv,
+            netCollect:parseFloat(netCollect.toFixed(2))||null,
+            ship:shipDisplay,
+            courierCollect:cc||null,
+            result:'ناجح', error:o.error||'', prereg:o.preRegistered?'نعم':'لا'
+          });
           applyData(r,false,0,false,false);
         }
 
-        // أسطر المرتجعات (بالسالب)
+        // أسطر المرتجعات (qty وسعر سالب)
         if(o.returnedItems&&o.returnedItems.length>0){
-          o.returnedItems.forEach((ri,idx)=>{
-            const qty=-(ri.quantity||1);
-            const unitPrice=-(parseFloat(ri.discountedUnitPrice)||0);
-            const total=unitPrice*(ri.quantity||1);
+          o.returnedItems.forEach(ri=>{
+            const qty      = -(ri.quantity||1);
+            const unitPrice= -(parseFloat(ri.discountedUnitPrice)||0);
+            const total    = unitPrice*(ri.quantity||1);
             const r=ws.addRow({
-              date:null,courier,order:null,lineType:'مرتجع',
-              sku:`↩ ${ri.sku}`,qty,unit:unitPrice,unitDiscount:null,collect:total,
-              orderDiscount:null,netCollect:null,ship:null,retShip:null,courierCollect:null,
-              result:null,error:null,prereg:null,
+              date:null, courier, order:null, orderType:null,
+              sku:`↩ ${ri.sku}`, qty, unit:unitPrice,
+              unitDiscount:null, collect:total,
+              orderDiscount:null, netCollect:null,
+              ship:null, courierCollect:null,
+              result:null, error:null, prereg:null
             });
             applyData(r,false,0,true,false);
           });
@@ -1510,15 +1567,15 @@ async function exportXLSX(selectedOnly){
   // Sheet 2 — الإجمالي
   const ws2=wb.addWorksheet('الإجمالي',{views:[{rightToLeft:true}]});
   ws2.columns=[
-    {header:'المندوب',          key:'courier',       width:16},
-    {header:'تحصيل المندوب الصافي',key:'courierNet', width:20},
-    {header:'نقدي',             key:'cash',          width:14},
-    {header:'انستاباي',         key:'instapay',      width:14},
-    {header:'محفظة',            key:'wallet',        width:14},
-    {header:'شحن إضافي',        key:'extra',         width:14},
-    {header:'صافي بعد الشحن',   key:'net',           width:16},
-    {header:'إجمالي الاسترداد', key:'refund',        width:16},
-    {header:'عدد الأوردرات',    key:'orders',        width:14},
+    {header:'المندوب',              key:'courier',    width:16},
+    {header:'تحصيل المندوب الصافي', key:'courierNet', width:20},
+    {header:'نقدي',                 key:'cash',       width:14},
+    {header:'انستاباي',             key:'instapay',   width:14},
+    {header:'محفظة',                key:'wallet',     width:14},
+    {header:'شحن إضافي',            key:'extra',      width:14},
+    {header:'صافي بعد الشحن',       key:'net',        width:16},
+    {header:'إجمالي الاسترداد',     key:'refund',     width:16},
+    {header:'عدد الأوردرات',        key:'orders',     width:14},
   ];
   ws2.getRow(1).eachCell(cell=>{
     cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+HEADER_BG}};
@@ -1529,15 +1586,15 @@ async function exportXLSX(selectedOnly){
 
   const courierTotals={};
   for(const entry of log){
-    const cr=entry.courier||'—';const pm=entry.paymentMethods||{};
-    if(!courierTotals[cr])courierTotals[cr]={courierNet:0,cash:0,instapay:0,wallet:0,extra:0,refund:0,orders:0};
-    courierTotals[cr].courierNet+=parseFloat(entry.courierCollect)||0;
-    courierTotals[cr].cash     +=parseFloat(pm.cash)||0;
-    courierTotals[cr].instapay +=parseFloat(pm.instapay)||0;
-    courierTotals[cr].wallet   +=parseFloat(pm.wallet)||0;
-    courierTotals[cr].extra    +=parseFloat(entry.extraShipping)||0;
-    courierTotals[cr].refund   +=parseFloat(entry.totalRefund)||0;
-    courierTotals[cr].orders   +=entry.totalOrders||0;
+    const cr=entry.courier||'—'; const pm=entry.paymentMethods||{};
+    if(!courierTotals[cr]) courierTotals[cr]={courierNet:0,cash:0,instapay:0,wallet:0,extra:0,refund:0,orders:0};
+    courierTotals[cr].courierNet +=parseFloat(entry.courierCollect)||0;
+    courierTotals[cr].cash       +=parseFloat(pm.cash)||0;
+    courierTotals[cr].instapay   +=parseFloat(pm.instapay)||0;
+    courierTotals[cr].wallet     +=parseFloat(pm.wallet)||0;
+    courierTotals[cr].extra      +=parseFloat(entry.extraShipping)||0;
+    courierTotals[cr].refund     +=parseFloat(entry.totalRefund)||0;
+    courierTotals[cr].orders     +=entry.totalOrders||0;
   }
 
   Object.entries(courierTotals).forEach(([cr,t])=>{
@@ -1560,9 +1617,9 @@ async function exportXLSX(selectedOnly){
 
   const buffer=await wb.xlsx.writeBuffer();
   const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');
-  a.href=url;a.download=`cod-payment-center-${new Date().toISOString().slice(0,10)}.xlsx`;
-  a.click();URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=`cod-payment-center-${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click(); URL.revokeObjectURL(url);
 }
 </script>
 </body>
