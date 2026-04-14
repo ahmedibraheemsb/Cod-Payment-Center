@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>COD Payment Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:             #f3f4f6;
+  --surface:        #ffffff;
+  --surface-2:      #f9fafb;
+  --border:         #e5e7eb;
+  --border-strong:  #d1d5db;
+  --text-primary:   #111827;
+  --text-secondary: #6b7280;
+  --text-muted:     #9ca3af;
+  --accent:         #2563eb;
+  --accent-light:   #eff6ff;
+  --accent-dark:    #1d4ed8;
+  --green:          #16a34a;
+  --green-light:    #f0fdf4;
+  --green-border:   #86efac;
+  --red:            #dc2626;
+  --red-light:      #fef2f2;
+  --red-border:     #fca5a5;
+  --amber:          #d97706;
+  --amber-light:    #fffbeb;
+  --amber-border:   #fde68a;
+  --purple:         #7c3aed;
+  --purple-light:   #f5f3ff;
+  --purple-border:  #c4b5fd;
+  --cyan:           #0891b2;
+  --cyan-light:     #ecfeff;
+  --radius:         12px;
+  --radius-sm:      8px;
+  --shadow:         0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:      0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.04);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── App Header ── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow);
+}
+.app-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-title-icon {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #fff;
+}
+.settings-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+.settings-btn.configured { border-color: var(--green); color: var(--green); background: var(--green-light); }
+
+/* ── Tabs ── */
+.tabs-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex; gap: 4px;
+}
+.tab-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 16px;
+  border: none; background: none;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all .2s; margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-badge {
+  background: var(--accent-light); color: var(--accent);
+  font-size: 10px; font-weight: 700;
+  padding: 1px 6px; border-radius: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.tab-badge.green { background: var(--green-light); color: var(--green); }
+
+/* ── Page wrapper ── */
+.page { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── Not-configured banner ── */
+.not-configured-banner {
+  background: var(--amber-light); border: 1px solid var(--amber-border);
+  border-radius: var(--radius-sm); padding: 9px 13px;
+  font-size: 12px; color: var(--amber); margin-bottom: 16px;
+  display: none;
+}
+.not-configured-banner.show { display: block; }
+
+/* ── Card ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.card-header {
+  padding: 14px 16px 0;
+  font-size: 11px; font-weight: 700; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: 12px;
+}
+.card-body { padding: 0 16px 16px; }
+.card-body-full { padding: 16px; }
+
+/* ── Scanner input ── */
+.scanner-wrap { position: relative; }
+.scanner-input {
+  width: 100%; padding: 12px 16px 12px 44px;
+  border: 2px solid var(--accent); border-radius: var(--radius-sm);
+  background: var(--accent-light);
+  font-family: 'IBM Plex Mono', monospace; font-size: 15px;
+  color: var(--text-primary); outline: none; direction: ltr;
+  transition: box-shadow .2s;
+}
+.scanner-input:focus { box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+.scanner-input::placeholder { color: var(--text-muted); font-size: 12px; font-family: 'Noto Sans Arabic', sans-serif; }
+.scanner-icon-wrap {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--accent); font-size: 16px; pointer-events: none;
+}
+.scanner-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; direction: rtl; }
+
+/* ── Manual input ── */
+.manual-row { display: flex; gap: 8px; margin-top: 12px; }
+.manual-input {
+  flex: 1; padding: 9px 12px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; color: var(--text-primary); outline: none; direction: ltr;
+  transition: border-color .2s;
+}
+.manual-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.manual-input::placeholder { color: var(--text-muted); font-size: 12px; }
+.btn-manual {
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface); color: var(--text-secondary);
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.btn-manual:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-manual:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Stats bar ── */
+.stats-bar { display: none; gap: 8px; margin-bottom: 16px; }
+.stats-bar.show { display: flex; }
+.stat-chip {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px; text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 18px; font-weight: 700; display: block;
+  color: var(--text-primary);
+}
+.stat-val.accent { color: var(--accent); }
+.stat-val.green  { color: var(--green); }
+.stat-val.amber  { color: var(--amber); }
+.stat-lbl { font-size: 10px; color: var(--text-secondary); display: block; margin-top: 2px; text-transform: uppercase; letter-spacing: .4px; }
+
+/* ── Progress ── */
+.progress-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 16px; display: none; overflow: hidden; }
+.progress-wrap.show { display: block; }
+.progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s ease; width: 0; }
+
+/* ── Result box ── */
+.result-box { border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px; display: none; font-size: 13px; }
+.result-box.show-success { display: block; background: var(--green-light); border: 1px solid var(--green-border); color: var(--green); }
+.result-box.show-error   { display: block; background: var(--red-light);   border: 1px solid var(--red-border);   color: var(--red); }
+.result-title  { font-weight: 700; margin-bottom: 3px; }
+.result-detail { font-size: 11px; opacity: .8; font-family: 'IBM Plex Mono', monospace; }
+
+/* ── Payment methods card ── */
+.pay-methods-card { display: none; margin-bottom: 16px; }
+.pay-methods-card.show { display: block; }
+
+.courier-banner {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--purple-light); border: 1px solid var(--purple-border);
+  border-radius: var(--radius-sm); padding: 9px 13px; margin-bottom: 12px;
+}
+.courier-banner-label { font-size: 11px; color: var(--text-secondary); }
+.courier-banner-name  { font-size: 13px; font-weight: 700; color: var(--purple); }
+.courier-banner-total { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--amber); font-weight: 700; margin-right: auto; direction: ltr; }
+
+.extra-shipping-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--red-light); border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm); padding: 9px 13px; margin-bottom: 12px;
+}
+.extra-shipping-label { font-size: 12px; color: var(--red); font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.extra-shipping-input {
+  flex: 1; background: transparent; border: none;
+  border-bottom: 1px solid var(--red-border);
+  color: var(--red); font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; font-weight: 700; outline: none;
+  padding: 2px 0; direction: ltr; min-width: 0;
+}
+.extra-shipping-input::placeholder { color: rgba(220,38,38,.3); font-weight: 400; }
+.extra-shipping-net { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; color: var(--cyan); white-space: nowrap; flex-shrink: 0; direction: ltr; }
+
+.pay-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.pay-method-item {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+}
+.pay-method-label { font-size: 10px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+.pay-method-input {
+  width: 100%; background: transparent; border: none;
+  border-bottom: 1.5px solid var(--border-strong);
+  color: var(--text-primary); font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px; font-weight: 600; outline: none;
+  padding: 3px 0; direction: ltr; transition: border-color .2s;
+}
+.pay-method-input:focus { border-bottom-color: var(--accent); }
+.pay-method-input::placeholder { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+
+.pay-validation {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; padding: 8px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text-secondary); margin-bottom: 12px;
+}
+.pay-validation.ok      { background: var(--green-light); border-color: var(--green-border); color: var(--green); }
+.pay-validation.mismatch { background: var(--red-light);   border-color: var(--red-border);   color: var(--red); }
+.pay-val-text { font-family: 'IBM Plex Mono', monospace; }
+
+/* ── Buttons ── */
+.btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.btn-pay {
+  flex: 1; padding: 12px; border-radius: var(--radius-sm);
+  border: none; background: var(--accent); color: #fff;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.btn-pay:hover:not(:disabled) { background: var(--accent-dark); }
+.btn-pay:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Table ── */
+.table-wrap { display: none; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 16px; }
+.table-wrap.show { display: block; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); }
+thead { background: #e5e7eb; }
+thead th {
+  padding: 10px 12px; text-align: right;
+  font-size: 12px; font-weight: 700; color: var(--text-primary);
+  border-bottom: 2px solid var(--border-strong); white-space: nowrap;
+}
+thead th.col-ltr { text-align: left; direction: ltr; }
+thead th.col-center { text-align: center; }
+thead th.col-del { width: 32px; }
+
+tbody tr.order-row { border-bottom: 1px solid var(--border); cursor: default; transition: background .15s; }
+tbody tr.order-row:hover { background: var(--surface-2); }
+tbody tr.order-row.row-new { animation: rowIn .5s ease; }
+tbody tr.order-row.expanded { background: var(--accent-light); border-bottom: none; }
+@keyframes rowIn { from { background: rgba(37,99,235,.08); } to { background: transparent; } }
+
+tbody td { padding: 10px 12px; vertical-align: middle; }
+
+.cell-order { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px; color: var(--text-secondary); }
+.cell-courier { font-size: 13px; font-weight: 600; color: var(--purple); }
+.cell-money { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 13px; text-align: left; direction: ltr; white-space: nowrap; }
+.cell-center { text-align: center; }
+.cell-financial { font-size: 11px; color: var(--text-secondary); font-family: 'IBM Plex Mono', monospace; text-align: center; }
+
+.expand-icon { font-size: 9px; color: var(--text-muted); margin-left: 4px; display: inline-block; transition: transform .2s; }
+tr.expanded .expand-icon { transform: rotate(90deg); }
+
+/* ── Detail row ── */
+tbody tr.detail-row { display: none; }
+tbody tr.detail-row.show { display: table-row; }
+tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--border); }
+.detail-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.detail-section { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.detail-section:last-child { border-bottom: none; }
+.detail-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+
+.sku-table { width: 100%; border-collapse: collapse; direction: rtl; }
+.sku-table th { padding: 4px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); text-align: right; text-transform: uppercase; }
+.sku-table th.th-ltr { text-align: left; }
+.sku-table th.th-center { text-align: center; }
+.sku-table td { padding: 4px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; vertical-align: middle; }
+.td-sku   { color: var(--accent); font-weight: 600; }
+.td-qty   { color: var(--text-secondary); text-align: center; }
+.td-price { color: var(--text-secondary); text-align: left; direction: ltr; }
+.td-total { color: var(--amber); font-weight: 700; text-align: left; direction: ltr; }
+
+/* ── Badges ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-scanning  { background: var(--accent-light);  color: var(--accent);  border: 1px solid #bfdbfe; }
+.badge-loading   { background: var(--cyan-light);    color: var(--cyan);    border: 1px solid #a5f3fc; }
+.badge-ready     { background: var(--amber-light);   color: var(--amber);   border: 1px solid var(--amber-border); }
+.badge-prereg    { background: var(--purple-light);  color: var(--purple);  border: 1px solid var(--purple-border); }
+.badge-done      { background: var(--green-light);   color: var(--green);   border: 1px solid var(--green-border); }
+.badge-paid      { background: var(--green-light);   color: var(--green);   border: 1px solid var(--green-border); }
+.badge-cancelled { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
+.badge-refund    { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
+.badge-skipped   { background: var(--surface-2);     color: var(--text-secondary); border: 1px solid var(--border-strong); }
+.badge-notfound  { background: var(--surface-2);     color: var(--text-muted);     border: 1px solid var(--border); }
+.badge-error     { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
+
+.row-del-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 13px; padding: 3px 5px; border-radius: 4px; transition: color .15s; }
+.row-del-btn:hover { color: var(--red); }
+
+/* ── Spinner ── */
+.spinner { width: 12px; height: 12px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--text-primary); color: #fff;
+  padding: 9px 18px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap; z-index: 999; pointer-events: none;
+}
+.toast.show   { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--green); }
+.toast.error   { background: var(--red); }
+
+/* ══════════════════════════════════
+   LOG PAGE
+══════════════════════════════════ */
+.log-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 8px; flex-wrap: wrap;
+}
+.log-toolbar-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.log-sync-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.log-sync-badge.synced { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+.log-sync-badge.local  { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+.log-sync-badge.loading { background: var(--accent-light); color: var(--accent); border: 1px solid #bfdbfe; }
+
+.log-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-log {
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface); color: var(--text-secondary);
+  font-family: inherit; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.btn-log:hover { border-color: var(--accent); color: var(--accent); }
+.btn-log.export:hover { border-color: var(--green); color: var(--green); }
+.btn-log.migrate-btn { display: none; }
+.btn-log.migrate-btn.show { display: inline-block; }
+.btn-log.export-sel { display: none; }
+.btn-log.export-sel.show { display: inline-block; }
+
+/* Migration banner */
+.migrate-banner {
+  display: none; background: var(--amber-light);
+  border: 1px solid var(--amber-border); border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-bottom: 16px;
+}
+.migrate-banner.show { display: block; }
+.migrate-banner-title { font-size: 12px; font-weight: 700; color: var(--amber); margin-bottom: 6px; }
+.migrate-banner-text  { font-size: 11px; color: var(--amber); margin-bottom: 10px; }
+.migrate-banner-stats { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; }
+.migrate-banner-actions { display: flex; gap: 6px; }
+.btn-migrate {
+  padding: 6px 14px; border-radius: var(--radius-sm);
+  border: none; font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.btn-migrate.dry  { background: var(--surface-2); border: 1px solid var(--border-strong); color: var(--text-secondary); }
+.btn-migrate.dry:hover { border-color: var(--amber); color: var(--amber); }
+.btn-migrate.run  { background: var(--amber); color: #fff; }
+.btn-migrate.run:hover { filter: brightness(.95); }
+.btn-migrate.danger { background: var(--red); color: #fff; }
+.btn-migrate.danger:hover { filter: brightness(.95); }
+
+.log-empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.log-list { display: flex; flex-direction: column; gap: 8px; }
+
+/* Log entry */
+.log-entry {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+  transition: border-color .2s;
+}
+.log-entry:hover { border-color: var(--border-strong); }
+.log-entry.type-prereg { border-color: var(--purple-border); }
+
+.log-entry-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px; cursor: pointer;
+}
+.log-check { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.log-entry-info { flex: 1; min-width: 0; }
+.log-entry-date { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.log-entry-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.log-tag {
+  padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+}
+.log-tag.courier { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+.log-tag.count   { background: var(--accent-light);  color: var(--accent);  border: 1px solid #bfdbfe; }
+.log-tag.amount  { background: var(--amber-light);   color: var(--amber);   border: 1px solid var(--amber-border); font-family: 'IBM Plex Mono', monospace; }
+
+.log-pay-methods { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+.log-pm-chip {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  padding: 2px 7px; border-radius: 5px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.log-pm-chip span { color: var(--text-primary); font-weight: 600; margin-right: 3px; }
+
+.log-entry-stats { display: flex; gap: 6px; font-size: 11px; flex-shrink: 0; }
+.log-stat-ok  { color: var(--green); font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+.log-stat-err { color: var(--red);   font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+.log-toggle   { color: var(--text-muted); font-size: 10px; flex-shrink: 0; transition: transform .2s; }
+.log-entry.open .log-toggle { transform: rotate(90deg); }
+
+.log-entry-details { display: none; border-top: 1px solid var(--border); }
+.log-entry.open .log-entry-details { display: block; }
+
+.log-detail-item { border-bottom: 1px solid var(--border); }
+.log-detail-item:last-child { border-bottom: none; }
+.log-detail-main {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px; font-size: 12px; cursor: pointer; transition: background .15s;
+  gap: 8px;
+}
+.log-detail-main:hover { background: var(--surface-2); }
+.log-detail-order  { font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--text-primary); }
+.log-detail-amount { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); }
+.log-detail-ok  { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; }
+.log-detail-err { background: var(--red-light);   color: var(--red);   border: 1px solid var(--red-border);   padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; }
+.log-detail-sub { display: none; padding: 8px 14px 10px; border-top: 1px solid var(--border); background: rgba(0,0,0,.015); }
+.log-detail-item.open .log-detail-sub { display: block; }
+.log-sub-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; margin-top: 6px; }
+.log-sub-label:first-child { margin-top: 0; }
+
+/* ══════════════════════════════════
+   MODALS
+══════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  width: 100%; max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  transform: translateY(14px);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  padding: 16px 18px; border-bottom: 1px solid var(--border);
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+}
+.modal-body { padding: 16px 18px; }
+.modal-footer {
+  padding: 12px 18px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+
+.field-group { margin-bottom: 14px; }
+.field-group:last-child { margin-bottom: 0; }
+.field-label { display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+.field-input {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; color: var(--text-primary); outline: none;
+  direction: ltr; transition: border-color .2s;
+}
+.field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.field-divider { height: 1px; background: var(--border); margin: 14px 0; }
+.field-section-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; }
+
+.btn-modal-cancel {
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong); background: transparent;
+  color: var(--text-secondary); font-family: inherit;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.btn-modal-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.btn-save {
+  padding: 8px 20px; border-radius: var(--radius-sm);
+  border: none; background: var(--accent); color: #fff;
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.btn-save:hover { background: var(--accent-dark); }
+
+/* Confirm modal */
+.confirm-modal .modal-header { background: var(--surface-2); }
+.confirm-detail-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid var(--border);
+}
+.confirm-detail-row:last-of-type { border-bottom: none; }
+.confirm-detail-label { font-size: 12px; color: var(--text-secondary); }
+.confirm-detail-val   { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.confirm-detail-val.green { color: var(--green); }
+.confirm-detail-val.red   { color: var(--red); }
+.confirm-note {
+  font-size: 12px; color: var(--text-secondary);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
+}
+.btn-confirm-ok {
+  padding: 8px 20px; border-radius: var(--radius-sm);
+  border: none; color: #fff; font-family: inherit;
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.btn-confirm-ok.green-btn  { background: var(--green); }
+.btn-confirm-ok.accent-btn { background: var(--accent); }
+.btn-confirm-ok.red-btn    { background: var(--red); }
+.btn-confirm-ok:hover { filter: brightness(.95); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ App Header ══ -->
+<header class="app-header">
+  <div class="app-title">
+    <div class="app-title-icon">💳</div>
+    COD Payment Center
+  </div>
+  <button class="settings-btn" id="settingsBtn" onclick="openSettings()">
+    ⚙️ الإعدادات
+  </button>
+</header>
+
+<!-- ══ Tabs ══ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" data-tab="scan" onclick="switchTab('scan')">
+    🔫 المسح والتحصيل
+    <span class="tab-badge" id="tabBadgeReady" style="display:none"></span>
+  </button>
+  <button class="tab-btn" data-tab="log" onclick="switchTab('log')">
+    📜 السجل
+    <span class="tab-badge green" id="tabBadgeLog" style="display:none"></span>
+  </button>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB: SCAN
+══════════════════════════════════ -->
+<div class="page active" id="page-scan">
+
+  <div class="not-configured-banner" id="notConfigBanner">
+    ⚠ الأداة غير مضبوطة — افتح الإعدادات وأدخل بيانات الاتصال
+  </div>
+
+  <!-- Scanner card -->
+  <div class="card">
+    <div class="card-header">ماسح الباركود</div>
+    <div class="card-body">
+      <div class="scanner-wrap">
+        <span class="scanner-icon-wrap">🔫</span>
+        <input type="text" id="scannerInput" class="scanner-input"
+          placeholder="امسح الباركود هنا..."
+          autocomplete="off" spellcheck="false" inputmode="none">
+      </div>
+      <div class="scanner-hint">💡 Scanner Gun: امسح وسيتم الاستعلام تلقائياً</div>
+      <div class="manual-row">
+        <input type="text" id="manualInput" class="manual-input"
+          placeholder="أو أدخل رقم الأوردر يدوياً..."
+          autocomplete="off" spellcheck="false" inputmode="numeric">
+        <button class="btn-manual" id="manualBtn" onclick="handleManualAdd()">إضافة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-chip">
+      <span class="stat-val accent" id="statCount">0</span>
+      <span class="stat-lbl">أوردر</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val" id="statCourierCollect">—</span>
+      <span class="stat-lbl">تحصيل المندوب</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val" id="statShipping">—</span>
+      <span class="stat-lbl">شحن</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val amber" id="statTotal">—</span>
+      <span class="stat-lbl">إجمالي شوبيفاي</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val green" id="statDone">0</span>
+      <span class="stat-lbl">تم التحصيل</span>
+    </div>
+  </div>
+
+  <!-- Payment methods -->
+  <div class="card pay-methods-card" id="payMethodsCard">
+    <div class="card-header">طريقة الدفع</div>
+    <div class="card-body">
+      <div class="courier-banner">
+        <span class="courier-banner-label">المندوب:</span>
+        <span class="courier-banner-name" id="courierBannerName">—</span>
+        <span class="courier-banner-total" id="courierBannerTotal">—</span>
+      </div>
+      <div class="extra-shipping-row">
+        <span class="extra-shipping-label">🚚 مصاريف شحن إضافية</span>
+        <input type="number" id="pmExtra" class="extra-shipping-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()">
+        <span class="extra-shipping-net" id="extraNet"></span>
+      </div>
+      <div class="pay-grid">
+        <div class="pay-method-item">
+          <div class="pay-method-label">💵 نقدي</div>
+          <input type="number" id="pmCash" class="pay-method-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()">
+        </div>
+        <div class="pay-method-item">
+          <div class="pay-method-label">📱 انستاباي</div>
+          <input type="number" id="pmInstapay" class="pay-method-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()">
+        </div>
+        <div class="pay-method-item">
+          <div class="pay-method-label">👛 محفظة</div>
+          <input type="number" id="pmWallet" class="pay-method-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()">
+        </div>
+      </div>
+      <div class="pay-validation" id="payValidation">
+        <span class="pay-val-text" id="payValText">أدخل طرق الدفع</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pay button -->
+  <div class="btn-row">
+    <button class="btn-pay" id="payBtn" onclick="confirmBulkPay()" disabled>
+      💵 تسجيل الدفع على شوبيفاي
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-box" id="resultBox">
+    <div class="result-title"  id="resultTitle"></div>
+    <div class="result-detail" id="resultDetail"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-del"></th>
+          <th>رقم الأوردر</th>
+          <th>المندوب</th>
+          <th class="col-ltr">تحصيل المندوب</th>
+          <th class="col-ltr">شحن</th>
+          <th class="col-ltr">إجمالي شوبيفاي</th>
+          <th class="col-center">Payment Status</th>
+          <th class="col-center">الحالة</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div><!-- /page-scan -->
+
+<!-- ══════════════════════════════════
+     TAB: LOG
+══════════════════════════════════ -->
+<div class="page" id="page-log">
+
+  <!-- Migration banner -->
+  <div class="migrate-banner" id="migrateBanner">
+    <div class="migrate-banner-title">🔄 يوجد سجل قديم قابل للترحيل</div>
+    <div class="migrate-banner-text">البيانات القديمة محفوظة ومقروءة — يمكنك ترحيلها للنظام الجديد (individual keys) في أي وقت</div>
+    <div class="migrate-banner-stats" id="migrateStats"></div>
+    <div class="migrate-banner-actions">
+      <button class="btn-migrate dry" onclick="runMigration(true)">معاينة (Dry Run)</button>
+      <button class="btn-migrate run" onclick="runMigration(false)">ترحيل الآن</button>
+      <button class="btn-migrate danger" id="deleteOldBtn" style="display:none" onclick="confirmDeleteLegacy()">حذف السجل القديم</button>
+    </div>
+  </div>
+
+  <div class="log-toolbar">
+    <div class="log-toolbar-title">
+      سجل العمليات
+      <span class="log-sync-badge local" id="logSyncBadge">محلي</span>
+    </div>
+    <div class="log-actions">
+      <button class="btn-log" onclick="syncFromCloud()" title="مزامنة من السيرفر">🔄 مزامنة</button>
+      <button class="btn-log export-sel" id="exportSelBtn" onclick="exportXLSX(true)">📥 تصدير المحدد</button>
+      <button class="btn-log export" onclick="exportXLSX(false)">📥 تصدير الكل</button>
+    </div>
+  </div>
+
+  <div id="logContainer">
+    <div class="log-empty">لا توجد عمليات مسجلة</div>
+  </div>
+
+</div><!-- /page-log -->
+
+<!-- ══ Settings Modal ══ -->
+<div class="modal-overlay" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-header">⚙️ الإعدادات</div>
+    <div class="modal-body">
+      <div class="field-section-label">Payment Center Worker</div>
+      <div class="field-group">
+        <label class="field-label">Worker URL</label>
+        <input type="text" class="field-input" id="cfWorkerUrl" placeholder="https://cod-payment-center-worker.ecommoda24.workers.dev">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Worker Secret</label>
+        <input type="password" class="field-input" id="cfWorkerSecret" placeholder="••••••••">
+      </div>
+      <div class="field-divider"></div>
+      <div class="field-section-label">Log Worker</div>
+      <div class="field-group">
+        <label class="field-label">Log Worker URL</label>
+        <input type="text" class="field-input" id="cfLogUrl" placeholder="https://cod-payment-center-log-worker.ecommoda24.workers.dev">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Log Worker Secret</label>
+        <input type="password" class="field-input" id="cfLogSecret" placeholder="••••••••">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeSettings()">إلغاء</button>
+      <button class="btn-save" onclick="saveSettings()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Confirm Modal ══ -->
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal confirm-modal">
+    <div class="modal-header" id="confirmHeader"></div>
+    <div class="modal-body" id="confirmBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="confirmCancelBtn">إلغاء</button>
+      <button class="btn-confirm-ok accent-btn" id="confirmOkBtn">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONFIG & STATE
+// ══════════════════════════════════════════════════════════════
+const LS = {
+  URL:        'cod_center_worker_url',
+  SECRET:     'cod_center_worker_secret',
+  LOG_URL:    'cod_center_log_url',
+  LOG_SECRET: 'cod_center_log_secret',
+  LOG_LOCAL:  'cod_center_log_local',
+};
+
+function getConfig() {
+  return {
+    url:       localStorage.getItem(LS.URL)        || '',
+    secret:    localStorage.getItem(LS.SECRET)     || '',
+    logUrl:    localStorage.getItem(LS.LOG_URL)    || '',
+    logSecret: localStorage.getItem(LS.LOG_SECRET) || '',
+  };
+}
+
+function isConfigured() {
+  const c = getConfig();
+  return c.url.startsWith('http') && c.secret.length > 0;
+}
+
+function isLogConfigured() {
+  const c = getConfig();
+  return c.logUrl.startsWith('http') && c.logSecret.length > 0;
+}
+
+let orders      = [];
+let isProcessing = false;
+
+const $ = id => document.getElementById(id);
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  loadSettingsToForm();
+  updateSettingsBtn();
+  updateConfigBanner();
+  renderLog();
+  if (isLogConfigured()) syncFromCloud();
+  refocus();
+});
+
+// ══════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
+  if (tab === 'scan') refocus();
+}
+
+// ══════════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════════
+function loadSettingsToForm() {
+  const c = getConfig();
+  $('cfWorkerUrl').value    = c.url;
+  $('cfWorkerSecret').value = c.secret;
+  $('cfLogUrl').value       = c.logUrl;
+  $('cfLogSecret').value    = c.logSecret;
+}
+
+function openSettings() {
+  loadSettingsToForm();
+  $('settingsOverlay').classList.add('open');
+}
+
+function closeSettings() { $('settingsOverlay').classList.remove('open'); }
+
+function closeSettingsOnBackdrop(e) {
+  if (e.target === $('settingsOverlay')) closeSettings();
+}
+
+function saveSettings() {
+  const url       = $('cfWorkerUrl').value.trim();
+  const secret    = $('cfWorkerSecret').value.trim();
+  const logUrl    = $('cfLogUrl').value.trim();
+  const logSecret = $('cfLogSecret').value.trim();
+
+  if (!url || !secret) { showToast('أدخل Worker URL و Secret', 'error'); return; }
+
+  localStorage.setItem(LS.URL,        url);
+  localStorage.setItem(LS.SECRET,     secret);
+  localStorage.setItem(LS.LOG_URL,    logUrl);
+  localStorage.setItem(LS.LOG_SECRET, logSecret);
+
+  updateSettingsBtn();
+  updateConfigBanner();
+  closeSettings();
+  showToast('تم حفظ الإعدادات ✓', 'success');
+}
+
+function updateSettingsBtn() {
+  $('settingsBtn').classList.toggle('configured', isConfigured());
+}
+
+function updateConfigBanner() {
+  $('notConfigBanner').classList.toggle('show', !isConfigured());
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCANNER
+// ══════════════════════════════════════════════════════════════
+const scannerInput = $('scannerInput');
+let lastKeyTime = 0, scanTimer = null;
+
+function refocus() {
+  if (document.getElementById('page-scan').classList.contains('active')) {
+    scannerInput.focus();
+  }
+}
+
+document.addEventListener('click', e => {
+  const skip = ['.modal-overlay', '.log-toolbar', '#logContainer', '.pay-methods-card',
+                '.table-wrap', '.result-box', '.manual-row', '#settingsBtn'];
+  if (skip.some(s => e.target.closest(s))) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+  setTimeout(refocus, 50);
+});
+
+scannerInput.addEventListener('input', () => {
+  if (isProcessing) return;
+  const gap = Date.now() - lastKeyTime;
+  lastKeyTime = Date.now();
+  clearTimeout(scanTimer);
+  scanTimer = setTimeout(handleScan, gap < 80 ? 150 : 400);
+});
+
+scannerInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') { e.preventDefault(); clearTimeout(scanTimer); handleScan(); }
+});
+
+$('manualInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') { e.preventDefault(); handleManualAdd(); }
+});
+
+async function handleScan() {
+  const raw = scannerInput.value.trim();
+  scannerInput.value = ''; scannerInput.focus();
+  if (!raw || !/^\d+$/.test(raw)) return;
+  if (orders.find(o => o.id === raw)) { showToast('⚠ موجود بالفعل'); return; }
+  if (!isConfigured()) { openSettings(); return; }
+  await addOrder(raw);
+}
+
+async function handleManualAdd() {
+  const input = $('manualInput');
+  const raw   = input.value.trim().replace(/^#/, '');
+  if (!raw) { input.focus(); return; }
+  if (!isConfigured()) { openSettings(); return; }
+
+  const manualBtn = $('manualBtn');
+  manualBtn.disabled = true; manualBtn.textContent = '...';
+  input.disabled = true;
+
+  try {
+    // تحويل رقم الأوردر لـ ID
+    if (orders.find(o => o.orderName === '#' + raw)) {
+      showToast('⚠ موجود بالفعل'); return;
+    }
+    const c   = getConfig();
+    const res = await fetch(c.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.secret}` },
+      body: JSON.stringify({ action: 'resolveByName', orderName: '#' + raw }),
+    });
+    const d = await res.json();
+    if (!d.success || !d.orderId) {
+      showToast(d.notFound ? `⚠ #${raw} غير موجود` : '⚠ خطأ في الاستعلام'); return;
+    }
+    if (orders.find(o => o.id === d.orderId)) { showToast('⚠ موجود بالفعل'); return; }
+    await addOrder(d.orderId);
+  } catch (e) {
+    showToast('خطأ في الاتصال', 'error');
+  } finally {
+    manualBtn.disabled = false; manualBtn.textContent = 'إضافة';
+    input.disabled = false; input.value = ''; input.focus();
+  }
+}
+
+async function addOrder(numericId) {
+  const order = {
+    id: numericId, orderName: null,
+    amount: null, subtotal: null, shippingAmount: null,
+    canMarkAsPaid: null, skipReason: null, financialStatus: null,
+    courier: null, lineItems: [], status: 'scanning', error: null,
+    preRegistered: false, cancelled: false,
+  };
+  orders.unshift(order);
+  showTable(); updateStats(); renderTable();
+  showToast(`🔫 ${numericId}`);
+
+  try {
+    const c   = getConfig();
+    const res = await fetch(c.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.secret}` },
+      body: JSON.stringify({ action: 'preview', orderId: numericId }),
+    });
+    const d = await res.json();
+
+    if (d.success) {
+      // ── الأوردر الملغي ──────────────────────────────────────
+      if (d.cancelled) {
+        order.orderName       = d.orderName;
+        order.financialStatus = d.financialStatus;
+        order.cancelled       = true;
+        order.status          = 'cancelled';
+      } else {
+        order.orderName       = d.orderName;
+        order.amount          = parseFloat(d.amount);
+        order.subtotal        = parseFloat(d.subtotal);
+        order.shippingAmount  = parseFloat(d.shippingAmount);
+        order.canMarkAsPaid   = d.canMarkAsPaid;
+        order.skipReason      = d.skipReason || null;
+        order.financialStatus = d.financialStatus;
+        order.courier         = d.courier || null;
+        order.lineItems       = d.lineItems || [];
+        order.preRegistered   = d.preRegistered || false;
+        order.orderDiscount   = d.orderDiscount ?? null;
+        order.status          = d.canMarkAsPaid ? 'ready' : 'skipped';
+      }
+    } else if (d.notFound) {
+      order.status = 'notfound';
+    } else {
+      order.status = 'error'; order.error = d.error || 'خطأ';
+    }
+  } catch (e) {
+    order.status = 'error'; order.error = 'خطأ في الاتصال';
+  }
+
+  updateStats(); renderTable(); updatePayBtn(); updatePayMethodsCard(); refocus();
+}
+
+function deleteOrder(idx) {
+  orders.splice(idx, 1);
+  if (!orders.length) {
+    $('tableWrap').classList.remove('show');
+    $('statsBar').classList.remove('show');
+  }
+  updateStats(); updatePayBtn(); renderTable(); hideResult(); updatePayMethodsCard();
+  refocus();
+}
+
+// ══════════════════════════════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════════════════════════════
+function fmt(n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+
+function financialLabel(s) {
+  return { PAID:'Paid', PARTIALLY_PAID:'Partially Paid', PENDING:'Pending',
+    AUTHORIZED:'Authorized', PARTIALLY_REFUNDED:'Partially Refunded',
+    REFUNDED:'Refunded', VOIDED:'Voided', EXPIRED:'Expired' }[s] || s || '—';
+}
+
+function showTable() {
+  $('tableWrap').classList.add('show');
+  $('statsBar').classList.add('show');
+}
+
+function renderTable() {
+  const tbody = $('tableBody');
+  const rows = [];
+
+  orders.forEach((o, i) => {
+    const nameDisplay = o.orderName || `ID: ${o.id}`;
+    const hasDetails  = o.lineItems && o.lineItems.length > 0;
+    const expandIcon  = hasDetails ? `<span class="expand-icon">▶</span>` : '';
+
+    // ── الأوردر الملغي: كل الأعمدة المالية شرطة ──────────────
+    const isCancelled = o.cancelled || o.status === 'cancelled';
+
+    function moneyCell(val) {
+      if (isCancelled || val == null) return `<span style="color:var(--text-muted)">—</span>`;
+      const color = val < 0 ? 'var(--red)' : 'var(--amber)';
+      return `<span style="color:${color}">${fmt(val)}</span>`;
+    }
+
+    const courierCollect = (!isCancelled && o.amount != null && o.shippingAmount != null)
+      ? o.amount - o.shippingAmount : null;
+
+    const courierDisplay = isCancelled
+      ? `<span style="color:var(--text-muted)">—</span>`
+      : (o.courier || `<span style="color:var(--text-muted)">—</span>`);
+
+    // ── Badge ─────────────────────────────────────────────────
+    let badge;
+    if      (o.status === 'scanning')  badge = `<span class="badge badge-scanning"><span class="spinner"></span> مسح...</span>`;
+    else if (o.status === 'loading')   badge = `<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`;
+    else if (o.status === 'cancelled') badge = `<span class="badge badge-cancelled">ملغي</span>`;
+    else if (o.status === 'ready') {
+      badge = o.preRegistered
+        ? `<span class="badge badge-prereg">📋 مسجل مسبقاً</span>`
+        : `<span class="badge badge-ready">جاهز</span>`;
+    }
+    else if (o.status === 'done')      badge = `<span class="badge badge-done">✓ تم التحصيل</span>`;
+    else if (o.status === 'skipped') {
+      if      (o.skipReason === 'مدفوع بالكامل')   badge = `<span class="badge badge-paid">مدفوع بالكامل</span>`;
+      else if (o.skipReason === 'مستحق استرداد') badge = `<span class="badge badge-refund">استرداد</span>`;
+      else badge = `<span class="badge badge-skipped">${o.skipReason || 'مُتخطى'}</span>`;
+    }
+    else if (o.status === 'notfound')  badge = `<span class="badge badge-notfound">غير موجود</span>`;
+    else                               badge = `<span class="badge badge-error" title="${o.error || ''}">خطأ</span>`;
+
+    const finLabel = isCancelled ? `<span style="color:var(--red);font-size:11px">Cancelled</span>` : financialLabel(o.financialStatus);
+
+    rows.push(`<tr class="order-row${i === 0 ? ' row-new' : ''}${hasDetails ? ' clickable' : ''}" data-idx="${i}">
+      <td style="padding:6px 8px;text-align:center">
+        <button class="row-del-btn" onclick="deleteOrder(${i})" title="حذف">🗑</button>
+      </td>
+      <td class="cell-order" onclick="${hasDetails ? `toggleRow(${i})` : ''}" style="${hasDetails ? 'cursor:pointer' : ''}">
+        ${expandIcon}${nameDisplay}
+      </td>
+      <td class="cell-courier">${courierDisplay}</td>
+      <td class="cell-money">${moneyCell(courierCollect)}</td>
+      <td class="cell-money">${moneyCell(isCancelled ? null : o.shippingAmount)}</td>
+      <td class="cell-money">${moneyCell(isCancelled ? null : o.amount)}</td>
+      <td class="cell-financial">${finLabel}</td>
+      <td class="cell-center">${badge}</td>
+    </tr>`);
+
+    // Detail row (SKUs)
+    let detailContent = '';
+    if (hasDetails) {
+      const skuRows = o.lineItems.map(li => `<tr>
+        <td class="td-sku">${li.sku}</td>
+        <td class="td-qty">${li.quantity}</td>
+        <td class="td-price">${fmt(li.unitPrice)}</td>
+        <td class="td-total">${fmt(li.totalPrice)}</td>
+      </tr>`).join('');
+      detailContent = `<div class="detail-box">
+        <div class="detail-section">
+          <div class="detail-label">SKUs</div>
+          <table class="sku-table">
+            <thead><tr>
+              <th>SKU</th><th class="th-center">Qty</th>
+              <th class="th-ltr">Unit Price</th><th class="th-ltr">Total</th>
+            </tr></thead>
+            <tbody>${skuRows}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+    rows.push(`<tr class="detail-row" data-idx="${i}">
+      <td colspan="8">${hasDetails ? detailContent : ''}</td>
+    </tr>`);
+  });
+
+  tbody.innerHTML = rows.join('');
+}
+
+function toggleRow(idx) {
+  const main   = document.querySelector(`tr.order-row[data-idx="${idx}"]`);
+  const detail = document.querySelector(`tr.detail-row[data-idx="${idx}"]`);
+  if (!main || !detail) return;
+  const open = main.classList.contains('expanded');
+  main.classList.toggle('expanded', !open);
+  detail.classList.toggle('show', !open);
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════════════
+function updateStats() {
+  const active = orders.filter(o => o.status === 'ready' || o.status === 'done');
+  const done   = orders.filter(o => o.status === 'done');
+
+  const sumTotal          = active.reduce((s, o) => s + (o.amount        || 0), 0);
+  const sumShipping       = active.reduce((s, o) => s + (o.shippingAmount || 0), 0);
+  const sumCourierCollect = active.reduce((s, o) => {
+    return s + ((o.amount != null && o.shippingAmount != null) ? o.amount - o.shippingAmount : 0);
+  }, 0);
+
+  $('statCount').textContent          = orders.length;
+  $('statCourierCollect').textContent = sumCourierCollect > 0 ? fmt(sumCourierCollect) : '—';
+  $('statShipping').textContent       = sumShipping > 0 ? fmt(sumShipping) : '—';
+  $('statTotal').textContent          = sumTotal > 0 ? fmt(sumTotal) : '—';
+  $('statDone').textContent           = done.length;
+
+  // Tab badge
+  const ready = orders.filter(o => o.status === 'ready').length;
+  const badge = $('tabBadgeReady');
+  badge.style.display = ready > 0 ? '' : 'none';
+  badge.textContent   = ready;
+}
+
+// ══════════════════════════════════════════════════════════════
+// PAYMENT METHODS
+// ══════════════════════════════════════════════════════════════
+function getCourierCollectTotal() {
+  return orders
+    .filter(o => o.status === 'ready' || o.status === 'done')
+    .reduce((s, o) => s + ((o.amount != null && o.shippingAmount != null) ? o.amount - o.shippingAmount : 0), 0);
+}
+
+function getExtra()     { return parseFloat($('pmExtra').value) || 0; }
+function getNetTarget() { return Math.max(0, getCourierCollectTotal() - getExtra()); }
+function getPaySum()    {
+  return (parseFloat($('pmCash').value) || 0) +
+         (parseFloat($('pmInstapay').value) || 0) +
+         (parseFloat($('pmWallet').value) || 0);
+}
+function isPayEmpty() { return !$('pmCash').value && !$('pmInstapay').value && !$('pmWallet').value; }
+
+function updatePayMethodsCard() {
+  const readyOrders = orders.filter(o => o.status === 'ready');
+  const card = $('payMethodsCard');
+  if (!readyOrders.length) { card.classList.remove('show'); return; }
+  card.classList.add('show');
+
+  const courier    = getReadyCourier();
+  const courierErr = getReadyCourierError();
+  $('courierBannerName').textContent  = courierErr ? '⚠ خطأ في المندوب' : (courier || '—');
+  $('courierBannerName').style.color  = courierErr ? 'var(--red)' : 'var(--purple)';
+
+  const target = getCourierCollectTotal();
+  const extra  = getExtra();
+  const net    = getNetTarget();
+  $('courierBannerTotal').textContent = extra > 0
+    ? `${fmt(target)} − ${fmt(extra)} = ${fmt(net)} EGP`
+    : `${fmt(target)} EGP`;
+
+  updatePayValidation();
+}
+
+function updatePayValidation() {
+  const el     = $('payValidation');
+  const textEl = $('payValText');
+  const extra  = getExtra();
+  const target = getNetTarget();
+  const entered = getPaySum();
+
+  $('extraNet').textContent = extra > 0 ? `← صافي: ${fmt(target)}` : '';
+
+  if (isPayEmpty()) {
+    el.className = 'pay-validation';
+    textEl.textContent = `أدخل طرق الدفع — المجموع يجب يساوي ${fmt(target)}`;
+  } else {
+    const diff = Math.abs(entered - target);
+    if (diff < 0.01) {
+      el.className = 'pay-validation ok';
+      textEl.textContent = `✓ المجموع مظبوط — ${fmt(entered)}`;
+    } else {
+      el.className = 'pay-validation mismatch';
+      const dir = entered > target ? `زيادة ${fmt(entered - target)}` : `ناقص ${fmt(target - entered)}`;
+      textEl.textContent = `المجموع ${fmt(entered)} — ${dir}`;
+    }
+  }
+  updatePayBtn();
+}
+
+function isPayValid() {
+  if (isPayEmpty()) return false;
+  return Math.abs(getPaySum() - getNetTarget()) < 0.01;
+}
+
+function getReadyCourier() {
+  const ready    = orders.filter(o => o.status === 'ready');
+  const couriers = [...new Set(ready.map(o => o.courier).filter(Boolean))];
+  return couriers.length === 1 ? couriers[0] : null;
+}
+
+function getReadyCourierError() {
+  const ready = orders.filter(o => o.status === 'ready');
+  if (!ready.length) return null;
+  const noCourier = ready.filter(o => !o.courier);
+  if (noCourier.length) return `بدون مندوب: ${noCourier.map(o => o.orderName || o.id).join('، ')}`;
+  const couriers = [...new Set(ready.map(o => o.courier))];
+  if (couriers.length > 1) return `أكثر من مندوب: ${couriers.join('، ')}`;
+  return null;
+}
+
+function updatePayBtn() {
+  const hasReady   = orders.filter(o => o.status === 'ready').length > 0;
+  const courierErr = getReadyCourierError();
+  $('payBtn').disabled = !hasReady || !!courierErr || !isPayValid() || isProcessing;
+}
+
+// ══════════════════════════════════════════════════════════════
+// BULK PAY
+// ══════════════════════════════════════════════════════════════
+async function confirmBulkPay() {
+  const readyOrders = orders.filter(o => o.status === 'ready');
+  if (!readyOrders.length) return;
+
+  const courierErr = getReadyCourierError();
+  if (courierErr) { showResult(false, '⚠ لا يمكن تسجيل الدفع', courierErr); return; }
+  if (!isPayValid()) { showResult(false, '⚠ طريقة الدفع غير مكتملة', 'المجموع لا يساوي تحصيل المندوب'); return; }
+
+  const courierName   = getReadyCourier();
+  const cash          = parseFloat($('pmCash').value)     || 0;
+  const instapay      = parseFloat($('pmInstapay').value) || 0;
+  const wallet        = parseFloat($('pmWallet').value)   || 0;
+  const extra         = getExtra();
+  const collectTotal  = getCourierCollectTotal();
+  const net           = getNetTarget();
+  const preregCount   = readyOrders.filter(o => o.preRegistered).length;
+  const shopifyTotal  = readyOrders.reduce((s, o) => s + o.amount, 0);
+
+  const bodyHTML = `
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">المندوب</span>
+      <span class="confirm-detail-val">${courierName}</span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">عدد الأوردرات</span>
+      <span class="confirm-detail-val">${readyOrders.length}${preregCount > 0 ? ` (${preregCount} مسجل مسبقاً)` : ''}</span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">إجمالي شوبيفاي</span>
+      <span class="confirm-detail-val">${fmt(shopifyTotal)} EGP</span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">تحصيل المندوب</span>
+      <span class="confirm-detail-val green">${fmt(collectTotal)} EGP</span>
+    </div>
+    ${extra > 0 ? `<div class="confirm-detail-row">
+      <span class="confirm-detail-label">مصاريف شحن إضافية</span>
+      <span class="confirm-detail-val red">− ${fmt(extra)} EGP</span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">صافي التحصيل</span>
+      <span class="confirm-detail-val green">${fmt(net)} EGP</span>
+    </div>` : ''}
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">نقدي / انستاباي / محفظة</span>
+      <span class="confirm-detail-val">${fmt(cash)} / ${fmt(instapay)} / ${fmt(wallet)}</span>
+    </div>
+    <div class="confirm-note">سيتم تسجيل transaction على شوبيفاي لكل أوردر — هذه العملية لا يمكن التراجع عنها</div>
+  `;
+
+  openConfirm('💵 تأكيد تسجيل التحصيل', bodyHTML, 'تأكيد وتسجيل', 'green-btn', doBulkPay);
+}
+
+async function doBulkPay() {
+  const readyOrders = orders.filter(o => o.status === 'ready');
+  const c           = getConfig();
+  const courierName = getReadyCourier();
+  const cash        = parseFloat($('pmCash').value)     || 0;
+  const instapay    = parseFloat($('pmInstapay').value) || 0;
+  const wallet      = parseFloat($('pmWallet').value)   || 0;
+  const extra       = getExtra();
+
+  isProcessing = true;
+  $('payBtn').disabled = true;
+  setProgress(0); hideResult();
+
+  let successCount = 0, failCount = 0, done = 0;
+
+  for (const order of readyOrders) {
+    order.status = 'loading'; renderTable();
+    try {
+      const res  = await fetch(c.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.secret}` },
+        body: JSON.stringify({ action: 'pay', orderId: order.id, amount: order.amount.toFixed(2) }),
+      });
+      const data = await res.json();
+      if (data.success) { order.status = 'done'; order.financialStatus = 'PAID'; successCount++; }
+      else { order.status = 'error'; order.error = data.error || 'فشل'; failCount++; }
+    } catch (e) { order.status = 'error'; order.error = 'خطأ في الاتصال'; failCount++; }
+
+    done++;
+    setProgress(done / readyOrders.length * 100);
+    updateStats(); renderTable();
+  }
+
+  isProcessing = false;
+  updatePayBtn();
+  updatePayMethodsCard();
+
+  // ── Log entry ────────────────────────────────────────────────
+  const paidOrders       = readyOrders.filter(o => o.status === 'done');
+  const paidTotal        = paidOrders.reduce((s, o) => s + o.amount, 0);
+  const paidCourierCollect = paidOrders.reduce((s, o) => s + (o.amount - o.shippingAmount), 0);
+
+  const logEntry = {
+    date:          new Date().toISOString(),
+    type:          'payment',
+    courier:       courierName,
+    totalOrders:   readyOrders.length,
+    success:       successCount,
+    errors:        failCount,
+    totalAmount:   paidTotal.toFixed(2),
+    courierCollect: paidCourierCollect.toFixed(2),
+    extraShipping: extra.toFixed(2),
+    netCollect:    Math.max(0, paidCourierCollect - extra).toFixed(2),
+    paymentMethods: {
+      cash:      cash.toFixed(2),
+      instapay:  instapay.toFixed(2),
+      wallet:    wallet.toFixed(2),
+    },
+    orders: readyOrders.map(o => ({
+      order:          o.id,
+      orderName:      o.orderName || '',
+      courier:        o.courier   || '',
+      amount:         o.amount        != null ? o.amount.toFixed(2)         : '0.00',
+      subtotal:       o.subtotal      != null ? o.subtotal.toFixed(2)       : '0.00',
+      shippingAmount: o.shippingAmount != null ? o.shippingAmount.toFixed(2) : '0.00',
+      lineItems:      o.lineItems || [],
+      orderDiscount:  o.orderDiscount ?? null,
+      preRegistered:  o.preRegistered || false,
+      status:         o.status === 'done' ? 'success' : 'error',
+      error:          o.error || null,
+    })),
+  };
+  saveLogEntry(logEntry);
+
+  if (successCount > 0 && failCount === 0) {
+    showResult(true, `✅ تم تسجيل التحصيل بنجاح لـ ${successCount} أوردر`, `المندوب: ${courierName} — ${fmt(paidCourierCollect)} EGP`);
+  } else if (successCount > 0) {
+    showResult(true, `✅ ${successCount} نجح  ⚠ ${failCount} فشل`, 'راجع الجدول للتفاصيل');
+  } else {
+    showResult(false, 'فشل التحصيل لكل الأوردرات', 'راجع الجدول للتفاصيل');
+  }
+
+  if (successCount > 0) {
+    $('pmCash').value = ''; $('pmInstapay').value = '';
+    $('pmWallet').value = ''; $('pmExtra').value = '';
+    updatePayValidation();
+  }
+  refocus();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════════════
+function setProgress(pct) {
+  $('progressWrap').classList.add('show');
+  $('progressBar').style.width = pct + '%';
+  if (pct >= 100) setTimeout(() => $('progressWrap').classList.remove('show'), 800);
+}
+
+function showResult(success, title, detail) {
+  const el = $('resultBox');
+  el.className = `result-box ${success ? 'show-success' : 'show-error'}`;
+  $('resultTitle').textContent  = title;
+  $('resultDetail').textContent = detail;
+}
+function hideResult() { $('resultBox').className = 'result-box'; }
+
+function showToast(msg, type = '') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONFIRM MODAL
+// ══════════════════════════════════════════════════════════════
+function openConfirm(headerHTML, bodyHTML, okLabel, okClass, onConfirm) {
+  $('confirmHeader').innerHTML = headerHTML;
+  $('confirmBody').innerHTML   = bodyHTML;
+
+  const okBtn     = $('confirmOkBtn');
+  const cancelBtn = $('confirmCancelBtn');
+  const newOk     = okBtn.cloneNode(true);
+  const newCancel = cancelBtn.cloneNode(true);
+  okBtn.parentNode.replaceChild(newOk, okBtn);
+  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+  newOk.textContent  = okLabel;
+  newOk.className    = 'btn-confirm-ok ' + okClass;
+  newOk.addEventListener('click', () => {
+    $('confirmOverlay').classList.remove('open');
+    onConfirm();
+  });
+  newCancel.addEventListener('click', () => $('confirmOverlay').classList.remove('open'));
+  $('confirmOverlay').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOG — LOCAL
+// ══════════════════════════════════════════════════════════════
+function getLocalLog() {
+  try { return JSON.parse(localStorage.getItem(LS.LOG_LOCAL) || '[]'); } catch { return []; }
+}
+function saveLocalLog(log) { localStorage.setItem(LS.LOG_LOCAL, JSON.stringify(log)); }
+
+function mergeAndDedupe(a, b) {
+  const seen = new Set(), m = [];
+  for (const e of [...a, ...b]) {
+    if (!e?.date || seen.has(e.date)) continue;
+    seen.add(e.date); m.push(e);
+  }
+  m.sort((x, y) => new Date(y.date) - new Date(x.date));
+  return m;
+}
+
+async function saveLogEntry(entry) {
+  const log = mergeAndDedupe([entry], getLocalLog());
+  saveLocalLog(log);
+  renderLog(log);
+  updateLogTabBadge(log);
+
+  if (isLogConfigured()) {
+    try {
+      setSyncBadge('loading');
+      const c   = getConfig();
+      const res = await fetch(`${c.logUrl}/log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.logSecret}` },
+        body: JSON.stringify(entry),
+      });
+      if (res.ok) setSyncBadge('synced');
+      else setSyncBadge('local');
+    } catch { setSyncBadge('local'); }
+  }
+}
+
+async function syncFromCloud() {
+  if (!isLogConfigured()) {
+    showToast('أدخل Log Worker URL و Secret في الإعدادات', 'error');
+    openSettings(); return;
+  }
+  try {
+    setSyncBadge('loading');
+    const c   = getConfig();
+    const res = await fetch(`${c.logUrl}/log`, {
+      headers: { 'Authorization': `Bearer ${c.logSecret}` },
+    });
+    if (!res.ok) throw new Error('فشل الاتصال');
+    const data   = await res.json();
+    const merged = mergeAndDedupe(getLocalLog(), data.log || []);
+    saveLocalLog(merged);
+    renderLog(merged);
+    updateLogTabBadge(merged);
+    setSyncBadge('synced');
+    showToast(`✓ تمت المزامنة — ${merged.length} عملية`, 'success');
+    await checkMigrationStatus();
+  } catch (err) {
+    setSyncBadge('local');
+    showToast('فشل المزامنة: ' + err.message, 'error');
+  }
+}
+
+function setSyncBadge(state) {
+  const el = $('logSyncBadge');
+  el.className  = `log-sync-badge ${state}`;
+  el.textContent = state === 'synced' ? '☁ متزامن' : state === 'loading' ? '⏳ جاري...' : '💾 محلي';
+}
+
+function updateLogTabBadge(log) {
+  const payLog = (log || getLocalLog()).filter(e => e.type !== 'preRegister');
+  const badge  = $('tabBadgeLog');
+  badge.style.display = payLog.length > 0 ? '' : 'none';
+  badge.textContent   = payLog.length;
+}
+
+// ══════════════════════════════════════════════════════════════
+// MIGRATION
+// ══════════════════════════════════════════════════════════════
+async function checkMigrationStatus() {
+  if (!isLogConfigured()) return;
+  try {
+    const c   = getConfig();
+    const res = await fetch(`${c.logUrl}/log/stats`, {
+      headers: { 'Authorization': `Bearer ${c.logSecret}` },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.legacyCount > 0) {
+      $('migrateBanner').classList.add('show');
+      $('migrateStats').textContent = `Legacy (array قديمة): ${data.legacyCount} | New (individual keys): ${data.newCount} | الإجمالي: ${data.total}`;
+    } else {
+      $('migrateBanner').classList.remove('show');
+    }
+  } catch { /* silent */ }
+}
+
+async function runMigration(dryRun) {
+  if (!isLogConfigured()) { showToast('أدخل Log Worker بيانات أولاً', 'error'); return; }
+  try {
+    const c   = getConfig();
+    const res = await fetch(`${c.logUrl}/migrate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.logSecret}` },
+      body: JSON.stringify({ dry_run: dryRun }),
+    });
+    const data = await res.json();
+    if (dryRun) {
+      showToast(`معاينة: سيتم ترحيل ${data.migrated} entry (تم تخطي ${data.skipped})`);
+    } else {
+      showToast(`✓ تم ترحيل ${data.migrated} entry بنجاح`, 'success');
+      $('deleteOldBtn').style.display = 'inline-block';
+      await checkMigrationStatus();
+      await syncFromCloud();
+    }
+  } catch (err) {
+    showToast('فشل الترحيل: ' + err.message, 'error');
+  }
+}
+
+function confirmDeleteLegacy() {
+  openConfirm(
+    '⚠ تأكيد حذف السجل القديم',
+    `<div class="confirm-detail-row">
+       <span class="confirm-detail-label">ماذا سيحدث</span>
+       <span class="confirm-detail-val red">حذف array "cod_payment_log" من KV</span>
+     </div>
+     <div class="confirm-note">البيانات تم ترحيلها بالفعل كـ individual keys — هذا الحذف آمن بعد التأكد من اكتمال الترحيل</div>`,
+    'حذف السجل القديم',
+    'red-btn',
+    doDeleteLegacy
+  );
+}
+
+async function doDeleteLegacy() {
+  if (!isLogConfigured()) return;
+  try {
+    const c   = getConfig();
+    const res = await fetch(`${c.logUrl}/migrate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.logSecret}` },
+      body: JSON.stringify({ dry_run: false, confirm_delete: true }),
+    });
+    const data = await res.json();
+    if (data.deleted) {
+      showToast('✓ تم حذف السجل القديم', 'success');
+      $('migrateBanner').classList.remove('show');
+    }
+  } catch (err) {
+    showToast('فشل الحذف: ' + err.message, 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOG RENDER
+// ══════════════════════════════════════════════════════════════
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  let h = d.getHours();
+  const m    = pad(d.getMinutes());
+  const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+  h = h % 12 || 12;
+  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()} الساعة ${pad(h)}:${m} ${ampm}`;
+}
+
+function renderLog(log) {
+  if (!log) log = getLocalLog();
+  const payLog = log.filter(e => e.type !== 'preRegister');
+  const container = $('logContainer');
+  updateLogTabBadge(log);
+
+  if (!payLog.length) {
+    container.innerHTML = '<div class="log-empty">لا توجد عمليات مسجلة</div>';
+    return;
+  }
+
+  const hasChecked = () => document.querySelectorAll('.log-check:checked').length > 0;
+
+  container.innerHTML = `<div class="log-list">${payLog.map(entry => {
+    const pm      = entry.paymentMethods || {};
+    const pmChips = [];
+    if (parseFloat(pm.cash)     > 0) pmChips.push(`<span class="log-pm-chip">💵 نقدي <span>${fmt(pm.cash)}</span></span>`);
+    if (parseFloat(pm.instapay) > 0) pmChips.push(`<span class="log-pm-chip">📱 انستاباي <span>${fmt(pm.instapay)}</span></span>`);
+    if (parseFloat(pm.wallet)   > 0) pmChips.push(`<span class="log-pm-chip">👛 محفظة <span>${fmt(pm.wallet)}</span></span>`);
+
+    const detailRows = (entry.orders || []).map(o => {
+      const hasSkus = o.lineItems && o.lineItems.length > 0;
+      const hasSub  = hasSkus || (parseFloat(o.shippingAmount) > 0);
+      const skuRows = hasSkus
+        ? o.lineItems.map(li => `<tr>
+            <td class="td-sku">${li.sku}</td>
+            <td class="td-qty">${li.quantity}</td>
+            <td class="td-price">${fmt(li.unitPrice)}</td>
+            <td class="td-total">${fmt(li.totalPrice)}</td>
+          </tr>`).join('') : '';
+
+      return `<div class="log-detail-item">
+        <div class="log-detail-main" onclick="${hasSub ? 'toggleLogItem(this)' : ''}">
+          <span class="log-detail-order">${o.preRegistered ? '<span style="font-size:10px;color:var(--purple);margin-left:4px">📋</span>' : ''}${o.orderName || ''}
+            <span style="color:var(--text-muted);font-size:10px;margin-right:4px">${o.order}</span>
+            ${o.courier ? `<span style="color:var(--purple);font-size:11px;font-weight:600">${o.courier}</span>` : ''}
+          </span>
+          <span class="log-detail-amount">${o.amount || ''}</span>
+          <span class="${o.status === 'success' ? 'log-detail-ok' : 'log-detail-err'}">${o.status === 'success' ? '✓ ناجح' : '✗ فشل'}</span>
+          ${hasSub ? '<span style="color:var(--text-muted);font-size:9px">▶</span>' : ''}
+        </div>
+        ${hasSub ? `<div class="log-detail-sub">
+          ${hasSkus ? `<div class="log-sub-label">SKUs</div>
+            <table class="sku-table">
+              <thead><tr><th>SKU</th><th class="th-center">Qty</th><th class="th-ltr">Unit Price</th><th class="th-ltr">Total</th></tr></thead>
+              <tbody>${skuRows}</tbody>
+            </table>` : ''}
+          ${parseFloat(o.shippingAmount) > 0 ? `<div class="log-sub-label" style="margin-top:8px">شحن</div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber)">${fmt(o.shippingAmount)} EGP</span>` : ''}
+        </div>` : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="log-entry">
+      <div class="log-entry-header" onclick="toggleLogEntry(this)">
+        <input type="checkbox" class="log-check" data-date="${entry.date}" onclick="event.stopPropagation(); onCheckChange()" >
+        <div class="log-entry-info">
+          <div class="log-entry-date">${formatDateTime(entry.date)}</div>
+          <div class="log-entry-tags">
+            <span class="log-tag courier">👤 ${entry.courier || 'COD'}</span>
+            <span class="log-tag count">${entry.totalOrders} أوردر</span>
+            ${entry.totalAmount ? `<span class="log-tag amount">${parseFloat(entry.totalAmount).toLocaleString('en-US',{minimumFractionDigits:2})}</span>` : ''}
+          </div>
+          ${pmChips.length ? `<div class="log-pay-methods">${pmChips.join('')}</div>` : ''}
+        </div>
+        <div class="log-entry-stats">
+          <span class="log-stat-ok">✓${entry.success}</span>
+          <span class="log-stat-err">✗${entry.errors}</span>
+        </div>
+        <span class="log-toggle">▶</span>
+      </div>
+      <div class="log-entry-details">${detailRows}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function toggleLogEntry(el) { el.closest('.log-entry').classList.toggle('open'); }
+function toggleLogItem(el)  { el.closest('.log-detail-item').classList.toggle('open'); }
+
+function onCheckChange() {
+  $('exportSelBtn').classList.toggle('show', document.querySelectorAll('.log-check:checked').length > 0);
+}
+
+// ══════════════════════════════════════════════════════════════
+// XLSX EXPORT
+// ══════════════════════════════════════════════════════════════
+async function exportXLSX(selectedOnly) {
+  const fullLog = getLocalLog();
+  if (!fullLog.length) { showToast('السجل فارغ', 'error'); return; }
+
+  let log;
+  if (selectedOnly) {
+    const dates = [...document.querySelectorAll('.log-check:checked')].map(cb => cb.dataset.date);
+    if (!dates.length) { showToast('اختر عمليات أولاً', 'error'); return; }
+    log = fullLog.filter(e => dates.includes(e.date));
+  } else {
+    log = fullLog;
+  }
+  log = log.filter(e => e.type !== 'preRegister');
+  if (!log.length) { showToast('لا توجد عمليات للتصدير', 'error'); return; }
+
+  if (!window.ExcelJS) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  const wb = new ExcelJS.Workbook();
+  wb.views = [{ rightToLeft: true }];
+  const ws = wb.addWorksheet('سجل التحصيل', { views: [{ rightToLeft: true }] });
+
+  ws.columns = [
+    { header: 'التاريخ',                key: 'date',          width: 14 },
+    { header: 'المندوب',               key: 'courier',       width: 14 },
+    { header: 'رقم الأوردر',           key: 'order',         width: 14 },
+    { header: 'SKU',                   key: 'sku',           width: 24 },
+    { header: 'الكمية',                key: 'qty',           width: 8  },
+    { header: 'سعر الوحدة',            key: 'unit',          width: 13 },
+    { header: 'خصم الوحدة',            key: 'unitDiscount',  width: 13 },
+    { header: 'سعر بعد الخصم',         key: 'collect',       width: 18 },
+    { header: 'خصم إضافي الأوردر',     key: 'orderDiscount', width: 18 },
+    { header: 'صافي تحصيل الأوردر',    key: 'netCollect',    width: 18 },
+    { header: 'شحن',                   key: 'ship',          width: 10 },
+    { header: 'النتيجة',               key: 'result',        width: 9  },
+    { header: 'الخطأ',                 key: 'error',         width: 18 },
+    { header: 'مسجل مسبقاً',           key: 'prereg',        width: 13 },
+  ];
+
+  const HEADER_BG = 'FFD700'; const GRAND_BG = '1F4E79';
+  const NUM_FMT   = '#,##0';  const FAIL_BG  = 'FFCCCC';
+
+  function applyHeader(row) {
+    row.eachCell(cell => {
+      cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + HEADER_BG } };
+      cell.font      = { bold: true, size: 11, name: 'Arial' };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
+      cell.border    = { bottom: { style: 'medium', color: { argb: 'FF000000' } } };
+    });
+    row.height = 20;
+  }
+
+  function applyData(row, isFailed, qty) {
+    row.eachCell({ includeEmpty: false }, (cell, col) => {
+      cell.font      = { size: 10, name: 'Arial' };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
+      if ([5,6,7,8,9,10,11].includes(col) && cell.value !== null && cell.value !== '') {
+        cell.numFmt = NUM_FMT;
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      }
+      if (isFailed) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + FAIL_BG } };
+    });
+    if (isFailed) {
+      const rc = row.getCell(12);
+      rc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
+      rc.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10, name: 'Arial' };
+      rc.alignment = { horizontal: 'center', vertical: 'middle' };
+    }
+  }
+
+  applyHeader(ws.getRow(1));
+
+  let grandCollect = 0, grandCash = 0, grandInstapay = 0, grandWallet = 0, grandExtra = 0;
+
+  for (const entry of log) {
+    const date    = new Date(entry.date).toLocaleDateString('en-GB');
+    const courier = entry.courier || '—';
+    const pm      = entry.paymentMethods || {};
+    grandCollect  += parseFloat(entry.courierCollect) || 0;
+    grandCash     += parseFloat(pm.cash)     || 0;
+    grandInstapay += parseFloat(pm.instapay) || 0;
+    grandWallet   += parseFloat(pm.wallet)   || 0;
+    grandExtra    += parseFloat(entry.extraShipping) || 0;
+
+    for (const o of (entry.orders || [])) {
+      const isFailed = o.status !== 'success';
+      const cc       = (parseFloat(o.amount) || 0) - (parseFloat(o.shippingAmount) || 0);
+      const ship     = parseFloat(o.shippingAmount) || 0;
+
+      if (isFailed) {
+        const r = ws.addRow({ date, courier, order: o.orderName || '', sku: null, qty: null, unit: null, unitDiscount: null, collect: null, orderDiscount: null, netCollect: null, ship: null, result: 'فشل', error: o.error || '', prereg: o.preRegistered ? 'نعم' : 'لا' });
+        applyData(r, true, 0);
+      } else if (o.lineItems && o.lineItems.length > 0) {
+        const odv = o.orderDiscount ? parseFloat(o.orderDiscount) : null;
+        const liTotal   = o.lineItems.reduce((s, li) => s + (parseFloat(li.totalPrice) || 0), 0);
+        const netCollect = odv !== null ? parseFloat((liTotal + odv).toFixed(2)) : parseFloat(liTotal.toFixed(2));
+        o.lineItems.forEach((li, idx) => {
+          const udv  = (li.unitDiscount !== null && li.unitDiscount !== undefined) ? parseFloat(li.unitDiscount) : null;
+          const qty  = parseFloat(li.quantity) || 0;
+          const r    = ws.addRow({
+            date: idx === 0 ? date : null, courier,
+            order: idx === 0 ? (o.orderName || '') : null,
+            sku: li.sku || '', qty, unit: parseFloat(li.unitPrice) || 0,
+            unitDiscount: udv, collect: parseFloat(li.totalPrice) || 0,
+            orderDiscount: idx === 0 ? odv : null,
+            netCollect: idx === 0 ? netCollect : null,
+            ship: idx === 0 ? ship : null, result: idx === 0 ? 'ناجح' : null,
+            error: idx === 0 ? (o.error || '') : null, prereg: idx === 0 ? (o.preRegistered ? 'نعم' : 'لا') : null,
+          });
+          applyData(r, false, qty);
+        });
+      } else {
+        const odv        = o.orderDiscount ? parseFloat(o.orderDiscount) : null;
+        const netCollect = odv !== null ? cc + odv : cc;
+        const r          = ws.addRow({ date, courier, order: o.orderName || '', sku: '', qty: null, unit: null, unitDiscount: null, collect: cc, orderDiscount: odv, netCollect: parseFloat(netCollect.toFixed(2)), ship, result: 'ناجح', error: o.error || '', prereg: o.preRegistered ? 'نعم' : 'لا' });
+        applyData(r, false, 0);
+      }
+    }
+  }
+
+  ws.views = [{ state: 'frozen', ySplit: 1, rightToLeft: true }];
+
+  // Sheet 2 — الإجمالي
+  const ws2 = wb.addWorksheet('الإجمالي', { views: [{ rightToLeft: true }] });
+  ws2.columns = [
+    { header: 'المندوب',        key: 'courier',  width: 16 },
+    { header: 'إجمالي التحصيل', key: 'collect',  width: 18 },
+    { header: 'نقدي',           key: 'cash',     width: 14 },
+    { header: 'انستاباي',       key: 'instapay', width: 14 },
+    { header: 'محفظة',          key: 'wallet',   width: 14 },
+    { header: 'شحن إضافي',      key: 'extra',    width: 14 },
+    { header: 'صافي التحصيل',   key: 'net',      width: 16 },
+    { header: 'عدد الأوردرات',  key: 'orders',   width: 14 },
+  ];
+
+  ws2.getRow(1).eachCell(cell => {
+    cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + HEADER_BG } };
+    cell.font      = { bold: true, size: 11, name: 'Arial' };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
+  });
+  ws2.getRow(1).height = 20;
+
+  const courierTotals = {};
+  for (const entry of log) {
+    const cr = entry.courier || '—';
+    const pm = entry.paymentMethods || {};
+    if (!courierTotals[cr]) courierTotals[cr] = { collect:0, cash:0, instapay:0, wallet:0, extra:0, orders:0 };
+    courierTotals[cr].collect  += parseFloat(entry.courierCollect) || 0;
+    courierTotals[cr].cash     += parseFloat(pm.cash)     || 0;
+    courierTotals[cr].instapay += parseFloat(pm.instapay) || 0;
+    courierTotals[cr].wallet   += parseFloat(pm.wallet)   || 0;
+    courierTotals[cr].extra    += parseFloat(entry.extraShipping) || 0;
+    courierTotals[cr].orders   += entry.totalOrders || 0;
+  }
+
+  Object.entries(courierTotals).forEach(([cr, t]) => {
+    const r = ws2.addRow({ courier: cr, collect: t.collect, cash: t.cash, instapay: t.instapay, wallet: t.wallet, extra: t.extra > 0 ? t.extra : null, net: Math.max(0, t.collect - t.extra), orders: t.orders });
+    r.eachCell({ includeEmpty: false }, (cell, col) => {
+      cell.font      = { size: 10, name: 'Arial' };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
+      if (col >= 2 && col <= 7) cell.numFmt = NUM_FMT;
+    });
+  });
+
+  const gt = ws2.addRow({ courier: 'جميع المناديب', collect: grandCollect, cash: grandCash, instapay: grandInstapay, wallet: grandWallet, extra: grandExtra > 0 ? grandExtra : null, net: Math.max(0, grandCollect - grandExtra), orders: log.reduce((s, e) => s + (e.totalOrders || 0), 0) });
+  gt.eachCell({ includeEmpty: true }, cell => {
+    cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + GRAND_BG } };
+    cell.font      = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11, name: 'Arial' };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', readingOrder: 'rightToLeft' };
+  });
+  [2,3,4,5,6,7].forEach(c => { gt.getCell(c).numFmt = NUM_FMT; });
+  gt.height = 20;
+  ws2.views = [{ state: 'frozen', ySplit: 1, rightToLeft: true }];
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob   = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url    = URL.createObjectURL(blob);
+  const a      = document.createElement('a');
+  a.href = url;
+  a.download = `cod-payment-center-${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
