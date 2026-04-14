@@ -342,8 +342,13 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 .badge-notfound  { background: var(--surface-2);     color: var(--text-muted);     border: 1px solid var(--border); }
 .badge-error     { background: var(--red-light);     color: var(--red);     border: 1px solid var(--red-border); }
 
-.row-del-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 13px; padding: 3px 5px; border-radius: 4px; transition: color .15s; }
-.row-del-btn:hover { color: var(--red); }
+.row-del-btn {
+  background: var(--red-light); border: 1px solid var(--red-border);
+  cursor: pointer; color: var(--red); font-size: 13px;
+  padding: 4px 7px; border-radius: 6px; transition: all .15s;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.row-del-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
 /* ── Spinner ── */
 .spinner { width: 12px; height: 12px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; }
@@ -560,6 +565,16 @@ tbody tr.detail-row td { padding: 0 12px 12px; border-bottom: 1px solid var(--bo
 .btn-confirm-ok.accent-btn { background: var(--accent); }
 .btn-confirm-ok.red-btn    { background: var(--red); }
 .btn-confirm-ok:hover { filter: brightness(.95); }
+
+/* Warning box inside confirm modal */
+.confirm-warning {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #fff7ed; border: 2px solid #f97316;
+  border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 12px;
+}
+.confirm-warning-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+.confirm-warning-text { font-size: 12px; font-weight: 600; color: #9a3412; line-height: 1.5; }
+.confirm-warning-title { font-size: 13px; font-weight: 800; color: #7c2d12; margin-bottom: 2px; }
 </style>
 </head>
 <body>
@@ -1306,29 +1321,43 @@ async function confirmBulkPay() {
     </div>
     <div class="confirm-detail-row">
       <span class="confirm-detail-label">عدد الأوردرات</span>
-      <span class="confirm-detail-val">${readyOrders.length}${preregCount > 0 ? ` (${preregCount} مسجل مسبقاً)` : ''}</span>
+      <span class="confirm-detail-val">${readyOrders.length}${preregCount > 0 ? ` <span style="font-size:11px;color:var(--purple)">(${preregCount} مسجل مسبقاً)</span>` : ''}</span>
     </div>
     <div class="confirm-detail-row">
       <span class="confirm-detail-label">إجمالي شوبيفاي</span>
-      <span class="confirm-detail-val">${fmt(shopifyTotal)} EGP</span>
+      <span class="confirm-detail-val">${fmt(shopifyTotal)} جنيه</span>
     </div>
     <div class="confirm-detail-row">
       <span class="confirm-detail-label">تحصيل المندوب</span>
-      <span class="confirm-detail-val green">${fmt(collectTotal)} EGP</span>
+      <span class="confirm-detail-val green">${fmt(collectTotal)} جنيه</span>
     </div>
     ${extra > 0 ? `<div class="confirm-detail-row">
       <span class="confirm-detail-label">مصاريف شحن إضافية</span>
-      <span class="confirm-detail-val red">− ${fmt(extra)} EGP</span>
+      <span class="confirm-detail-val red">− ${fmt(extra)} جنيه</span>
     </div>
     <div class="confirm-detail-row">
       <span class="confirm-detail-label">صافي التحصيل</span>
-      <span class="confirm-detail-val green">${fmt(net)} EGP</span>
+      <span class="confirm-detail-val green">${fmt(net)} جنيه</span>
     </div>` : ''}
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">نقدي / انستاباي / محفظة</span>
-      <span class="confirm-detail-val">${fmt(cash)} / ${fmt(instapay)} / ${fmt(wallet)}</span>
+    ${cash > 0 ? `<div class="confirm-detail-row">
+      <span class="confirm-detail-label">💵 نقدي</span>
+      <span class="confirm-detail-val">${fmt(cash)} جنيه</span>
+    </div>` : ''}
+    ${instapay > 0 ? `<div class="confirm-detail-row">
+      <span class="confirm-detail-label">📱 انستاباي</span>
+      <span class="confirm-detail-val">${fmt(instapay)} جنيه</span>
+    </div>` : ''}
+    ${wallet > 0 ? `<div class="confirm-detail-row">
+      <span class="confirm-detail-label">👛 محفظة</span>
+      <span class="confirm-detail-val">${fmt(wallet)} جنيه</span>
+    </div>` : ''}
+    <div class="confirm-warning">
+      <span class="confirm-warning-icon">⚠️</span>
+      <div>
+        <div class="confirm-warning-title">تحذير — لا يمكن التراجع</div>
+        <div class="confirm-warning-text">سيتم تسجيل transaction على شوبيفاي لكل أوردر من الأوردرات المدرجة — هذه العملية نهائية ولا يمكن التراجع عنها</div>
+      </div>
     </div>
-    <div class="confirm-note">سيتم تسجيل transaction على شوبيفاي لكل أوردر — هذه العملية لا يمكن التراجع عنها</div>
   `;
 
   openConfirm('💵 تأكيد تسجيل التحصيل', bodyHTML, 'تأكيد وتسجيل', 'green-btn', doBulkPay);
@@ -1409,17 +1438,27 @@ async function doBulkPay() {
   saveLogEntry(logEntry);
 
   if (successCount > 0 && failCount === 0) {
-    showResult(true, `✅ تم تسجيل التحصيل بنجاح لـ ${successCount} أوردر`, `المندوب: ${courierName} — ${fmt(paidCourierCollect)} EGP`);
-  } else if (successCount > 0) {
-    showResult(true, `✅ ${successCount} نجح  ⚠ ${failCount} فشل`, 'راجع الجدول للتفاصيل');
-  } else {
-    showResult(false, 'فشل التحصيل لكل الأوردرات', 'راجع الجدول للتفاصيل');
-  }
+    // تفريغ الجدول من الأوردرات الناجحة + إخفاء الجدول لو فضي
+    orders = orders.filter(o => o.status !== 'done');
+    if (!orders.length) {
+      $('tableWrap').classList.remove('show');
+      $('statsBar').classList.remove('show');
+    }
+    updateStats(); renderTable(); updatePayMethodsCard();
 
-  if (successCount > 0) {
+    showResult(true, `✅ تم تسجيل التحصيل بنجاح لـ ${successCount} أوردر`, `المندوب: ${courierName} — ${fmt(paidCourierCollect)} جنيه`);
+    setTimeout(hideResult, 5000);
+
     $('pmCash').value = ''; $('pmInstapay').value = '';
     $('pmWallet').value = ''; $('pmExtra').value = '';
     updatePayValidation();
+  } else if (successCount > 0) {
+    // بعض نجح وبعض فشل — أبقِ الفاشلين في الجدول
+    orders = orders.filter(o => o.status !== 'done');
+    updateStats(); renderTable(); updatePayMethodsCard();
+    showResult(true, `✅ ${successCount} نجح  ⚠ ${failCount} فشل`, 'راجع الجدول للتفاصيل');
+  } else {
+    showResult(false, 'فشل التحصيل لكل الأوردرات', 'راجع الجدول للتفاصيل');
   }
   refocus();
 }
@@ -1793,7 +1832,30 @@ async function exportXLSX(selectedOnly) {
         cell.numFmt = NUM_FMT;
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
-      if (isFailed) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + FAIL_BG } };
+      if (isFailed) {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + FAIL_BG } };
+        return;
+      }
+      // عمود الشحن (col 11) — رمادي فاتح
+      if (col === 11 && cell.value !== null && cell.value !== '') {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } };
+        cell.font = { size: 10, name: 'Arial', color: { argb: 'FF666666' } };
+      }
+      // عمود خصم الوحدة (col 7) — أصفر فاتح + أحمر
+      if (col === 7 && cell.value !== null && cell.value !== '') {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
+        cell.font = { size: 10, name: 'Arial', bold: true, color: { argb: 'FFC00000' } };
+      }
+      // عمود خصم الأوردر (col 9) — أصفر فاتح + أحمر
+      if (col === 9 && cell.value !== null && cell.value !== '') {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
+        cell.font = { size: 10, name: 'Arial', bold: true, color: { argb: 'FFC00000' } };
+      }
+      // عمود الكمية (col 5) — أزرق فاتح لو qty > 1
+      if (col === 5 && qty > 1) {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDEEFF' } };
+        cell.font = { size: 10, name: 'Arial', bold: true };
+      }
     });
     if (isFailed) {
       const rc = row.getCell(12);
