@@ -733,6 +733,7 @@ function deleteOrder(idx){
 // ══════════════════════════════════════════════════════════════
 // EXTRA SHIPPING SCANNER
 // ══════════════════════════════════════════════════════════════
+// ── [FIX #3]: Same gap-based auto-fire logic as main scanner ──
 let extraScanTimer=null, extraLastKeyTime=0;
 
 function showExtraScanner(){
@@ -747,13 +748,15 @@ function hideExtraScanner(){
 }
 
 const extraScanInput=$('extraScanInput');
-// Scanner: uses gap-based auto-fire (scanner gun fires fast)
+
+// ── [FIX #3]: Use same gap-based pattern as main scanner.
+// gap < 80ms = scanner gun → auto-fire after 150ms timeout
+// gap >= 80ms = manual typing → auto-fire after 400ms timeout (same as main scanner)
+// Enter key always fires immediately regardless of gap
 extraScanInput.addEventListener('input',()=>{
   const gap=Date.now()-extraLastKeyTime; extraLastKeyTime=Date.now();
   clearTimeout(extraScanTimer);
-  // Only auto-fire for scanner gun (gap < 80ms → 150ms timeout)
-  // For manual typing, do NOT auto-fire — wait for Enter only
-  if(gap<80) extraScanTimer=setTimeout(handleExtraScan, 150);
+  extraScanTimer=setTimeout(handleExtraScan, gap<80?150:400);
 });
 extraScanInput.addEventListener('keypress',e=>{
   if(e.key==='Enter'){e.preventDefault();clearTimeout(extraScanTimer);handleExtraScan();}
@@ -767,7 +770,6 @@ $('extraManualInput').addEventListener('keypress',e=>{
 async function handleExtraScan(){
   const raw=extraScanInput.value.trim(); extraScanInput.value='';
   if(!raw)return;
-  // numeric = direct order id; otherwise treat as order number
   if(/^\d+$/.test(raw)){
     await processExtraOrderById(raw);
   } else {
@@ -798,24 +800,20 @@ async function processExtraOrderByName(orderNumber){
 }
 
 async function processExtraOrderById(numericId){
-  // Check: already in main orders table?
   if(orders.find(o=>o.id===numericId)){
     showToast('⚠ هذا الأوردر موجود بالفعل في الجدول','error');
     return;
   }
-  // Check: already in extra entries?
   if(extraEntries.find(e=>e.id===numericId)){
     showToast('⚠ هذا الأوردر موجود بالفعل في الشحن الإضافي','error');
     return;
   }
 
-  // Add placeholder entry
   const entry={ id:numericId, orderName:null, courier:null, amount:'', status:'loading', error:null };
   extraEntries.push(entry);
   hideExtraScanner();
   renderExtraEntries();
 
-  // Fetch order data to get courier
   try{
     const c=getConfig();
     const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},body:JSON.stringify({action:'preview',orderId:numericId})});
@@ -868,17 +866,14 @@ function renderExtraEntries(){
     if(e.status==='loading') statusHtml=`<span class="extra-entry-status extra-entry-loading"><span class="spinner"></span></span>`;
     else if(e.status==='error'||e.status==='notfound') statusHtml=`<span class="extra-entry-status extra-entry-error">⚠ ${e.error}</span>`;
 
-    // تحديد حالة المندوب
     let courierHtml='';
     if(e.status==='loading'){
       courierHtml=`<span class="extra-entry-courier" style="color:var(--text-muted)">...</span>`;
     } else if(!e.courier){
-      // لا يوجد مندوب — تنبيه واضح
       courierHtml=`<span class="extra-entry-courier-warn">
         <span class="warn-name">⚠ لا يوجد مندوب</span>
       </span>`;
     } else if(expectedCourier && e.courier !== expectedCourier){
-      // مندوب مختلف — تنبيه بصري مع الاسم
       courierHtml=`<span class="extra-entry-courier-warn">
         <span class="warn-name">⚠ ${e.courier}</span>
         <span class="warn-label">مندوب مختلف!</span>
@@ -905,7 +900,6 @@ function renderExtraEntries(){
 
 function updateExtraAmount(idx, val){
   extraEntries[idx].amount=val;
-  // update total display
   const total=getTotalExtraShipping();
   const totalEl=$('extraShippingTotal');
   if(total>0){ totalEl.style.display='inline'; totalEl.textContent=`إجمالي: ${fmt(total)}`; }
@@ -950,17 +944,11 @@ function showTable(){$('tableWrap').classList.add('show');$('statsBar').classLis
 
 function renderTable(){
   const tbody=$('tableBody');
-  // Combine regular orders + extra shipping rows for display
-  const allRows=[
-    ...orders.map((o,i)=>({type:'order',data:o,idx:i})),
-    ...extraEntries.map((e,i)=>({type:'extra',data:e,idx:i})),
-  ];
 
-  if(!allRows.length){ tbody.innerHTML=''; return; }
+  if(!orders.length&&!extraEntries.length){ tbody.innerHTML=''; return; }
 
   const rows=[];
 
-  // Regular orders
   orders.forEach((o,i)=>{
     const nameDisplay=o.orderName||`ID: ${o.id}`;
     const hasDetails=(o.lineItems&&o.lineItems.length>0)||(o.returnedItems&&o.returnedItems.length>0);
@@ -1044,7 +1032,6 @@ function renderTable(){
       <td class="cell-center">${badge}</td>
     </tr>`);
 
-    // Detail row
     let detailContent='';
     if(hasDetails){
       let normalRows=o.lineItems?o.lineItems.map(li=>`<tr>
@@ -1066,7 +1053,6 @@ function renderTable(){
     rows.push(`<tr class="detail-row" data-idx="${i}"><td colspan="9">${hasDetails?detailContent:''}</td></tr>`);
   });
 
-  // Extra shipping rows in table
   extraEntries.forEach((e,i)=>{
     const amount=parseFloat(e.amount)||0;
     const nameDisplay=e.orderName||('#'+e.id);
@@ -1091,13 +1077,11 @@ function renderTable(){
       <td class="cell-center"><span style="color:var(--text-muted);font-size:11px">—</span></td>
       <td class="cell-center">${statusHtml}</td>
     </tr>`);
-    // no detail row for extra
     rows.push(`<tr class="detail-row"><td colspan="9"></td></tr>`);
   });
 
   tbody.innerHTML=rows.join('');
 
-  // Show/hide table
   if(orders.length||extraEntries.length){
     $('tableWrap').classList.add('show');
     $('statsBar').classList.add('show');
@@ -1106,8 +1090,6 @@ function renderTable(){
 
 function toggleRow(idx){
   const main=document.querySelector(`tr.order-row[data-type="order"][data-idx="${idx}"]`);
-  const allDetailRows=document.querySelectorAll(`tr.detail-row`);
-  // find the detail row after this main row
   if(!main)return;
   const next=main.nextElementSibling;
   if(!next||!next.classList.contains('detail-row'))return;
@@ -1131,9 +1113,8 @@ function updateStats(){
   const extraTotal=getTotalExtraShipping();
   const allForCollect=[...active,...refunds];
   let sumCourierCollect=allForCollect.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
-  sumCourierCollect -= extraTotal; // deduct extra shipping
+  sumCourierCollect -= extraTotal;
 
-  $('statCount').innerHTML=orders.length+extraEntries.length;
   $('statTotal').textContent=sumTotal>0?fmt(sumTotal):'—';
   $('statRefundVal').textContent=sumRefund>0?'−'+fmt(sumRefund):'—';
   $('statShipping').textContent=(sumShipping+extraTotal)>0?fmt(sumShipping+extraTotal):'—';
@@ -1144,14 +1125,24 @@ function updateStats(){
   const chip=$('statNetChip');
   chip.style.borderColor=sumCourierCollect<0?'var(--red)':sumCourierCollect>0?'var(--green)':'var(--border-strong)';
 
-  const ready=orders.filter(o=>o.status==='ready').length;
-  const refundCount=refunds.length;
+  // ── [FIX #1]: عداد الأوردرات — يعرض ready + refund كأرقام منفصلة ──
+  // مثل نافذة التأكيد: أخضر (ready) + أحمر (refund)
+  // الأوردرات الملغية/غير الموجودة/الأخطاء لا تُحسب في العداد
+  const readyCount  = orders.filter(o=>o.status==='ready').length;
+  const refundCount = orders.filter(o=>o.status==='refund').length;
   const countEl=$('statCount');
-  if(ready>0||refundCount>0){
-    countEl.innerHTML=`${ready>0?`<span style="color:var(--green);font-weight:800">${ready}</span>`:''}${ready>0&&refundCount>0?`<span style="color:var(--text-muted);font-size:14px;margin:0 2px">+</span>`:''}${refundCount>0?`<span style="color:var(--red);font-weight:800">${refundCount}</span>`:''}`;
+
+  if(readyCount>0||refundCount>0){
+    const parts=[];
+    if(readyCount>0)  parts.push(`<span style="color:var(--green);font-weight:800">${readyCount}</span>`);
+    if(refundCount>0) parts.push(`<span style="color:var(--red);font-weight:800">${refundCount}</span>`);
+    countEl.innerHTML=parts.join(`<span style="color:var(--text-muted);font-size:14px;margin:0 2px">+</span>`);
   } else {
-    countEl.innerHTML=`<span>${orders.length+extraEntries.length}</span>`;
+    // لو ما فيش ready ولا refund، يعرض الكلي (scanning/loading/etc.)
+    const totalVisible=orders.length+extraEntries.length;
+    countEl.innerHTML=`<span>${totalVisible}</span>`;
   }
+
   $('tabBadgeReady').style.display='none';
   $('tabBadgeRefund').style.display='none';
 }
@@ -1214,9 +1205,11 @@ function isPayValid(){
   return Math.abs(Math.abs(entered)-Math.abs(target))<0.01;
 }
 
+// ── [FIX #4]: getReadyCourier و getReadyCourierError تشمل refund orders ──
+// مندوب واحد لكل شيء: ready + refund + extra shipping
 function getReadyCourier(){
   const allForCourier=[
-    ...orders.filter(o=>o.status==='ready'),
+    ...orders.filter(o=>o.status==='ready'||o.status==='refund'),
     ...extraEntries.filter(e=>e.status==='ok'),
   ];
   const couriers=[...new Set(allForCourier.map(o=>o.courier).filter(Boolean))];
@@ -1224,21 +1217,30 @@ function getReadyCourier(){
 }
 
 function getReadyCourierError(){
-  const readyOrders=orders.filter(o=>o.status==='ready');
-  if(!readyOrders.length&&!extraEntries.filter(e=>e.status==='ok').length) return null;
+  const readyOrders  = orders.filter(o=>o.status==='ready');
+  const refundOrders = orders.filter(o=>o.status==='refund');
+  const extraOk      = extraEntries.filter(e=>e.status==='ok');
 
-  // Check missing courier in ready orders
+  // لو مفيش أي أوردر نشط، لا يوجد خطأ
+  if(!readyOrders.length&&!refundOrders.length&&!extraOk.length) return null;
+
+  // التحقق من بدون مندوب في ready
   const noCourier=readyOrders.filter(o=>!o.courier);
   if(noCourier.length) return `بدون مندوب: ${noCourier.map(o=>o.orderName||o.id).join('، ')}`;
 
-  // Check missing courier in extra entries
-  const extraNoCourier=extraEntries.filter(e=>e.status==='ok'&&!e.courier);
+  // التحقق من بدون مندوب في refund
+  const refundNoCourier=refundOrders.filter(o=>!o.courier);
+  if(refundNoCourier.length) return `أوردر استرداد بدون مندوب: ${refundNoCourier.map(o=>o.orderName||o.id).join('، ')}`;
+
+  // التحقق من بدون مندوب في extra
+  const extraNoCourier=extraOk.filter(e=>!e.courier);
   if(extraNoCourier.length) return `شحن إضافي بدون مندوب: ${extraNoCourier.map(e=>e.orderName||e.id).join('، ')}`;
 
-  // Check all same courier
+  // التحقق من مندوب واحد فقط عبر ready + refund + extra
   const allCouriers=[
     ...readyOrders.map(o=>o.courier),
-    ...extraEntries.filter(e=>e.status==='ok').map(e=>e.courier),
+    ...refundOrders.map(o=>o.courier),
+    ...extraOk.map(e=>e.courier),
   ].filter(Boolean);
   const unique=[...new Set(allCouriers)];
   if(unique.length>1) return `أكثر من مندوب: ${unique.join('، ')}`;
@@ -1278,7 +1280,6 @@ async function confirmBulkPay(){
   const refundCollectOnly = refundOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
   const totalNet          = readyCollectOnly + refundCollectOnly - extraTotal;
 
-  const preregCount = readyOrders.filter(o=>o.preRegistered).length;
   const totalRefund = refundOrders.reduce((s,o)=>s+(o.refundAmount||0),0);
   const totalRetShip= refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
@@ -1297,22 +1298,8 @@ async function confirmBulkPay(){
   if(extraEntries.filter(e=>e.status==='ok').length>0)
     orderParts.push(`<span style="color:var(--orange);font-weight:700">${extraEntries.filter(e=>e.status==='ok').length} شحن إضافي</span>`);
 
-  // Extra shipping details
-  let extraSection='';
-  if(extraTotal>0){
-    const extraList=extraEntries.filter(e=>e.status==='ok'&&parseFloat(e.amount)>0)
-      .map(e=>`<div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--surface);border:1px solid var(--orange-border);border-radius:6px;font-size:12px;margin-bottom:4px">
-        <span style="font-family:'IBM Plex Mono',monospace;font-weight:700">${e.orderName||('#'+e.id)}</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--orange)">−${fmt(parseFloat(e.amount))} جنيه</span>
-      </div>`).join('');
-    extraSection=`<div style="background:var(--orange-light);border:1px solid var(--orange-border);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px">
-      <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:6px">🚚 مصاريف الشحن الإضافية</div>
-      ${extraList}
-      <div style="display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid var(--orange-border);font-size:12px;font-weight:700;color:var(--orange)">
-        <span>الإجمالي</span><span style="font-family:'IBM Plex Mono',monospace">−${fmt(extraTotal)} جنيه</span>
-      </div>
-    </div>`;
-  }
+  // ── [FIX #2]: حذف قسم تفاصيل مصاريف الشحن الإضافية من نافذة التأكيد ──
+  // يُعرض فقط السطر الخاص بالمبلغ في confirm-detail-row بدون section تفصيلي
 
   const paySection=`
     <div class="confirm-detail-row"><span class="confirm-detail-label">المندوب</span><span class="confirm-detail-val">${courierName||'—'}</span></div>
@@ -1324,7 +1311,6 @@ async function confirmBulkPay(){
       <span style="font-size:13px;font-weight:700">صافي تحصيل المندوب</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:${totalNet<0?'var(--red)':'var(--green)'}">${fmtSigned(totalNet)} جنيه</span>
     </div>
-    ${extraSection}
     ${cash>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">💵 نقدي</span><span class="confirm-detail-val">${fmt(cash)} جنيه</span></div>`:''}
     ${instapay>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">📱 انستاباي</span><span class="confirm-detail-val">${fmt(instapay)} جنيه</span></div>`:''}
     ${wallet>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">👛 محفظة</span><span class="confirm-detail-val">${fmt(wallet)} جنيه</span></div>`:''}`;
@@ -1385,7 +1371,6 @@ async function doBulkPayAndRefund(){
 
   isProcessing=false;updatePayBtn();updatePayMethodsCard();
 
-  // ── Log ──
   const paidOrders      =readyOrders.filter(o=>o.status==='done');
   const paidTotal       =paidOrders.reduce((s,o)=>s+o.amount,0);
   const paidCourierColl =paidOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
@@ -1394,7 +1379,6 @@ async function doBulkPayAndRefund(){
   const refundedShip    =refundedOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
   const allProcessed=[...readyOrders,...refundOrders];
-  // Extra shipping entries for log
   const extraShippingLog=extraEntries.filter(e=>e.status==='ok').map(e=>({
     orderId: e.id,
     orderName: e.orderName||(''+e.id),
@@ -1566,7 +1550,6 @@ function renderLog(log){
     if(parseFloat(pm.instapay)>0)pmChips.push(`<span class="log-pm-chip">📱 انستاباي <span>${fmt(pm.instapay)}</span></span>`);
     if(parseFloat(pm.wallet)>0)pmChips.push(`<span class="log-pm-chip">👛 محفظة <span>${fmt(pm.wallet)}</span></span>`);
     if(parseFloat(entry.totalRefund)>0)pmChips.push(`<span class="log-pm-chip" style="background:#fff1f2;border-color:#fecdd3;color:var(--red)">💸 استرداد <span>${fmt(entry.totalRefund)}</span></span>`);
-    // Extra shipping chips
     const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:(entry.extraShipping?[entry.extraShipping]:[]);
     if(parseFloat(entry.extraShippingTotal||0)>0||extraArr.length>0){
       const total=parseFloat(entry.extraShippingTotal)||extraArr.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
@@ -1594,7 +1577,6 @@ function renderLog(log){
       </div>`;
     }).join('');
 
-    // Extra shipping detail rows in log
     const extraDetailRows=extraArr.map(e=>`<div class="log-detail-item">
       <div class="log-detail-main">
         <span class="log-detail-order">🚚 <span style="color:var(--orange)">${e.orderName||('#'+e.orderId)}</span> ${e.courier?`<span style="color:var(--purple);font-size:11px">${e.courier}</span>`:''}</span>
@@ -1708,7 +1690,6 @@ async function exportXLSX(selectedOnly){
         }
         return;
       }
-      // شحن إضافي — خلفية برتقالي فاتح
       if(isExtraShipping){
         cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF7ED'}};
         if(col===12) cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFEA580C'}};
@@ -1754,7 +1735,6 @@ async function exportXLSX(selectedOnly){
     const courier=entry.courier||'';
     const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:(entry.extraShipping&&typeof entry.extraShipping==='object'&&!Array.isArray(entry.extraShipping)?[entry.extraShipping]:[]);
 
-    // Regular orders
     for(const o of(entry.orders||[])){
       const isFailed    = o.status!=='success';
       const isRefundRow = o.isRefund===true;
@@ -1809,11 +1789,10 @@ async function exportXLSX(selectedOnly){
       }
     }
 
-    // Extra shipping rows in XLSX — واحد لكل entry، بعمود الشحن سالب
     for(const e of extraArr){
       const amount=parseFloat(e.amount)||0;
       if(!amount)continue;
-      grandCourierNet -= amount; // extra shipping reduces net
+      grandCourierNet -= amount;
       const r=ws.addRow({
         date,
         courier: e.courier||courier,
@@ -1867,7 +1846,6 @@ async function exportXLSX(selectedOnly){
       courierTotals[cr].courierNet += parseFloat(o.courierCollect)||0;
       grandNet2                    += parseFloat(o.courierCollect)||0;
     }
-    // deduct extra shipping per courier
     const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:[];
     for(const e of extraArr){
       const amt=parseFloat(e.amount)||0;
