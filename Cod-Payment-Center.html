@@ -36,6 +36,9 @@
   --purple-border:  #c4b5fd;
   --cyan:           #0891b2;
   --cyan-light:     #ecfeff;
+  --orange:         #ea580c;
+  --orange-light:   #fff7ed;
+  --orange-border:  #fed7aa;
   --radius:         12px;
   --radius-sm:      8px;
   --shadow:         0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
@@ -68,7 +71,6 @@ body { font-family:'Noto Sans Arabic',sans-serif; background:var(--bg); color:va
 /* ── Banners ── */
 .not-configured-banner { background:var(--amber-light); border:1px solid var(--amber-border); border-radius:var(--radius-sm); padding:9px 13px; font-size:12px; color:var(--amber); margin-bottom:16px; display:none; }
 .not-configured-banner.show { display:block; }
-/* refund-alert-banner removed */
 
 /* ── Card ── */
 .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:16px; }
@@ -125,11 +127,40 @@ body { font-family:'Noto Sans Arabic',sans-serif; background:var(--bg); color:va
 .courier-banner-total { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; margin-right:auto; direction:ltr; }
 .courier-banner-total.positive { color:var(--green); }
 .courier-banner-total.negative { color:var(--red); }
-.extra-shipping-row { display:flex; align-items:center; gap:8px; background:var(--red-light); border:1px solid var(--red-border); border-radius:var(--radius-sm); padding:9px 13px; margin-bottom:12px; }
-.extra-shipping-label { font-size:12px; color:var(--red); font-weight:600; white-space:nowrap; flex-shrink:0; }
-.extra-shipping-input { flex:1; background:transparent; border:none; border-bottom:1px solid var(--red-border); color:var(--red); font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:700; outline:none; padding:2px 0; direction:ltr; min-width:0; }
-.extra-shipping-input::placeholder { color:rgba(220,38,38,.3); font-weight:400; }
-.extra-shipping-net { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; color:var(--cyan); white-space:nowrap; flex-shrink:0; direction:ltr; }
+
+/* ── Extra Shipping Entries ── */
+.extra-shipping-section { background:var(--orange-light); border:1px solid var(--orange-border); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:12px; }
+.extra-shipping-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.extra-shipping-title { font-size:12px; font-weight:700; color:var(--orange); display:flex; align-items:center; gap:6px; }
+.extra-shipping-total { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; color:var(--orange); direction:ltr; }
+.extra-shipping-net { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--cyan); direction:ltr; }
+.btn-add-extra { display:flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; border:1px dashed var(--orange-border); background:transparent; color:var(--orange); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; }
+.btn-add-extra:hover { background:rgba(234,88,12,.08); border-style:solid; }
+.extra-entries-list { display:flex; flex-direction:column; gap:6px; }
+.extra-entry { background:var(--surface); border:1px solid var(--orange-border); border-radius:var(--radius-sm); padding:8px 10px; display:flex; align-items:center; gap:8px; animation:entryIn .25s ease; }
+@keyframes entryIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.extra-entry-order { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; color:var(--text-primary); min-width:80px; }
+.extra-entry-courier { font-size:11px; color:var(--purple); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.extra-entry-amount-wrap { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.extra-entry-amount { width:80px; padding:4px 8px; border:1.5px solid var(--orange-border); border-radius:6px; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:700; color:var(--orange); outline:none; direction:ltr; text-align:center; transition:border-color .2s; }
+.extra-entry-amount:focus { border-color:var(--orange); box-shadow:0 0 0 2px rgba(234,88,12,.1); }
+.extra-entry-amount::placeholder { color:var(--text-muted); font-weight:400; font-size:11px; }
+.extra-entry-currency { font-size:10px; color:var(--text-muted); }
+.btn-del-extra { background:none; border:none; cursor:pointer; font-size:14px; padding:2px; border-radius:4px; transition:transform .15s; flex-shrink:0; }
+.btn-del-extra:hover { transform:scale(1.2); }
+.extra-entry-status { font-size:11px; display:flex; align-items:center; gap:4px; }
+.extra-entry-loading { color:var(--cyan); }
+.extra-entry-error   { color:var(--red); font-size:10px; }
+/* Scanner input inside extra entries */
+.extra-scanner-row { display:flex; gap:6px; margin-bottom:6px; }
+.extra-scan-input { flex:1; padding:7px 10px; border:1.5px dashed var(--orange-border); border-radius:var(--radius-sm); background:rgba(255,247,237,.6); font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-primary); outline:none; direction:ltr; transition:border-color .2s; }
+.extra-scan-input:focus { border-color:var(--orange); border-style:solid; box-shadow:0 0 0 2px rgba(234,88,12,.1); }
+.extra-scan-input::placeholder { color:var(--text-muted); font-size:11px; font-family:'Noto Sans Arabic',sans-serif; }
+.btn-extra-manual { padding:7px 12px; border-radius:var(--radius-sm); border:1px solid var(--orange-border); background:var(--surface); color:var(--orange); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.btn-extra-manual:hover:not(:disabled) { background:var(--orange-light); }
+.btn-extra-manual:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ── Pay grid ── */
 .pay-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px; }
 .pay-method-item { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; }
 .pay-method-label { font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; }
@@ -164,12 +195,14 @@ tbody tr.order-row.row-new { animation:rowIn .5s ease; }
 tbody tr.order-row.expanded { border-bottom:none; }
 
 /* ── Row color variants ── */
-tbody tr.order-row.ready-row { background:var(--green-row-bg); border-right:3px solid var(--green); }
+tbody tr.order-row.ready-row    { background:var(--green-row-bg); border-right:3px solid var(--green); }
 tbody tr.order-row.ready-row:hover { background:#dcfce7; }
 tbody tr.order-row.ready-row.expanded { background:#dcfce7; }
-tbody tr.order-row.refund-row { background:var(--red-row-bg); border-right:3px solid var(--red); }
+tbody tr.order-row.refund-row   { background:var(--red-row-bg);   border-right:3px solid var(--red); }
 tbody tr.order-row.refund-row:hover { background:#ffe4e6; }
 tbody tr.order-row.refund-row.expanded { background:#ffe4e6; }
+tbody tr.order-row.extra-row    { background:var(--orange-light); border-right:3px solid var(--orange); }
+tbody tr.order-row.extra-row:hover { background:#fed7aa33; }
 
 @keyframes rowIn { from { background:rgba(37,99,235,.08); } to { background:transparent; } }
 
@@ -219,6 +252,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .badge-skipped    { background:var(--surface-2);    color:var(--text-secondary); border:1px solid var(--border-strong); }
 .badge-notfound   { background:var(--surface-2);    color:var(--text-muted);     border:1px solid var(--border); }
 .badge-error      { background:var(--red-light);    color:var(--red);    border:1px solid var(--red-border); }
+.badge-extra      { background:var(--orange-light); color:var(--orange); border:1px solid var(--orange-border); font-weight:700; }
 
 .row-del-btn { background:none; border:none; cursor:pointer; font-size:16px; padding:2px 4px; border-radius:4px; transition:transform .15s; display:inline-flex; align-items:center; justify-content:center; }
 .row-del-btn:hover { transform:scale(1.2); }
@@ -288,6 +322,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .log-detail-ok     { background:var(--green-light); color:var(--green); border:1px solid var(--green-border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
 .log-detail-err    { background:var(--red-light);   color:var(--red);   border:1px solid var(--red-border);   padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
 .log-detail-refund { background:#ffe4e6; color:var(--red); border:1px solid #fda4af; padding:2px 7px; border-radius:5px; font-size:10px; font-weight:700; }
+.log-detail-extra  { background:var(--orange-light); color:var(--orange); border:1px solid var(--orange-border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:700; }
 .log-detail-sub { display:none; padding:8px 14px 10px; border-top:1px solid var(--border); background:rgba(0,0,0,.015); }
 .log-detail-item.open .log-detail-sub { display:block; }
 .log-sub-label { font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; margin-top:6px; }
@@ -317,12 +352,12 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .confirm-detail-row:last-of-type { border-bottom:none; }
 .confirm-detail-label { font-size:12px; color:var(--text-secondary); }
 .confirm-detail-val   { font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; }
-.confirm-detail-val.green { color:var(--green); }
-.confirm-detail-val.red   { color:var(--red); }
+.confirm-detail-val.green  { color:var(--green); }
+.confirm-detail-val.red    { color:var(--red); }
+.confirm-detail-val.orange { color:var(--orange); }
 .confirm-refund-section { background:#fff1f2; border:2px solid #fda4af; border-radius:var(--radius-sm); padding:12px 14px; margin-top:14px; }
 .confirm-refund-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .confirm-refund-title { font-size:13px; font-weight:800; color:#9f1239; }
-.confirm-refund-subtitle { font-size:11px; color:#be123c; margin-bottom:10px; }
 .confirm-refund-list { display:flex; flex-direction:column; gap:6px; }
 .confirm-refund-item { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #fecdd3; border-radius:6px; padding:7px 10px; font-size:12px; }
 .confirm-refund-order  { font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--text-primary); }
@@ -365,7 +400,6 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 <div class="page active" id="page-scan">
   <div class="not-configured-banner" id="notConfigBanner">⚠ الأداة غير مضبوطة — افتح الإعدادات وأدخل بيانات الاتصال</div>
 
-
   <div class="card">
     <div class="card-header">ماسح الباركود</div>
     <div class="card-body">
@@ -395,13 +429,30 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
       <div class="courier-banner">
         <span class="courier-banner-label">المندوب:</span>
         <span class="courier-banner-name" id="courierBannerName">—</span>
-        <span class="courier-banner-total" id="courierBannerTotal">—</span>
+        <span class="courier-banner-total" id="courierBannerTotal"></span>
       </div>
-      <div class="extra-shipping-row">
-        <span class="extra-shipping-label">🚚 مصاريف شحن إضافية</span>
-        <input type="number" id="pmExtra" class="extra-shipping-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()">
-        <span class="extra-shipping-net" id="extraNet"></span>
+
+      <!-- Extra Shipping Section -->
+      <div class="extra-shipping-section" id="extraShippingSection">
+        <div class="extra-shipping-header">
+          <div class="extra-shipping-title">
+            🚚 مصاريف شحن إضافية
+            <span class="extra-shipping-total" id="extraShippingTotal" style="display:none"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="extra-shipping-net" id="extraNet"></span>
+            <button class="btn-add-extra" onclick="showExtraScanner()">+ إضافة أوردر</button>
+          </div>
+        </div>
+        <!-- Scanner row for extra shipping -->
+        <div class="extra-scanner-row" id="extraScannerRow" style="display:none;">
+          <input type="text" id="extraScanInput" class="extra-scan-input" placeholder="امسح الباركود أو أدخل رقم الأوردر..." autocomplete="off" spellcheck="false" inputmode="none">
+          <button class="btn-extra-manual" id="extraManualBtn" onclick="handleExtraManualAdd()">إضافة</button>
+          <button class="btn-extra-manual" style="color:var(--text-muted)" onclick="hideExtraScanner()">إلغاء</button>
+        </div>
+        <div class="extra-entries-list" id="extraEntriesList"></div>
       </div>
+
       <div class="pay-grid">
         <div class="pay-method-item"><div class="pay-method-label">💵 نقدي</div><input type="number" id="pmCash" class="pay-method-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()"></div>
         <div class="pay-method-item"><div class="pay-method-label">📱 انستاباي</div><input type="number" id="pmInstapay" class="pay-method-input" placeholder="0.00" min="0" step="0.01" oninput="updatePayValidation()"></div>
@@ -508,7 +559,9 @@ function getConfig() {
 function isConfigured()    { const c=getConfig(); return c.url.startsWith('http')&&c.secret.length>0; }
 function isLogConfigured() { const c=getConfig(); return c.logUrl.startsWith('http')&&c.logSecret.length>0; }
 
-let orders=[], isProcessing=false;
+// orders = regular orders in table
+// extraEntries = extra shipping orders
+let orders=[], extraEntries=[], isProcessing=false;
 const $=id=>document.getElementById(id);
 
 window.addEventListener('load',()=>{
@@ -544,13 +597,17 @@ function updateSettingsBtn(){$('settingsBtn').classList.toggle('configured',isCo
 function updateConfigBanner(){$('notConfigBanner').classList.toggle('show',!isConfigured());}
 
 // ══════════════════════════════════════════════════════════════
-// SCANNER
+// MAIN SCANNER
 // ══════════════════════════════════════════════════════════════
 const scannerInput=$('scannerInput');
 let lastKeyTime=0,scanTimer=null;
-function refocus(){if($('page-scan').classList.contains('active'))scannerInput.focus();}
+function refocus(){
+  if($('page-scan').classList.contains('active')&&!$('extraScannerRow').style.display!=='none'){
+    scannerInput.focus();
+  }
+}
 document.addEventListener('click',e=>{
-  const skip=['.modal-overlay','.log-toolbar','#logContainer','.pay-methods-card','.table-wrap','.result-box','.manual-row','#settingsBtn'];
+  const skip=['.modal-overlay','.log-toolbar','#logContainer','.pay-methods-card','.table-wrap','.result-box','.manual-row','#settingsBtn','#extraScannerRow'];
   if(skip.some(s=>e.target.closest(s)))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON')return;
   setTimeout(refocus,50);
@@ -577,7 +634,7 @@ async function handleManualAdd(){
   const manualBtn=$('manualBtn');
   manualBtn.disabled=true;manualBtn.textContent='...';input.disabled=true;
   try{
-    if(orders.find(o=>o.orderName==='#'+raw)){showToast('⚠ موجود بالفعل');return;}
+    if(orders.find(o=>o.orderName==='#'+raw)||orders.find(o=>o.id===raw)){showToast('⚠ موجود بالفعل');return;}
     const c=getConfig();
     const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},body:JSON.stringify({action:'resolveByName',orderName:'#'+raw})});
     const d=await res.json();
@@ -594,11 +651,9 @@ async function addOrder(numericId){
     canMarkAsPaid:null, skipReason:null, financialStatus:null,
     courier:null, lineItems:[], status:'scanning', error:null,
     preRegistered:false, cancelled:false,
-    // return/exchange fields
     hasReturn:false, returnShipping:'0.00', returnedItems:[],
-    // refund fields
-    refundAmount:null, parentTransactionId:null,
-    orderDiscount:null,
+    refundAmount:null, parentTransactionId:null, orderDiscount:null,
+    isExtraShipping: false,
   };
   orders.unshift(order);
   showTable(); updateStats(); renderTable();
@@ -628,12 +683,10 @@ async function addOrder(numericId){
         order.hasReturn           = d.hasReturn||false;
         order.returnShipping      = d.returnShipping||'0.00';
         order.returnedItems       = d.returnedItems||[];
-
         if(d.skipReason==='مستحق استرداد'){
-          order.status       = 'refund';
-          order.refundAmount = Math.abs(order.amount);
+          order.status='refund'; order.refundAmount=Math.abs(order.amount);
         } else {
-          order.status = d.canMarkAsPaid ? 'ready' : 'skipped';
+          order.status=d.canMarkAsPaid?'ready':'skipped';
         }
       }
     } else if(d.notFound){
@@ -643,13 +696,165 @@ async function addOrder(numericId){
     }
   }catch(e){order.status='error';order.error='خطأ في الاتصال';}
 
-  updateStats(); renderTable(); updatePayBtn(); updatePayMethodsCard(); updateRefundBanner(); refocus();
+  updateStats(); renderTable(); updatePayBtn(); updatePayMethodsCard(); refocus();
 }
 
 function deleteOrder(idx){
   orders.splice(idx,1);
   if(!orders.length){$('tableWrap').classList.remove('show');$('statsBar').classList.remove('show');}
-  updateStats();updatePayBtn();renderTable();hideResult();updatePayMethodsCard();updateRefundBanner();refocus();
+  updateStats();updatePayBtn();renderTable();hideResult();updatePayMethodsCard();refocus();
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXTRA SHIPPING SCANNER
+// ══════════════════════════════════════════════════════════════
+let extraScanTimer=null, extraLastKeyTime=0;
+
+function showExtraScanner(){
+  $('extraScannerRow').style.display='flex';
+  $('extraScanInput').focus();
+}
+function hideExtraScanner(){
+  $('extraScannerRow').style.display='none';
+  $('extraScanInput').value='';
+  refocus();
+}
+
+const extraScanInput=$('extraScanInput');
+extraScanInput.addEventListener('input',()=>{
+  const gap=Date.now()-extraLastKeyTime; extraLastKeyTime=Date.now();
+  clearTimeout(extraScanTimer);
+  extraScanTimer=setTimeout(handleExtraScan, gap<80?150:400);
+});
+extraScanInput.addEventListener('keypress',e=>{
+  if(e.key==='Enter'){e.preventDefault();clearTimeout(extraScanTimer);handleExtraScan();}
+});
+
+async function handleExtraScan(){
+  const raw=extraScanInput.value.trim(); extraScanInput.value='';
+  if(!raw)return;
+  // numeric = direct order id; otherwise treat as order number
+  if(/^\d+$/.test(raw)){
+    await processExtraOrderById(raw);
+  } else {
+    const clean=raw.replace(/^#/,'');
+    await processExtraOrderByName(clean);
+  }
+}
+
+async function handleExtraManualAdd(){
+  const input=$('extraScanInput'), raw=input.value.trim().replace(/^#/,'');
+  if(!raw){input.focus();return;}
+  if(!isConfigured()){openSettings();return;}
+  input.disabled=true; $('extraManualBtn').disabled=true; $('extraManualBtn').textContent='...';
+  try{ await processExtraOrderByName(raw); }
+  finally{ input.disabled=false; $('extraManualBtn').disabled=false; $('extraManualBtn').textContent='إضافة'; input.value=''; input.focus(); }
+}
+
+async function processExtraOrderByName(orderNumber){
+  if(!isConfigured()){openSettings();return;}
+  try{
+    const c=getConfig();
+    const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},body:JSON.stringify({action:'resolveByName',orderName:'#'+orderNumber})});
+    const d=await res.json();
+    if(!d.success||!d.orderId){showToast(d.notFound?`⚠ #${orderNumber} غير موجود`:'⚠ خطأ','error');return;}
+    await processExtraOrderById(d.orderId);
+  }catch(e){showToast('خطأ في الاتصال','error');}
+}
+
+async function processExtraOrderById(numericId){
+  // Check: already in main orders table?
+  if(orders.find(o=>o.id===numericId)){
+    showToast('⚠ هذا الأوردر موجود بالفعل في الجدول','error');
+    return;
+  }
+  // Check: already in extra entries?
+  if(extraEntries.find(e=>e.id===numericId)){
+    showToast('⚠ هذا الأوردر موجود بالفعل في الشحن الإضافي','error');
+    return;
+  }
+
+  // Add placeholder entry
+  const entry={ id:numericId, orderName:null, courier:null, amount:'', status:'loading', error:null };
+  extraEntries.push(entry);
+  hideExtraScanner();
+  renderExtraEntries();
+
+  // Fetch order data to get courier
+  try{
+    const c=getConfig();
+    const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},body:JSON.stringify({action:'preview',orderId:numericId})});
+    const d=await res.json();
+    if(d.success&&!d.notFound){
+      entry.orderName=d.orderName||('#'+numericId);
+      entry.courier=d.courier||null;
+      entry.status='ok';
+    } else if(d.notFound){
+      entry.status='notfound'; entry.error='غير موجود';
+    } else {
+      entry.status='error'; entry.error=d.error||'خطأ';
+    }
+  }catch(e){
+    entry.status='error'; entry.error='خطأ في الاتصال';
+  }
+
+  renderExtraEntries();
+  updateStats();
+  updatePayValidation();
+  updatePayBtn();
+}
+
+function deleteExtraEntry(idx){
+  extraEntries.splice(idx,1);
+  renderExtraEntries();
+  updateStats();
+  updatePayValidation();
+  updatePayBtn();
+}
+
+function renderExtraEntries(){
+  const list=$('extraEntriesList');
+  const totalEl=$('extraShippingTotal');
+  const total=getTotalExtraShipping();
+  if(total>0){ totalEl.style.display='inline'; totalEl.textContent=`إجمالي: ${fmt(total)}`; }
+  else totalEl.style.display='none';
+
+  if(!extraEntries.length){ list.innerHTML=''; return; }
+
+  list.innerHTML=extraEntries.map((e,i)=>{
+    let statusHtml='';
+    if(e.status==='loading') statusHtml=`<span class="extra-entry-status extra-entry-loading"><span class="spinner"></span></span>`;
+    else if(e.status==='error'||e.status==='notfound') statusHtml=`<span class="extra-entry-status extra-entry-error">⚠ ${e.error}</span>`;
+    return `<div class="extra-entry">
+      <span class="extra-entry-order">${e.orderName||('#'+e.id)}</span>
+      <span class="extra-entry-courier">${e.courier||'<span style="color:var(--text-muted)">لا يوجد مندوب</span>'}</span>
+      ${statusHtml}
+      <div class="extra-entry-amount-wrap">
+        <input type="number" class="extra-entry-amount" placeholder="0.00" min="0" step="0.01"
+          value="${e.amount}"
+          oninput="updateExtraAmount(${i}, this.value)"
+          ${e.status==='loading'?'disabled':''}>
+        <span class="extra-entry-currency">EGP</span>
+      </div>
+      <button class="btn-del-extra" onclick="deleteExtraEntry(${i})" title="حذف">❌</button>
+    </div>`;
+  }).join('');
+}
+
+function updateExtraAmount(idx, val){
+  extraEntries[idx].amount=val;
+  // update total display
+  const total=getTotalExtraShipping();
+  const totalEl=$('extraShippingTotal');
+  if(total>0){ totalEl.style.display='inline'; totalEl.textContent=`إجمالي: ${fmt(total)}`; }
+  else totalEl.style.display='none';
+  updateStats();
+  updatePayValidation();
+  updatePayBtn();
+}
+
+function getTotalExtraShipping(){
+  return extraEntries.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -658,25 +863,15 @@ function deleteOrder(idx){
 function fmt(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
 function fmtSigned(n){const v=Number(n);return (v<0?'−':'')+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
 
-/**
- * حساب تحصيل المندوب لأوردر واحد
- * - عادي:          outstanding - shippingAmount
- * - فيه return:    outstanding - returnShipping
- * - مستحق استرداد: -(refundAmount + returnShipping)  ← سالب = ندفع للمندوب
- */
 function calcCourierCollect(o) {
+  if(o.isExtraShipping) return -(parseFloat(o.extraAmount)||0);
   if(o.status==='refund'||o.status==='refund-done'||o.status==='refund-error'){
-    const refund = o.refundAmount||0;
-    const retShip = parseFloat(o.returnShipping)||0;
-    return -(refund + retShip);
+    return -(( o.refundAmount||0)+(parseFloat(o.returnShipping)||0));
   }
   if(o.hasReturn){
-    const outstanding = o.amount||0;
-    const retShip = parseFloat(o.returnShipping)||0;
-    return outstanding - retShip;
+    return (o.amount||0)-(parseFloat(o.returnShipping)||0);
   }
-  // عادي
-  if(o.amount!=null&&o.shippingAmount!=null) return o.amount - o.shippingAmount;
+  if(o.amount!=null&&o.shippingAmount!=null) return o.amount-o.shippingAmount;
   return null;
 }
 
@@ -693,75 +888,63 @@ function showTable(){$('tableWrap').classList.add('show');$('statsBar').classLis
 
 function renderTable(){
   const tbody=$('tableBody');
+  // Combine regular orders + extra shipping rows for display
+  const allRows=[
+    ...orders.map((o,i)=>({type:'order',data:o,idx:i})),
+    ...extraEntries.map((e,i)=>({type:'extra',data:e,idx:i})),
+  ];
+
+  if(!allRows.length){ tbody.innerHTML=''; return; }
+
   const rows=[];
 
+  // Regular orders
   orders.forEach((o,i)=>{
     const nameDisplay=o.orderName||`ID: ${o.id}`;
     const hasDetails=(o.lineItems&&o.lineItems.length>0)||(o.returnedItems&&o.returnedItems.length>0);
     const expandIcon=hasDetails?`<span class="expand-icon">▶</span>`:'';
     const isCancelled=o.cancelled||o.status==='cancelled';
     const isRefundStatus=o.status==='refund'||o.status==='refund-done'||o.status==='refund-error';
-    const isReady=o.status==='ready'||o.status==='done'||o.status==='prereg';
 
-    // ── Money cells ──
     function moneyCell(val,forceColor){
       if(val==null)return`<span style="color:var(--text-muted)">—</span>`;
       const color=forceColor||(val<0?'var(--red)':'var(--green)');
       return`<span style="color:${color}">${val<0?'−':''}${fmt(Math.abs(val))}</span>`;
     }
 
-    // ── تحصيل المندوب ──
     const courierCollect=(isCancelled||o.status==='scanning'||o.status==='loading'||o.status==='notfound'||o.status==='error')
       ? null : calcCourierCollect(o);
 
-    // ── شحن: للعادي = shippingAmount، للمرتجع = returnShipping (دايماً موجب) ──
-    let displayShipping = null;
-    if(!isCancelled && !isRefundStatus){
-      if(o.hasReturn && parseFloat(o.returnShipping)>0){
-        displayShipping = parseFloat(o.returnShipping);
-      } else if(!o.hasReturn && o.shippingAmount){
-        displayShipping = o.shippingAmount;
-      }
+    let displayShipping=null;
+    if(!isCancelled&&!isRefundStatus){
+      if(o.hasReturn&&parseFloat(o.returnShipping)>0) displayShipping=parseFloat(o.returnShipping);
+      else if(!o.hasReturn&&o.shippingAmount) displayShipping=o.shippingAmount;
     } else if(isRefundStatus){
-      // أوردرات الاسترداد: returnShipping لو موجود
-      if(parseFloat(o.returnShipping)>0) displayShipping = parseFloat(o.returnShipping);
+      if(parseFloat(o.returnShipping)>0) displayShipping=parseFloat(o.returnShipping);
     }
 
-    // ── نوع الأوردر ──
     let orderTypeCol;
-    if(isCancelled) orderTypeCol=`<span style="color:var(--text-muted);font-size:11px">—</span>`;
-    else if(o.status==='scanning'||o.status==='loading'||o.status==='notfound'||o.status==='error')
+    if(isCancelled||o.status==='scanning'||o.status==='loading'||o.status==='notfound'||o.status==='error')
       orderTypeCol=`<span style="color:var(--text-muted);font-size:11px">—</span>`;
     else if(o.hasReturn){
-      // نحدد استرجاع أو استبدال بناءً على بيانات الأوردر
-      // لو returnedItems موجود ولا يوجد lineItems جديدة = استرجاع
-      // لو في lineItems = استبدال
-      const hasNewItems = o.lineItems && o.lineItems.length > 0;
-      orderTypeCol = hasNewItems
-        ? `<span style="background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استبدال</span>`
-        : `<span style="background:var(--red-light);color:var(--red);border:1px solid var(--red-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استرجاع</span>`;
+      const hasNewItems=o.lineItems&&o.lineItems.length>0;
+      orderTypeCol=hasNewItems
+        ?`<span style="background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استبدال</span>`
+        :`<span style="background:var(--red-light);color:var(--red);border:1px solid var(--red-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">استرجاع</span>`;
     } else {
       orderTypeCol=`<span style="background:var(--green-light);color:var(--green);border:1px solid var(--green-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">عادي</span>`;
     }
+
     let shopifyTotal=null;
-    if(!isCancelled&&o.amount!=null){
-      shopifyTotal=isRefundStatus?-Math.abs(o.refundAmount||o.amount):o.amount;
-    }
+    if(!isCancelled&&o.amount!=null) shopifyTotal=isRefundStatus?-Math.abs(o.refundAmount||o.amount):o.amount;
 
-    // ── إجمالي شوبيفاي ──
-    const courierDisplay=(isCancelled)?`<span style="color:var(--text-muted)">—</span>`
-      :(o.courier||`<span style="color:var(--text-muted)">—</span>`);
+    const courierDisplay=isCancelled?`<span style="color:var(--text-muted)">—</span>`:(o.courier||`<span style="color:var(--text-muted)">—</span>`);
 
-    // ── استبدال/استرجاع ──
-    // نوع الأوردر تم حسابه أعلى
-
-    // ── Payment Status ──
     let paymentStatusDisplay;
     if(isCancelled) paymentStatusDisplay=`<span style="color:var(--red);font-size:11px">Cancelled</span>`;
-    else if(isRefundStatus&&(o.status==='refund'||o.status==='refund-error')) paymentStatusDisplay=`<span style="color:var(--red);font-size:11px;font-weight:700">Refund owed</span>`;
+    else if(isRefundStatus&&o.status==='refund') paymentStatusDisplay=`<span style="color:var(--red);font-size:11px;font-weight:700">Refund owed</span>`;
     else paymentStatusDisplay=`<span style="font-size:11px">${financialLabel(o.financialStatus)}</span>`;
 
-    // ── Badge ──
     let badge;
     if(o.status==='scanning')    badge=`<span class="badge badge-scanning"><span class="spinner"></span> مسح...</span>`;
     else if(o.status==='loading')badge=`<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`;
@@ -778,13 +961,12 @@ function renderTable(){
     else if(o.status==='notfound')badge=`<span class="badge badge-notfound">غير موجود</span>`;
     else badge=`<span class="badge badge-error" title="${o.error||''}">خطأ</span>`;
 
-    // ── Row class ──
     let rowClass='order-row';
-    if(i===0) rowClass+=' row-new';
+    if(i===0&&orders.length===1) rowClass+=' row-new';
     if(isRefundStatus) rowClass+=' refund-row';
     else if(o.status==='ready'||o.status==='done') rowClass+=' ready-row';
 
-    rows.push(`<tr class="${rowClass}" data-idx="${i}">
+    rows.push(`<tr class="${rowClass}" data-idx="${i}" data-type="order">
       <td style="padding:6px 8px;text-align:center">
         <button class="row-del-btn" onclick="deleteOrder(${i})" title="حذف">❌</button>
       </td>
@@ -800,62 +982,76 @@ function renderTable(){
       <td class="cell-center">${badge}</td>
     </tr>`);
 
-    // ── Detail row ──
+    // Detail row
     let detailContent='';
     if(hasDetails){
-      // الأصناف العادية
-      let normalRows='';
-      if(o.lineItems&&o.lineItems.length>0){
-        normalRows=o.lineItems.map(li=>`<tr>
-          <td class="td-sku">${li.sku}</td>
-          <td class="td-qty">${li.quantity}</td>
-          <td class="td-price">${fmt(li.unitPrice)}</td>
-          <td class="td-total">${fmt(li.totalPrice)}</td>
-        </tr>`).join('');
-      }
-      // الأصناف المرتجعة (qty وسعر بالسالب)
-      let returnRows='';
-      if(o.returnedItems&&o.returnedItems.length>0){
-        returnRows=o.returnedItems.map(ri=>`<tr style="background:#fff8f8">
-          <td class="td-sku returned">↩ ${ri.sku}</td>
-          <td class="td-qty negative">−${ri.quantity}</td>
-          <td class="td-price negative">−${fmt(ri.discountedUnitPrice)}</td>
-          <td class="td-total negative">−${fmt(parseFloat(ri.discountedUnitPrice)*ri.quantity)}</td>
-        </tr>`).join('');
-      }
-
-      detailContent=`<div class="detail-box">
-        <div class="detail-section">
-          <div class="detail-label">SKUs</div>
-          <table class="sku-table">
-            <thead><tr>
-              <th>SKU</th><th class="th-center">Qty</th>
-              <th class="th-ltr">Unit Price</th><th class="th-ltr">Total</th>
-            </tr></thead>
-            <tbody>${normalRows}${returnRows}</tbody>
-          </table>
-        </div>
-        ${o.hasReturn&&parseFloat(o.returnShipping)>0?`<div class="detail-section return-section">
-          <div class="detail-label">Return Shipping</div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red);font-weight:700">−${fmt(parseFloat(o.returnShipping))} EGP</span>
-        </div>`:''}
+      let normalRows=o.lineItems?o.lineItems.map(li=>`<tr>
+        <td class="td-sku">${li.sku}</td><td class="td-qty">${li.quantity}</td>
+        <td class="td-price">${fmt(li.unitPrice)}</td><td class="td-total">${fmt(li.totalPrice)}</td>
+      </tr>`).join(''):'';
+      let returnRows=o.returnedItems?o.returnedItems.map(ri=>`<tr style="background:#fff8f8">
+        <td class="td-sku returned">↩ ${ri.sku}</td><td class="td-qty negative">−${ri.quantity}</td>
+        <td class="td-price negative">−${fmt(ri.discountedUnitPrice)}</td>
+        <td class="td-total negative">−${fmt(parseFloat(ri.discountedUnitPrice)*ri.quantity)}</td>
+      </tr>`).join(''):'';
+      detailContent=`<div class="detail-box"><div class="detail-section"><div class="detail-label">SKUs</div>
+        <table class="sku-table"><thead><tr><th>SKU</th><th class="th-center">Qty</th><th class="th-ltr">Unit Price</th><th class="th-ltr">Total</th></tr></thead>
+        <tbody>${normalRows}${returnRows}</tbody></table></div>
+        ${o.hasReturn&&parseFloat(o.returnShipping)>0?`<div class="detail-section return-section"><div class="detail-label">Return Shipping</div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red);font-weight:700">−${fmt(parseFloat(o.returnShipping))} EGP</span></div>`:''}
       </div>`;
     }
-    rows.push(`<tr class="detail-row" data-idx="${i}">
-      <td colspan="9">${hasDetails?detailContent:''}</td>
+    rows.push(`<tr class="detail-row" data-idx="${i}"><td colspan="9">${hasDetails?detailContent:''}</td></tr>`);
+  });
+
+  // Extra shipping rows in table
+  extraEntries.forEach((e,i)=>{
+    const amount=parseFloat(e.amount)||0;
+    const nameDisplay=e.orderName||('#'+e.id);
+    const courierDisplay=e.courier?`<span style="color:var(--purple);font-weight:600">${e.courier}</span>`:`<span style="color:var(--text-muted)">—</span>`;
+    const moneyDisplay=amount>0?`<span style="color:var(--orange);font-family:'IBM Plex Mono',monospace;font-weight:700">−${fmt(amount)}</span>`:`<span style="color:var(--text-muted)">—</span>`;
+    const statusHtml=e.status==='loading'
+      ?`<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`
+      :e.status==='error'||e.status==='notfound'
+        ?`<span class="badge badge-error">${e.error}</span>`
+        :`<span class="badge badge-extra">🚚 شحن إضافي</span>`;
+
+    rows.push(`<tr class="order-row extra-row" data-type="extra" data-idx="${i}">
+      <td style="padding:6px 8px;text-align:center">
+        <button class="row-del-btn" onclick="deleteExtraEntry(${i})" title="حذف">❌</button>
+      </td>
+      <td class="cell-order">${nameDisplay}</td>
+      <td class="cell-courier">${courierDisplay}</td>
+      <td class="cell-money">${moneyDisplay}</td>
+      <td class="cell-money"><span style="color:var(--text-muted)">—</span></td>
+      <td class="cell-money"><span style="color:var(--text-muted)">—</span></td>
+      <td class="cell-center"><span style="background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">شحن إضافي</span></td>
+      <td class="cell-center"><span style="color:var(--text-muted);font-size:11px">—</span></td>
+      <td class="cell-center">${statusHtml}</td>
     </tr>`);
+    // no detail row for extra
+    rows.push(`<tr class="detail-row"><td colspan="9"></td></tr>`);
   });
 
   tbody.innerHTML=rows.join('');
+
+  // Show/hide table
+  if(orders.length||extraEntries.length){
+    $('tableWrap').classList.add('show');
+    $('statsBar').classList.add('show');
+  }
 }
 
 function toggleRow(idx){
-  const main=document.querySelector(`tr.order-row[data-idx="${idx}"]`);
-  const detail=document.querySelector(`tr.detail-row[data-idx="${idx}"]`);
-  if(!main||!detail)return;
+  const main=document.querySelector(`tr.order-row[data-type="order"][data-idx="${idx}"]`);
+  const allDetailRows=document.querySelectorAll(`tr.detail-row`);
+  // find the detail row after this main row
+  if(!main)return;
+  const next=main.nextElementSibling;
+  if(!next||!next.classList.contains('detail-row'))return;
   const open=main.classList.contains('expanded');
   main.classList.toggle('expanded',!open);
-  detail.classList.toggle('show',!open);
+  next.classList.toggle('show',!open);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -863,67 +1059,51 @@ function toggleRow(idx){
 // ══════════════════════════════════════════════════════════════
 function updateStats(){
   const active   = orders.filter(o=>o.status==='ready'||o.status==='done');
-  const done     = orders.filter(o=>o.status==='done');
   const refunds  = orders.filter(o=>o.status==='refund');
-
-  // إجمالي تحصيل شوبيفاي (الأوردرات العادية فقط، موجب)
   const sumTotal = active.reduce((s,o)=>s+(o.amount||0),0);
-
-  // إجمالي استرداد شوبيفاي (سالب)
-  const sumRefund = refunds.reduce((s,o)=>s+(o.refundAmount||0),0);
-
-  // مصاريف الشحن الكلية (عادي = shippingAmount، مرتجع = returnShipping)
-  const sumShipping = [...active,...refunds].reduce((s,o)=>{
+  const sumRefund= refunds.reduce((s,o)=>s+(o.refundAmount||0),0);
+  const sumShipping=[...active,...refunds].reduce((s,o)=>{
     if(o.status==='refund') return s+(parseFloat(o.returnShipping)||0);
     return s+((o.hasReturn?parseFloat(o.returnShipping):o.shippingAmount)||0);
   },0);
-
-  // صافي تحصيل المندوب الكلي
+  const extraTotal=getTotalExtraShipping();
   const allForCollect=[...active,...refunds];
-  const sumCourierCollect=allForCollect.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
+  let sumCourierCollect=allForCollect.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
+  sumCourierCollect -= extraTotal; // deduct extra shipping
 
-  $('statCount').textContent=orders.length;
+  $('statCount').innerHTML=orders.length+extraEntries.length;
   $('statTotal').textContent=sumTotal>0?fmt(sumTotal):'—';
   $('statRefundVal').textContent=sumRefund>0?'−'+fmt(sumRefund):'—';
-  $('statShipping').textContent=sumShipping>0?fmt(sumShipping):'—';
+  $('statShipping').textContent=(sumShipping+extraTotal)>0?fmt(sumShipping+extraTotal):'—';
 
-  // صافي تحصيل المندوب — مع تلوين وإبراز
   const netEl=$('statCourierCollect');
   netEl.textContent=sumCourierCollect!==0?fmtSigned(sumCourierCollect):'—';
   netEl.className='stat-val '+(sumCourierCollect<0?'red':sumCourierCollect>0?'green':'');
-
-  // حد المربع الأخير يتغير بالحالة
   const chip=$('statNetChip');
   chip.style.borderColor=sumCourierCollect<0?'var(--red)':sumCourierCollect>0?'var(--green)':'var(--border-strong)';
 
-  // Tab badge — دمج ready+refund في مربع عدد الأوردرات
   const ready=orders.filter(o=>o.status==='ready').length;
   const refundCount=refunds.length;
-  // نعرض الأرقام في مربع عدد الأوردرات نفسه
   const countEl=$('statCount');
   if(ready>0||refundCount>0){
     countEl.innerHTML=`${ready>0?`<span style="color:var(--green);font-weight:800">${ready}</span>`:''}${ready>0&&refundCount>0?`<span style="color:var(--text-muted);font-size:14px;margin:0 2px">+</span>`:''}${refundCount>0?`<span style="color:var(--red);font-weight:800">${refundCount}</span>`:''}`;
   } else {
-    countEl.innerHTML=`<span>${orders.length}</span>`;
+    countEl.innerHTML=`<span>${orders.length+extraEntries.length}</span>`;
   }
-  // إخفاء الـ tab badges القديمة
   $('tabBadgeReady').style.display='none';
   $('tabBadgeRefund').style.display='none';
 }
-
-function updateRefundBanner(){ /* removed — banner deleted */ }
 
 // ══════════════════════════════════════════════════════════════
 // PAYMENT METHODS
 // ══════════════════════════════════════════════════════════════
 function getCourierCollectNet(){
   const all=orders.filter(o=>o.status==='ready'||o.status==='refund'||o.status==='done');
-  return all.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
+  let sum=all.reduce((s,o)=>{const cc=calcCourierCollect(o);return s+(cc||0);},0);
+  sum -= getTotalExtraShipping();
+  return sum;
 }
-function getExtra(){return parseFloat($('pmExtra').value)||0;}
-// الـ target هو القيمة المطلقة للمبلغ الذي يدخله المستخدم
-// لو صافي سالب (ندفع للمندوب) → نُدخل المبلغ الموجب
-function getNetTarget(){return getCourierCollectNet()-getExtra();}
+function getNetTarget(){ return getCourierCollectNet(); }
 function getPaySum(){return(parseFloat($('pmCash').value)||0)+(parseFloat($('pmInstapay').value)||0)+(parseFloat($('pmWallet').value)||0);}
 function isPayEmpty(){return!$('pmCash').value&&!$('pmInstapay').value&&!$('pmWallet').value;}
 
@@ -932,35 +1112,28 @@ function updatePayMethodsCard(){
   const card=$('payMethodsCard');
   if(!readyOrders.length){card.classList.remove('show');return;}
   card.classList.add('show');
-
   const courier=getReadyCourier();
   const courierErr=getReadyCourierError();
   $('courierBannerName').textContent=courierErr?'⚠ خطأ في المندوب':(courier||'—');
   $('courierBannerName').style.color=courierErr?'var(--red)':'var(--purple)';
-  // حذف المبلغ من الشريط — يظهر في الـ stats bar فقط
-  const totalEl=$('courierBannerTotal');
-  totalEl.textContent='';
-  totalEl.className='courier-banner-total';
-
+  $('courierBannerTotal').textContent='';
   updatePayValidation();
 }
 
 function updatePayValidation(){
   const el=$('payValidation'),textEl=$('payValText');
-  const extra=getExtra(),target=getNetTarget(),entered=getPaySum();
-  $('extraNet').textContent=extra>0?`← صافي: ${fmtSigned(target)}`:'';
+  const target=getNetTarget(),entered=getPaySum();
+  const extraTotal=getTotalExtraShipping();
+  $('extraNet').textContent=extraTotal>0?`صافي بعد الشحن: ${fmtSigned(target)}`:'';
 
   if(isPayEmpty()){
     el.className='pay-validation';
     textEl.textContent=target<0
-      ? `المندوب يستحق منا ${fmt(Math.abs(target))} EGP — أدخل المبلغ الذي ستدفعه له`
-      : `أدخل طرق الدفع — المجموع يجب يساوي ${fmtSigned(target)}`;
+      ?`المندوب يستحق منا ${fmt(Math.abs(target))} EGP — أدخل المبلغ الذي ستدفعه له`
+      :`أدخل طرق الدفع — المجموع يجب يساوي ${fmtSigned(target)}`;
   } else {
     const absTarget=Math.abs(target);
-    const absEntered=Math.abs(entered);
-    // لو target سالب، المبلغ المدخل يُقارن بالقيمة المطلقة
-    const effectiveTarget = target < 0 ? -absTarget : target;
-    const diff=Math.abs(entered - effectiveTarget);
+    const diff=Math.abs(Math.abs(entered)-absTarget);
     if(diff<0.01){
       el.className='pay-validation ok';
       textEl.textContent=`✓ المجموع مظبوط — ${fmt(Math.abs(entered))}`;
@@ -975,24 +1148,38 @@ function updatePayValidation(){
 
 function isPayValid(){
   if(isPayEmpty()) return false;
-  const target=getNetTarget();
-  const entered=getPaySum();
-  // لو target سالب، نقارن بـ Math.abs
+  const target=getNetTarget(),entered=getPaySum();
   return Math.abs(Math.abs(entered)-Math.abs(target))<0.01;
 }
 
 function getReadyCourier(){
-  const ready=orders.filter(o=>o.status==='ready');
-  const couriers=[...new Set(ready.map(o=>o.courier).filter(Boolean))];
+  const allForCourier=[
+    ...orders.filter(o=>o.status==='ready'),
+    ...extraEntries.filter(e=>e.status==='ok'),
+  ];
+  const couriers=[...new Set(allForCourier.map(o=>o.courier).filter(Boolean))];
   return couriers.length===1?couriers[0]:null;
 }
+
 function getReadyCourierError(){
-  const ready=orders.filter(o=>o.status==='ready');
-  if(!ready.length)return null;
-  const noCourier=ready.filter(o=>!o.courier);
-  if(noCourier.length)return`بدون مندوب: ${noCourier.map(o=>o.orderName||o.id).join('، ')}`;
-  const couriers=[...new Set(ready.map(o=>o.courier))];
-  if(couriers.length>1)return`أكثر من مندوب: ${couriers.join('، ')}`;
+  const readyOrders=orders.filter(o=>o.status==='ready');
+  if(!readyOrders.length&&!extraEntries.filter(e=>e.status==='ok').length) return null;
+
+  // Check missing courier in ready orders
+  const noCourier=readyOrders.filter(o=>!o.courier);
+  if(noCourier.length) return `بدون مندوب: ${noCourier.map(o=>o.orderName||o.id).join('، ')}`;
+
+  // Check missing courier in extra entries
+  const extraNoCourier=extraEntries.filter(e=>e.status==='ok'&&!e.courier);
+  if(extraNoCourier.length) return `شحن إضافي بدون مندوب: ${extraNoCourier.map(e=>e.orderName||e.id).join('، ')}`;
+
+  // Check all same courier
+  const allCouriers=[
+    ...readyOrders.map(o=>o.courier),
+    ...extraEntries.filter(e=>e.status==='ok').map(e=>e.courier),
+  ].filter(Boolean);
+  const unique=[...new Set(allCouriers)];
+  if(unique.length>1) return `أكثر من مندوب: ${unique.join('، ')}`;
   return null;
 }
 
@@ -1022,41 +1209,60 @@ async function confirmBulkPay(){
   const cash         =parseFloat($('pmCash').value)||0;
   const instapay     =parseFloat($('pmInstapay').value)||0;
   const wallet       =parseFloat($('pmWallet').value)||0;
-  const extra        =getExtra();
+  const extraTotal   =getTotalExtraShipping();
   const net          =getNetTarget();
-  const readyCollectOnly = readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
-  const refundCollectOnly= refundOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
-  const totalNet     = readyCollectOnly + refundCollectOnly - extra;
-  const preregCount  =readyOrders.filter(o=>o.preRegistered).length;
-  const shopifyTotal =readyOrders.reduce((s,o)=>s+o.amount,0);
-  const totalRefund  =refundOrders.reduce((s,o)=>s+(o.refundAmount||0),0);
-  const totalRetShip =refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
-  // تصنيف الأوردرات
-  const pureNormal = readyOrders.filter(o=>!o.hasReturn).length;
-  const readyExch  = readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0).length;
-  const readyRet   = readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0)).length;
-  const refundExch = refundOrders.filter(o=>o.lineItems&&o.lineItems.length>0).length;
-  const refundRet  = refundOrders.length-refundExch;
+  const readyCollectOnly  = readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
+  const refundCollectOnly = refundOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
+  const totalNet          = readyCollectOnly + refundCollectOnly - extraTotal;
 
-  // سطر ملخص الأوردرات (ألوان)
+  const preregCount = readyOrders.filter(o=>o.preRegistered).length;
+  const totalRefund = refundOrders.reduce((s,o)=>s+(o.refundAmount||0),0);
+  const totalRetShip= refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
+
+  const pureNormal=readyOrders.filter(o=>!o.hasReturn).length;
+  const readyExch =readyOrders.filter(o=>o.hasReturn&&o.lineItems&&o.lineItems.length>0).length;
+  const readyRet  =readyOrders.filter(o=>o.hasReturn&&!(o.lineItems&&o.lineItems.length>0)).length;
+  const refundExch=refundOrders.filter(o=>o.lineItems&&o.lineItems.length>0).length;
+  const refundRet =refundOrders.length-refundExch;
+
   const orderParts=[];
   if(pureNormal>0) orderParts.push(`<span style="color:var(--green);font-weight:700">${pureNormal} عادي</span>`);
   if(readyExch>0)  orderParts.push(`<span style="color:var(--purple);font-weight:700">${readyExch} استبدال</span>`);
   if(readyRet>0)   orderParts.push(`<span style="color:var(--amber);font-weight:700">${readyRet} استرجاع</span>`);
   if(refundExch>0) orderParts.push(`<span style="color:var(--purple);font-weight:700">${refundExch} استرداد استبدال</span>`);
   if(refundRet>0)  orderParts.push(`<span style="color:var(--red);font-weight:700">${refundRet} استرداد استرجاع</span>`);
+  if(extraEntries.filter(e=>e.status==='ok').length>0)
+    orderParts.push(`<span style="color:var(--orange);font-weight:700">${extraEntries.filter(e=>e.status==='ok').length} شحن إضافي</span>`);
+
+  // Extra shipping details
+  let extraSection='';
+  if(extraTotal>0){
+    const extraList=extraEntries.filter(e=>e.status==='ok'&&parseFloat(e.amount)>0)
+      .map(e=>`<div style="display:flex;justify-content:space-between;padding:5px 8px;background:var(--surface);border:1px solid var(--orange-border);border-radius:6px;font-size:12px;margin-bottom:4px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-weight:700">${e.orderName||('#'+e.id)}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--orange)">−${fmt(parseFloat(e.amount))} جنيه</span>
+      </div>`).join('');
+    extraSection=`<div style="background:var(--orange-light);border:1px solid var(--orange-border);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px">
+      <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:6px">🚚 مصاريف الشحن الإضافية</div>
+      ${extraList}
+      <div style="display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid var(--orange-border);font-size:12px;font-weight:700;color:var(--orange)">
+        <span>الإجمالي</span><span style="font-family:'IBM Plex Mono',monospace">−${fmt(extraTotal)} جنيه</span>
+      </div>
+    </div>`;
+  }
 
   const paySection=`
     <div class="confirm-detail-row"><span class="confirm-detail-label">المندوب</span><span class="confirm-detail-val">${courierName||'—'}</span></div>
     <div class="confirm-detail-row"><span class="confirm-detail-label">الأوردرات</span><span class="confirm-detail-val" style="font-size:12px">${orderParts.join(' + ')}</span></div>
     <div class="confirm-detail-row"><span class="confirm-detail-label">تحصيل المندوب</span><span class="confirm-detail-val green">${fmtSigned(readyCollectOnly)} جنيه</span></div>
     ${refundOrders.length>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">استرداد + شحن مرتجع</span><span class="confirm-detail-val red">− ${fmt(totalRefund+totalRetShip)} جنيه</span></div>`:''}
-    ${extra>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">شحن إضافي</span><span class="confirm-detail-val red">− ${fmt(extra)} جنيه</span></div>`:''}
+    ${extraTotal>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">شحن إضافي</span><span class="confirm-detail-val" style="color:var(--orange)">− ${fmt(extraTotal)} جنيه</span></div>`:''}
     <div style="background:${totalNet<0?'var(--red-light)':'var(--green-light)'};border:2px solid ${totalNet<0?'var(--red-border)':'var(--green-border)'};border-radius:var(--radius-sm);padding:10px 14px;margin:8px 0;display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:13px;font-weight:700;color:var(--text-primary)">صافي تحصيل المندوب</span>
+      <span style="font-size:13px;font-weight:700">صافي تحصيل المندوب</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:${totalNet<0?'var(--red)':'var(--green)'}">${fmtSigned(totalNet)} جنيه</span>
     </div>
+    ${extraSection}
     ${cash>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">💵 نقدي</span><span class="confirm-detail-val">${fmt(cash)} جنيه</span></div>`:''}
     ${instapay>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">📱 انستاباي</span><span class="confirm-detail-val">${fmt(instapay)} جنيه</span></div>`:''}
     ${wallet>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">👛 محفظة</span><span class="confirm-detail-val">${fmt(wallet)} جنيه</span></div>`:''}`;
@@ -1082,7 +1288,7 @@ async function doBulkPayAndRefund(){
   const cash=parseFloat($('pmCash').value)||0;
   const instapay=parseFloat($('pmInstapay').value)||0;
   const wallet=parseFloat($('pmWallet').value)||0;
-  const extra=getExtra();
+  const extraTotal=getTotalExtraShipping();
 
   isProcessing=true;$('payBtn').disabled=true;setProgress(0);hideResult();
 
@@ -1115,7 +1321,7 @@ async function doBulkPayAndRefund(){
     done++;setProgress(done/total*100);updateStats();renderTable();
   }
 
-  isProcessing=false;updatePayBtn();updatePayMethodsCard();updateRefundBanner();
+  isProcessing=false;updatePayBtn();updatePayMethodsCard();
 
   // ── Log ──
   const paidOrders      =readyOrders.filter(o=>o.status==='done');
@@ -1126,11 +1332,21 @@ async function doBulkPayAndRefund(){
   const refundedShip    =refundedOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
 
   const allProcessed=[...readyOrders,...refundOrders];
+  // Extra shipping entries for log
+  const extraShippingLog=extraEntries.filter(e=>e.status==='ok').map(e=>({
+    orderId: e.id,
+    orderName: e.orderName||(''+e.id),
+    courier: e.courier||courierName||'',
+    amount: (parseFloat(e.amount)||0).toFixed(2),
+  }));
+
   const logEntry={
     date:new Date().toISOString(), type:'payment', courier:courierName,
     totalOrders:allProcessed.length, success:successPay+successRefund, errors:failPay+failRefund,
     totalAmount:paidTotal.toFixed(2), courierCollect:paidCourierColl.toFixed(2),
-    extraShipping:extra.toFixed(2), netCollect:Math.max(0,paidCourierColl-extra).toFixed(2),
+    extraShipping: extraShippingLog,
+    extraShippingTotal: extraTotal.toFixed(2),
+    netCollect: Math.max(0, paidCourierColl - extraTotal).toFixed(2),
     totalRefund:refundedTotal.toFixed(2), totalReturnShipping:refundedShip.toFixed(2),
     paymentMethods:{cash:cash.toFixed(2),instapay:instapay.toFixed(2),wallet:wallet.toFixed(2)},
     orders:allProcessed.map(o=>({
@@ -1151,15 +1367,17 @@ async function doBulkPayAndRefund(){
   saveLogEntry(logEntry);
 
   orders=orders.filter(o=>o.status!=='done'&&o.status!=='refund-done');
+  extraEntries=[];
+  renderExtraEntries();
   if(!orders.length){$('tableWrap').classList.remove('show');$('statsBar').classList.remove('show');}
-  updateStats();renderTable();updatePayMethodsCard();updateRefundBanner();
+  updateStats();renderTable();updatePayMethodsCard();
 
   const anySuccess=successPay>0||successRefund>0;
   const anyFail=failPay>0||failRefund>0;
   if(anySuccess&&!anyFail){
     const parts=[];
-    if(successPay>0)parts.push(`✅ تحصيل ${successPay} أوردر`);
-    if(successRefund>0)parts.push(`💸 استرداد ${successRefund} أوردر`);
+    if(successPay>0) parts.push(`✅ تحصيل ${successPay} أوردر`);
+    if(successRefund>0) parts.push(`💸 استرداد ${successRefund} أوردر`);
     showResult(true,parts.join(' — '),courierName?`المندوب: ${courierName}`:'');
     setTimeout(hideResult,5000);
   } else if(anySuccess){
@@ -1168,7 +1386,7 @@ async function doBulkPayAndRefund(){
     showResult(false,'فشلت جميع العمليات','راجع الجدول');
   }
 
-  if(anySuccess&&!anyFail){$('pmCash').value='';$('pmInstapay').value='';$('pmWallet').value='';$('pmExtra').value='';updatePayValidation();}
+  if(anySuccess&&!anyFail){$('pmCash').value='';$('pmInstapay').value='';$('pmWallet').value='';updatePayValidation();}
   refocus();
 }
 
@@ -1286,6 +1504,12 @@ function renderLog(log){
     if(parseFloat(pm.instapay)>0)pmChips.push(`<span class="log-pm-chip">📱 انستاباي <span>${fmt(pm.instapay)}</span></span>`);
     if(parseFloat(pm.wallet)>0)pmChips.push(`<span class="log-pm-chip">👛 محفظة <span>${fmt(pm.wallet)}</span></span>`);
     if(parseFloat(entry.totalRefund)>0)pmChips.push(`<span class="log-pm-chip" style="background:#fff1f2;border-color:#fecdd3;color:var(--red)">💸 استرداد <span>${fmt(entry.totalRefund)}</span></span>`);
+    // Extra shipping chips
+    const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:(entry.extraShipping?[entry.extraShipping]:[]);
+    if(parseFloat(entry.extraShippingTotal||0)>0||extraArr.length>0){
+      const total=parseFloat(entry.extraShippingTotal)||extraArr.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+      pmChips.push(`<span class="log-pm-chip" style="background:var(--orange-light);border-color:var(--orange-border);color:var(--orange)">🚚 شحن إضافي <span>${fmt(total)}</span></span>`);
+    }
 
     const detailRows=(entry.orders||[]).map(o=>{
       const hasSkus=o.lineItems&&o.lineItems.length>0;
@@ -1293,13 +1517,11 @@ function renderLog(log){
       const hasSub=hasSkus||hasReturned||(parseFloat(o.shippingAmount)>0);
       const skuRows=hasSkus?o.lineItems.map(li=>`<tr><td class="td-sku">${li.sku}</td><td class="td-qty">${li.quantity}</td><td class="td-price">${fmt(li.unitPrice)}</td><td class="td-total">${fmt(li.totalPrice)}</td></tr>`).join(''):'';
       const retRows=hasReturned?o.returnedItems.map(ri=>`<tr style="background:#fff8f8"><td class="td-sku returned">↩ ${ri.sku}</td><td class="td-qty negative">−${ri.quantity}</td><td class="td-price negative">−${fmt(ri.discountedUnitPrice)}</td><td class="td-total negative">−${fmt(parseFloat(ri.discountedUnitPrice)*ri.quantity)}</td></tr>`).join(''):'';
-      const statusBadge=o.isRefund
-        ?(o.status==='success'?`<span class="log-detail-ok">✓ ناجح</span>`:`<span class="log-detail-err">✗ فشل</span>`)
-        :(o.status==='success'?`<span class="log-detail-ok">✓ ناجح</span>`:`<span class="log-detail-err">✗ فشل</span>`);
+      const statusBadge=o.status==='success'?`<span class="log-detail-ok">✓ ناجح</span>`:`<span class="log-detail-err">✗ فشل</span>`;
       return`<div class="log-detail-item">
         <div class="log-detail-main" onclick="${hasSub?'toggleLogItem(this)':''}">
           <span class="log-detail-order">${o.isRefund?'<span style="font-size:10px;margin-left:4px">💸</span>':''}${o.preRegistered?'<span style="font-size:10px;color:var(--purple);margin-left:4px">📋</span>':''}${o.orderName||''} <span style="color:var(--text-muted);font-size:10px">${o.order}</span>${o.courier?` <span style="color:var(--purple);font-size:11px">${o.courier}</span>`:''}</span>
-          <span class="log-detail-amount" style="${o.isRefund?'color:var(--red)':''}">${o.isRefund?`−${o.refundAmount||''}`:(o.amount||'')}</span>
+          <span class="log-detail-amount" style="${o.isRefund?'color:var(--red)':''}">${o.isRefund?`−${o.refundAmount||''}`:( o.amount||'')}</span>
           ${statusBadge}${hasSub?'<span style="color:var(--text-muted);font-size:9px">▶</span>':''}
         </div>
         ${hasSub?`<div class="log-detail-sub">
@@ -1309,6 +1531,15 @@ function renderLog(log){
         </div>`:''}
       </div>`;
     }).join('');
+
+    // Extra shipping detail rows in log
+    const extraDetailRows=extraArr.map(e=>`<div class="log-detail-item">
+      <div class="log-detail-main">
+        <span class="log-detail-order">🚚 <span style="color:var(--orange)">${e.orderName||('#'+e.orderId)}</span> ${e.courier?`<span style="color:var(--purple);font-size:11px">${e.courier}</span>`:''}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--orange)">−${fmt(e.amount)}</span>
+        <span class="log-detail-extra">شحن إضافي</span>
+      </div>
+    </div>`).join('');
 
     return`<div class="log-entry">
       <div class="log-entry-header" onclick="toggleLogEntry(this)">
@@ -1325,7 +1556,7 @@ function renderLog(log){
         <div class="log-entry-stats"><span class="log-stat-ok">✓${entry.success}</span><span class="log-stat-err">✗${entry.errors}</span></div>
         <span class="log-toggle">▶</span>
       </div>
-      <div class="log-entry-details">${detailRows}</div>
+      <div class="log-entry-details">${detailRows}${extraDetailRows}</div>
     </div>`;
   }).join('')}</div>`;
 }
@@ -1358,27 +1589,24 @@ async function exportXLSX(selectedOnly){
   const ws=wb.addWorksheet('سجل التحصيل',{views:[{rightToLeft:true}]});
 
   ws.columns=[
-    {header:'التاريخ',                         key:'date',          width:14},
-    {header:'المندوب',                         key:'courier',       width:14},
-    {header:'رقم الأوردر',                     key:'order',         width:16},
-    {header:'نوع الأوردر',                     key:'orderType',     width:12},
-    {header:'SKU',                             key:'sku',           width:26},
-    {header:'الكمية',                          key:'qty',           width:8},
-    {header:'سعر الوحدة',                      key:'unit',          width:13},
-    {header:'خصم الوحدة',                      key:'unitDiscount',  width:13},
-    {header:'سعر بعد الخصم',                   key:'collect',       width:18},
-    {header:'خصم إضافي الأوردر',               key:'orderDiscount', width:18},
+    {header:'التاريخ',                          key:'date',          width:14},
+    {header:'المندوب',                          key:'courier',       width:14},
+    {header:'رقم الأوردر',                      key:'order',         width:16},
+    {header:'نوع الأوردر',                      key:'orderType',     width:14},
+    {header:'SKU',                              key:'sku',           width:26},
+    {header:'الكمية',                           key:'qty',           width:8},
+    {header:'سعر الوحدة',                       key:'unit',          width:13},
+    {header:'خصم الوحدة',                       key:'unitDiscount',  width:13},
+    {header:'سعر بعد الخصم',                    key:'collect',       width:18},
+    {header:'خصم إضافي الأوردر',                key:'orderDiscount', width:18},
     {header:'تحصيل الأوردر كامل (بدون الشحن)', key:'courierCollect',width:24},
-    {header:'شحن',                             key:'ship',          width:12},
-    {header:'النتيجة',                         key:'result',        width:9},
-    {header:'الخطأ',                           key:'error',         width:18},
-    {header:'مسجل مسبقاً',                     key:'prereg',        width:13},
+    {header:'شحن',                              key:'ship',          width:12},
+    {header:'النتيجة',                          key:'result',        width:9},
+    {header:'الخطأ',                            key:'error',         width:18},
+    {header:'مسجل مسبقاً',                      key:'prereg',        width:13},
   ];
 
-  // col indices (1-based):
-  // date=1,courier=2,order=3,orderType=4,sku=5,qty=6,unit=7,unitDisc=8,
-  // collect=9,ordDisc=10,courierCollect=11,ship=12,result=13,error=14,prereg=15
-  const HEADER_BG='FFD700', GRAND_BG='1F4E79', NUM_FMT='#,##0';
+  const HEADER_BG='FFD700', GRAND_BG='1F4E79', EXTRA_BG='FFFBEB', NUM_FMT='#,##0';
   const NUM_COLS=[6,7,8,9,10,11,12];
   const MED_BORDER={style:'medium',color:{argb:'FF888888'}};
 
@@ -1397,10 +1625,11 @@ async function exportXLSX(selectedOnly){
   function orderTypeColor(t){
     if(t==='استرجاع') return {argb:'FFCC0000'};
     if(t==='استبدال') return {argb:'FF7030A0'};
+    if(t==='شحن إضافي') return {argb:'FFEA580C'};
     return {argb:'FF000000'};
   }
 
-  function applyData(row, isFailed, qty, isReturnLine, orderType){
+  function applyData(row, isFailed, qty, isReturnLine, orderType, isExtraShipping){
     row.eachCell({includeEmpty:false},(cell,col)=>{
       cell.font={size:10,name:'Arial',color:{argb:'FF000000'}};
       cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};
@@ -1408,40 +1637,38 @@ async function exportXLSX(selectedOnly){
         cell.numFmt=NUM_FMT;
         cell.alignment={horizontal:'center',vertical:'middle'};
       }
-      // col 1-3: بدون خلفية
       if(col<=3){ cell.fill={type:'pattern',pattern:'none'}; return; }
-      // col 4: نوع الأوردر — لون الخط فقط
       if(col===4){
         cell.fill={type:'pattern',pattern:'none'};
         if(cell.value){
-          const bold=(cell.value==='استرجاع'||cell.value==='استبدال');
+          const bold=(cell.value==='استرجاع'||cell.value==='استبدال'||cell.value==='شحن إضافي');
           cell.font={size:10,name:'Arial',bold,color:orderTypeColor(cell.value)};
         }
         return;
       }
-      // سطر مرتجع — أحمر italic بدون خلفية
+      // شحن إضافي — خلفية برتقالي فاتح
+      if(isExtraShipping){
+        cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF7ED'}};
+        if(col===12) cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFEA580C'}};
+        return;
+      }
       if(isReturnLine){
         cell.font={size:10,name:'Arial',color:{argb:'FFCC0000'},italic:true};
         cell.fill={type:'pattern',pattern:'none'};
         return;
       }
-      // فشل
       if(isFailed){ cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFCCCC'}}; return; }
-      // خصم الوحدة col 8
       if(col===8&&cell.value!==null&&cell.value!==''){
         cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF2CC'}};
         cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFC00000'}};
       }
-      // خصم الأوردر col 10
       if(col===10&&cell.value!==null&&cell.value!==''){
         cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF2CC'}};
         cell.font={size:10,name:'Arial',bold:true,color:{argb:'FFC00000'}};
       }
     });
-    // border col 11
     const c11=row.getCell(11);
     c11.border={top:{style:'thin',color:{argb:'FFD0D0D0'}},bottom:{style:'thin',color:{argb:'FFD0D0D0'}},left:MED_BORDER,right:MED_BORDER};
-    // فشل: col 13
     if(isFailed&&!isReturnLine){
       const rc=row.getCell(13);
       rc.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFCC0000'}};
@@ -1450,6 +1677,7 @@ async function exportXLSX(selectedOnly){
   }
 
   function getOrderType(o){
+    if(o.isExtraShipping) return 'شحن إضافي';
     if(o.isRefund) return (o.returnedItems&&o.returnedItems.length>0&&o.lineItems&&o.lineItems.length>0)?'استبدال':'استرجاع';
     if(o.hasReturn) return (o.lineItems&&o.lineItems.length>0)?'استبدال':'استرجاع';
     return 'عادي';
@@ -1457,119 +1685,107 @@ async function exportXLSX(selectedOnly){
 
   applyHeader(ws.getRow(1));
 
-  let grandCollect=0,grandCash=0,grandInstapay=0,grandWallet=0,grandExtra=0,grandCourierCollect=0;
+  let grandCourierNet=0;
 
   for(const entry of log){
     const date=new Date(entry.date).toLocaleDateString('en-GB');
     const courier=entry.courier||'';
-    const pm=entry.paymentMethods||{};
-    grandCollect   +=parseFloat(entry.courierCollect)||0;
-    grandCash      +=parseFloat(pm.cash)||0;
-    grandInstapay  +=parseFloat(pm.instapay)||0;
-    grandWallet    +=parseFloat(pm.wallet)||0;
-    grandExtra     +=parseFloat(entry.extraShipping)||0;
+    const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:(entry.extraShipping&&typeof entry.extraShipping==='object'&&!Array.isArray(entry.extraShipping)?[entry.extraShipping]:[]);
 
+    // Regular orders
     for(const o of(entry.orders||[])){
       const isFailed    = o.status!=='success';
       const isRefundRow = o.isRefund===true;
       const cc          = parseFloat(o.courierCollect)||0;
       const otype       = getOrderType(o);
       const odv         = o.orderDiscount?parseFloat(o.orderDiscount):null;
-      grandCourierCollect+=cc;
+      grandCourierNet  += cc;
 
-      // الشحن — دايماً نكتب رقم (0 لو مافيش)
       const shipVal = (o.hasReturn||isRefundRow)
         ? (parseFloat(o.returnShipping)||0)
         : (parseFloat(o.shippingAmount)||0);
 
-      // helper: كتابة سطر SKU
       const writeRow=(item, isFirst, isReturn)=>{
-        const qty      = isReturn ? -(item.quantity||1)                       : (parseFloat(item.quantity)||0);
-        const unitP    = isReturn ? -(parseFloat(item.discountedUnitPrice)||0) : (parseFloat(item.unitPrice)||0);
-        const unitD    = isReturn ? null : ((item.unitDiscount!=null)?parseFloat(item.unitDiscount):null);
-        const total    = isReturn ? unitP*(item.quantity||1)                   : (parseFloat(item.totalPrice)||0);
-        const skuLabel = isReturn ? ('\u21A9 '+(item.sku||''))                : (item.sku||'');
-
+        const qty       = isReturn ? -(item.quantity||1) : (parseFloat(item.quantity)||0);
+        const unitP     = isReturn ? -(parseFloat(item.discountedUnitPrice)||0) : (parseFloat(item.unitPrice)||0);
+        const unitD     = isReturn ? null : ((item.unitDiscount!=null)?parseFloat(item.unitDiscount):null);
+        const total     = isReturn ? unitP*(item.quantity||1) : (parseFloat(item.totalPrice)||0);
+        const skuLabel  = isReturn ? ('\u21A9 '+(item.sku||'')) : (item.sku||'');
         const r=ws.addRow({
-          date:       isFirst?date:null,
-          courier:    courier,
-          order:      isFirst?(o.orderName||''):null,
-          orderType:  isFirst?otype:null,
-          sku:        skuLabel,
-          qty:        qty||null,
-          unit:       unitP||null,
-          unitDiscount: unitD||null,
-          collect:    total||null,
-          orderDiscount: isFirst?odv:null,
+          date: isFirst?date:null, courier,
+          order: isFirst?(o.orderName||''):null,
+          orderType: isFirst?otype:null,
+          sku: skuLabel, qty: qty||null, unit: unitP||null, unitDiscount: unitD||null,
+          collect: total||null, orderDiscount: isFirst?odv:null,
           courierCollect: isFirst?cc:null,
-          ship:       isFirst?shipVal:null,
-          result:     isFirst?(isFailed?'فشل':'ناجح'):null,
-          error:      isFirst?(o.error||null):null,
-          prereg:     isFirst?(o.preRegistered?'نعم':'لا'):null,
+          ship: isFirst?shipVal:null,
+          result: isFirst?(isFailed?'فشل':'ناجح'):null,
+          error: isFirst?(o.error||null):null,
+          prereg: isFirst?(o.preRegistered?'نعم':'لا'):null,
         });
-        applyData(r, isFailed, qty, isReturn, otype);
+        applyData(r,isFailed,qty,isReturn,otype,false);
       };
 
       if(isFailed){
-        // فشل — سطر واحد بدون SKU
-        const r=ws.addRow({
-          date, courier, order:o.orderName||'', orderType:otype,
-          sku:null, qty:null, unit:null, unitDiscount:null,
-          collect:null, orderDiscount:odv, courierCollect:null,
-          ship:shipVal, result:'فشل', error:o.error||null, prereg:o.preRegistered?'نعم':'لا'
-        });
-        applyData(r,true,0,false,otype);
+        const r=ws.addRow({date,courier,order:o.orderName||'',orderType:otype,
+          sku:null,qty:null,unit:null,unitDiscount:null,collect:null,orderDiscount:odv,
+          courierCollect:null,ship:shipVal,result:'فشل',error:o.error||null,prereg:o.preRegistered?'نعم':'لا'});
+        applyData(r,true,0,false,otype,false);
       } else {
-        // دمج lineItems + returnedItems في ترتيب واحد
         const allItems=[
           ...(o.lineItems||[]).map(li=>({item:li,isReturn:false})),
           ...(o.returnedItems||[]).map(ri=>({item:ri,isReturn:true}))
         ];
-        if(allItems.length===0){
-          // لا SKUs — سطر ملخص
-          const r=ws.addRow({
-            date, courier, order:o.orderName||'', orderType:otype,
-            sku:null, qty:null, unit:null, unitDiscount:null,
-            collect:cc||null, orderDiscount:odv, courierCollect:cc,
-            ship:shipVal, result:'ناجح', error:null, prereg:o.preRegistered?'نعم':'لا'
-          });
-          applyData(r,false,0,false,otype);
+        if(!allItems.length){
+          const r=ws.addRow({date,courier,order:o.orderName||'',orderType:otype,
+            sku:null,qty:null,unit:null,unitDiscount:null,collect:cc||null,orderDiscount:odv,
+            courierCollect:cc,ship:shipVal,result:'ناجح',error:null,prereg:o.preRegistered?'نعم':'لا'});
+          applyData(r,false,0,false,otype,false);
         } else {
           allItems.forEach(({item,isReturn},idx)=>writeRow(item,idx===0,isReturn));
         }
       }
     }
+
+    // Extra shipping rows in XLSX — واحد لكل entry، بعمود الشحن سالب
+    for(const e of extraArr){
+      const amount=parseFloat(e.amount)||0;
+      if(!amount)continue;
+      grandCourierNet -= amount; // extra shipping reduces net
+      const r=ws.addRow({
+        date,
+        courier: e.courier||courier,
+        order: e.orderName||(e.orderId?('#'+e.orderId):''),
+        orderType: 'شحن إضافي',
+        sku: null, qty: null, unit: null, unitDiscount: null,
+        collect: null, orderDiscount: null,
+        courierCollect: -amount,
+        ship: amount,
+        result: 'ناجح', error: null, prereg: 'لا',
+      });
+      applyData(r,false,0,false,'شحن إضافي',true);
+    }
   }
 
   ws.views=[{state:'frozen',ySplit:1,rightToLeft:true}];
-
-  // ── إصلاح borders عمود 11 في كل صفوف Sheet 1 ─────────────────────
-  // applyData بتضبط الـ border على كل صف — لكن نضيف border للخلايا الفاضية أيضاً
   ws.eachRow((row,rowNum)=>{
-    if(rowNum===1) return; // header handled
+    if(rowNum===1)return;
     const c=row.getCell(11);
     if(!c.border||!c.border.left){
-      c.border={
-        top:   {style:'thin', color:{argb:'FFD0D0D0'}},
-        bottom:{style:'thin', color:{argb:'FFD0D0D0'}},
-        left:  {style:'medium',color:{argb:'FF888888'}},
-        right: {style:'medium',color:{argb:'FF888888'}},
-      };
+      c.border={top:{style:'thin',color:{argb:'FFD0D0D0'}},bottom:{style:'thin',color:{argb:'FFD0D0D0'}},left:{style:'medium',color:{argb:'FF888888'}},right:{style:'medium',color:{argb:'FF888888'}}};
     }
   });
 
-  // ── Sheet 2 — الإجمالي ───────────────────────────────────────────────
-  // courierNet = مجموع courierCollect من الـ orders مباشرة (صحيح)
-  // الأعمدة: المندوب | تحصيل المندوب الصافي بدون شحن | نقدي | انستاباي | محفظة | شحن إضافي | عدد الأوردرات
+  // ── Sheet 2 ──────────────────────────────────────────────────
   const ws2=wb.addWorksheet('الإجمالي',{views:[{rightToLeft:true}]});
   ws2.columns=[
-    {header:'المندوب',                          key:'courier',    width:16},
-    {header:'تحصيل المندوب الصافي بدون شحن',    key:'courierNet', width:26},
-    {header:'نقدي',                             key:'cash',       width:14},
-    {header:'انستاباي',                         key:'instapay',   width:14},
-    {header:'محفظة',                            key:'wallet',     width:14},
-    {header:'شحن إضافي',                        key:'extra',      width:14},
-    {header:'عدد الأوردرات',                    key:'orders',     width:14},
+    {header:'المندوب',                         key:'courier',    width:16},
+    {header:'تحصيل المندوب الصافي بدون شحن',   key:'courierNet', width:26},
+    {header:'نقدي',                            key:'cash',       width:14},
+    {header:'انستاباي',                        key:'instapay',   width:14},
+    {header:'محفظة',                           key:'wallet',     width:14},
+    {header:'شحن إضافي',                       key:'extra',      width:14},
+    {header:'عدد الأوردرات',                   key:'orders',     width:14},
   ];
   ws2.getRow(1).eachCell(cell=>{
     cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+HEADER_BG}};
@@ -1579,23 +1795,27 @@ async function exportXLSX(selectedOnly){
   });
   ws2.getRow(1).height=20;
 
-  // نحسب الإجماليات من orders مباشرة لضمان الدقة
   const courierTotals={};
-  let grandCourierNet=0;
+  let grandNet2=0;
   for(const entry of log){
     const cr=entry.courier||'—';
     const pm=entry.paymentMethods||{};
     if(!courierTotals[cr]) courierTotals[cr]={courierNet:0,cash:0,instapay:0,wallet:0,extra:0,orders:0};
-
-    // نجمع courierCollect من كل order مباشرة — هذا هو المصدر الصحيح
     for(const o of(entry.orders||[])){
       courierTotals[cr].courierNet += parseFloat(o.courierCollect)||0;
-      grandCourierNet              += parseFloat(o.courierCollect)||0;
+      grandNet2                    += parseFloat(o.courierCollect)||0;
+    }
+    // deduct extra shipping per courier
+    const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:[];
+    for(const e of extraArr){
+      const amt=parseFloat(e.amount)||0;
+      courierTotals[cr].extra    += amt;
+      courierTotals[cr].courierNet -= amt;
+      grandNet2                   -= amt;
     }
     courierTotals[cr].cash     += parseFloat(pm.cash)||0;
     courierTotals[cr].instapay += parseFloat(pm.instapay)||0;
     courierTotals[cr].wallet   += parseFloat(pm.wallet)||0;
-    courierTotals[cr].extra    += parseFloat(entry.extraShipping)||0;
     courierTotals[cr].orders   += entry.totalOrders||0;
   }
 
@@ -1606,30 +1826,17 @@ async function exportXLSX(selectedOnly){
   };
 
   Object.entries(courierTotals).forEach(([cr,t])=>{
-    const r=ws2.addRow({
-      courier:cr, courierNet:t.courierNet,
-      cash:t.cash, instapay:t.instapay, wallet:t.wallet,
-      extra:t.extra>0?t.extra:null, orders:t.orders
-    });
+    const r=ws2.addRow({courier:cr,courierNet:t.courierNet,cash:t.cash,instapay:t.instapay,wallet:t.wallet,extra:t.extra>0?t.extra:null,orders:t.orders});
     r.eachCell({includeEmpty:false},(cell,col)=>dataStyle(cell,col));
   });
 
-  // صف الإجمالي
-  const grandCash2     = log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).cash)||0),0);
-  const grandInstapay2 = log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).instapay)||0),0);
-  const grandWallet2   = log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).wallet)||0),0);
-  const grandExtra2    = log.reduce((s,e)=>s+(parseFloat(e.extraShipping)||0),0);
-  const grandOrders2   = log.reduce((s,e)=>s+(e.totalOrders||0),0);
+  const grandCash2    =log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).cash)||0),0);
+  const grandInstapay2=log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).instapay)||0),0);
+  const grandWallet2  =log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).wallet)||0),0);
+  const grandExtra2   =log.reduce((s,e)=>s+(parseFloat(e.extraShippingTotal)||0),0);
+  const grandOrders2  =log.reduce((s,e)=>s+(e.totalOrders||0),0);
 
-  const gt=ws2.addRow({
-    courier:'جميع المناديب',
-    courierNet: grandCourierNet,
-    cash:       grandCash2,
-    instapay:   grandInstapay2,
-    wallet:     grandWallet2,
-    extra:      grandExtra2>0?grandExtra2:null,
-    orders:     grandOrders2,
-  });
+  const gt=ws2.addRow({courier:'جميع المناديب',courierNet:grandNet2,cash:grandCash2,instapay:grandInstapay2,wallet:grandWallet2,extra:grandExtra2>0?grandExtra2:null,orders:grandOrders2});
   gt.eachCell({includeEmpty:true},cell=>{
     cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+GRAND_BG}};
     cell.font={bold:true,color:{argb:'FFFFFFFF'},size:11,name:'Arial'};
@@ -1641,9 +1848,9 @@ async function exportXLSX(selectedOnly){
 
   const buffer=await wb.xlsx.writeBuffer();
   const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  a.href=url; a.download=`cod-payment-center-${new Date().toISOString().slice(0,10)}.xlsx`;
-  a.click(); URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`cod-payment-center-${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();URL.revokeObjectURL(url);
 }
 </script>
 </body>
