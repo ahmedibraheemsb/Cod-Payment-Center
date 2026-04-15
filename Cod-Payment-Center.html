@@ -387,6 +387,51 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .confirm-warning-icon { font-size:20px; flex-shrink:0; line-height:1; }
 .confirm-warning-text { font-size:12px; font-weight:600; color:#9a3412; line-height:1.5; }
 .confirm-warning-title { font-size:13px; font-weight:800; color:#7c2d12; margin-bottom:2px; }
+
+/* ══ COURIER IMPORT DRAWER ══ */
+.import-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+.import-overlay.open { opacity:1; pointer-events:all; }
+.import-drawer { background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; width:100%; max-width:900px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -8px 40px rgba(0,0,0,.18); transform:translateY(40px); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.import-overlay.open .import-drawer { transform:translateY(0); }
+.import-drawer-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0; }
+.import-drawer-title { font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.import-drawer-close { background:none; border:1px solid var(--border); border-radius:var(--radius-sm); padding:5px 10px; cursor:pointer; font-size:12px; color:var(--text-secondary); font-family:inherit; font-weight:600; transition:all .2s; }
+.import-drawer-close:hover { border-color:var(--red); color:var(--red); }
+.import-drawer-body { padding:14px 18px; overflow-y:auto; flex:1; }
+.import-courier-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+.import-courier-select { flex:1; padding:9px 12px; border:1.5px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:inherit; font-size:13px; color:var(--text-primary); outline:none; cursor:pointer; transition:border-color .2s; appearance:none; -webkit-appearance:none; font-weight:600; }
+.import-courier-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+.import-fetch-btn { padding:9px 18px; border-radius:var(--radius-sm); border:none; background:var(--accent); color:#fff; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:6px; }
+.import-fetch-btn:hover:not(:disabled) { background:var(--accent-dark); }
+.import-fetch-btn:disabled { opacity:.4; cursor:not-allowed; }
+.import-hint { font-size:11px; color:var(--text-muted); margin-bottom:12px; }
+.import-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.import-toolbar-left { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.import-sel-count { font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; color:var(--accent); background:var(--accent-light); border:1px solid #bfdbfe; padding:3px 8px; border-radius:6px; }
+.btn-import-sel { padding:5px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.btn-import-sel:hover { border-color:var(--accent); color:var(--accent); }
+.btn-import-add { padding:8px 20px; border-radius:var(--radius-sm); border:none; background:var(--green); color:#fff; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap; display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.btn-import-add:hover:not(:disabled) { filter:brightness(.95); }
+.btn-import-add:disabled { opacity:.4; cursor:not-allowed; }
+.import-table-wrap { border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin-bottom:10px; }
+.import-table { width:100%; border-collapse:collapse; font-size:12px; background:var(--surface); }
+.import-table thead { background:#e5e7eb; }
+.import-table thead th { padding:8px 10px; text-align:right; font-size:10px; font-weight:700; color:var(--text-primary); border-bottom:2px solid var(--border-strong); white-space:nowrap; }
+.import-table thead th.col-check { width:36px; text-align:center; }
+.import-table thead th.col-ltr { text-align:left; direction:ltr; }
+.import-table tbody tr { border-bottom:1px solid var(--border); transition:background .1s; }
+.import-table tbody tr:hover { background:var(--surface-2); }
+.import-table tbody tr.selected-row { background:var(--accent-light); }
+.import-table tbody tr.already-row { background:#f9fafb; opacity:.6; }
+.import-table tbody td { padding:8px 10px; vertical-align:middle; }
+.import-table td.col-check { text-align:center; padding:8px 6px; }
+.import-table .cell-mono { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:12px; }
+.import-table .cell-money { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:12px; text-align:left; direction:ltr; color:var(--green); }
+.import-table .cell-dim { font-size:11px; color:var(--text-secondary); }
+.import-table .cell-center { text-align:center; }
+.import-already-badge { background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
+.import-prereg-badge { background:var(--purple-light); color:var(--purple); border:1px solid var(--purple-border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
+.import-empty { text-align:center; padding:32px; color:var(--text-muted); font-size:12px; }
 </style>
 </head>
 <body>
@@ -426,6 +471,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
       <div class="manual-row">
         <input type="text" id="manualInput" class="manual-input" placeholder="أو أدخل رقم الأوردر يدوياً..." autocomplete="off" spellcheck="false" inputmode="numeric">
         <button class="btn-manual" id="manualBtn" onclick="handleManualAdd()">إضافة</button>
+        <button class="btn-manual" onclick="openImportDrawer()" style="border-color:var(--accent);color:var(--accent)">🚚 استيراد من مندوب</button>
       </div>
     </div>
   </div>
@@ -536,6 +582,56 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
   <div id="logContainer"><div class="log-empty">لا توجد عمليات مسجلة</div></div>
 </div>
 
+<!-- Import Courier Drawer -->
+<div class="import-overlay" id="importOverlay" onclick="closeImportOnBackdrop(event)">
+  <div class="import-drawer">
+    <div class="import-drawer-header">
+      <div class="import-drawer-title">🚚 استيراد أوردرات من مندوب</div>
+      <button class="import-drawer-close" onclick="closeImportDrawer()">✕ إغلاق</button>
+    </div>
+    <div class="import-drawer-body">
+      <div class="import-courier-row">
+        <select id="importCourierSelect" class="import-courier-select">
+          <option value="">جاري تحميل المناديب...</option>
+        </select>
+        <button class="import-fetch-btn" id="importFetchBtn" onclick="importFetchOrders()" disabled>
+          <span id="importFetchBtnTxt">🔍 استعلام</span>
+        </button>
+      </div>
+      <div class="import-hint" id="importHint">اختر مندوباً واستعلم عن الأوردرات غير المدفوعة</div>
+      <div id="importTableSection" style="display:none">
+        <div class="import-toolbar">
+          <div class="import-toolbar-left">
+            <button class="btn-import-sel" onclick="importSelectAll()">تحديد الكل</button>
+            <button class="btn-import-sel" onclick="importDeselectAll()">إلغاء الكل</button>
+            <span class="import-sel-count" id="importSelCount" style="display:none">0 محدد</span>
+          </div>
+          <button class="btn-import-add" id="importAddBtn" onclick="importAddSelected()" disabled>
+            ➕ <span id="importAddBtnTxt">إضافة المحدد للجدول</span>
+          </button>
+        </div>
+        <div class="import-table-wrap">
+          <table class="import-table">
+            <thead>
+              <tr>
+                <th class="col-check"><input type="checkbox" id="importHeadCb" onchange="importToggleAll(this)" style="width:14px;height:14px;accent-color:var(--accent);cursor:pointer"></th>
+                <th>رقم الأوردر</th>
+                <th>العميل</th>
+                <th class="col-ltr">إجمالي شوبيفاي</th>
+                <th class="col-ltr">شحن</th>
+                <th>تاريخ الإنشاء</th>
+                <th class="col-center">الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="importTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="import-empty" id="importEmptyMsg" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Settings Modal -->
 <div class="modal-overlay" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
   <div class="modal">
@@ -627,7 +723,7 @@ function updateConfigBanner(){$('notConfigBanner').classList.toggle('show',!isCo
 const scannerInput=$('scannerInput');
 let lastKeyTime=0,scanTimer=null;
 function refocus(){
-  if($('page-scan').classList.contains('active')&&!$('extraAddPanel').classList.contains('show')){
+  if($('page-scan').classList.contains('active')&&!$('extraAddPanel').classList.contains('show')&&!$('importOverlay').classList.contains('open')){
     scannerInput.focus();
   }
 }
@@ -1453,6 +1549,201 @@ function openConfirm(headerHTML,bodyHTML,okLabel,okClass,onConfirm){
   newOk.addEventListener('click',()=>{$('confirmOverlay').classList.remove('open');onConfirm();});
   newCancel.addEventListener('click',()=>$('confirmOverlay').classList.remove('open'));
   $('confirmOverlay').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════════════
+// COURIER IMPORT DRAWER
+// ══════════════════════════════════════════════════════════════
+let importOrders = [];
+let importLoading = false;
+
+function openImportDrawer(){
+  $('importOverlay').classList.add('open');
+  importLoadCouriers();
+}
+function closeImportDrawer(){
+  $('importOverlay').classList.remove('open');
+  refocus();
+}
+function closeImportOnBackdrop(e){
+  if(e.target===$('importOverlay')) closeImportDrawer();
+}
+
+async function importLoadCouriers(){
+  const sel=$('importCourierSelect');
+  const btn=$('importFetchBtn');
+  const hint=$('importHint');
+
+  if(!isConfigured()){
+    sel.innerHTML='<option value="">أدخل Worker URL في الإعدادات أولاً</option>';
+    btn.disabled=true;
+    hint.textContent='⚠ الأداة غير مضبوطة — افتح الإعدادات';
+    return;
+  }
+
+  sel.innerHTML='<option value="">جاري تحميل المناديب...</option>';
+  btn.disabled=true;
+  hint.textContent='جاري تحميل قائمة المناديب...';
+
+  try{
+    const c=getConfig();
+    const res=await fetch(c.url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},
+      body:JSON.stringify({action:'getCourierValues'}),
+    });
+    const data=await res.json();
+    if(data.success&&data.values?.length){
+      sel.innerHTML='<option value="">اختر مندوباً...</option>'+data.values.map(v=>`<option value="${v}">${v}</option>`).join('');
+      btn.disabled=true;
+      hint.textContent='اختر مندوباً للاستعلام عن أوردراته غير المدفوعة';
+    } else {
+      sel.innerHTML='<option value="">لا توجد مناديب</option>';
+      hint.textContent='لا توجد مناديب محددة في الـ metafield definition';
+    }
+  } catch {
+    sel.innerHTML='<option value="">خطأ في التحميل</option>';
+    hint.textContent='خطأ في تحميل قائمة المناديب';
+  }
+}
+
+$('importCourierSelect').addEventListener('change',()=>{
+  $('importFetchBtn').disabled=!$('importCourierSelect').value||importLoading;
+});
+
+async function importFetchOrders(){
+  const courier=$('importCourierSelect').value;
+  if(!courier||importLoading) return;
+  if(!isConfigured()){openSettings();return;}
+
+  importLoading=true;
+  const btn=$('importFetchBtn');
+  const txt=$('importFetchBtnTxt');
+  btn.disabled=true;
+  txt.innerHTML='<span class="spinner"></span> جاري...';
+  $('importHint').textContent=`جاري الاستعلام عن أوردرات ${courier}...`;
+  $('importTableSection').style.display='none';
+  $('importEmptyMsg').style.display='none';
+  importOrders=[];
+
+  try{
+    const c=getConfig();
+    const res=await fetch(c.url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},
+      body:JSON.stringify({action:'getCourierOrders',courier}),
+    });
+    const data=await res.json();
+    if(!data.success){
+      $('importHint').textContent=data.error||'خطأ في الاستعلام';
+    } else {
+      importOrders=data.orders||[];
+      if(!importOrders.length){
+        $('importHint').textContent=`لا توجد أوردرات غير مدفوعة لـ ${courier}`;
+        $('importEmptyMsg').textContent=`لا توجد أوردرات غير مدفوعة لـ ${courier}`;
+        $('importEmptyMsg').style.display='block';
+      } else {
+        $('importHint').textContent=`تم الاستعلام — ${importOrders.length} أوردر غير مدفوع لـ ${courier}`;
+        $('importTableSection').style.display='block';
+        importRenderTable();
+      }
+    }
+  } catch {
+    $('importHint').textContent='خطأ في الاتصال';
+  }
+
+  importLoading=false;
+  btn.disabled=false;
+  txt.textContent='🔍 استعلام';
+}
+
+function importFmtDate(iso){
+  if(!iso) return '—';
+  const d=new Date(iso);
+  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
+function importRenderTable(){
+  const tbody=$('importTableBody');
+  if(!importOrders.length){ tbody.innerHTML=''; importUpdateAddBtn(); return; }
+
+  tbody.innerHTML=importOrders.map((o,i)=>{
+    const alreadyInTable=orders.some(existing=>existing.id===o.id);
+    const amount=parseFloat(o.amount);
+    const shipping=parseFloat(o.shippingAmount);
+    const statusBadge=alreadyInTable
+      ?`<span class="import-already-badge">موجود بالجدول</span>`
+      :o.preRegistered?`<span class="import-prereg-badge">📋 مسجل مسبقاً</span>`:'';
+
+    return `<tr class="${alreadyInTable?'already-row':''}" id="irow-${i}">
+      <td class="col-check">
+        <input type="checkbox" class="import-row-cb" data-idx="${i}"
+          style="width:14px;height:14px;accent-color:var(--accent);cursor:pointer"
+          ${alreadyInTable?'disabled':''}
+          onchange="importOnCheckChange()">
+      </td>
+      <td class="cell-mono">${o.orderName}</td>
+      <td class="cell-dim">${o.customerName||'—'}</td>
+      <td class="cell-money">${amount.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td class="cell-money" style="color:var(--text-secondary)">${shipping.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td class="cell-dim">${importFmtDate(o.createdAt)}</td>
+      <td class="cell-center">${statusBadge}</td>
+    </tr>`;
+  }).join('');
+
+  $('importHeadCb').checked=false;
+  importUpdateAddBtn();
+}
+
+function importGetSelected(){
+  return [...document.querySelectorAll('.import-row-cb:checked')].map(c=>importOrders[parseInt(c.dataset.idx)]).filter(Boolean);
+}
+function importToggleAll(cb){
+  document.querySelectorAll('.import-row-cb:not(:disabled)').forEach(c=>c.checked=cb.checked);
+  importOnCheckChange();
+}
+function importSelectAll(){
+  document.querySelectorAll('.import-row-cb:not(:disabled)').forEach(c=>c.checked=true);
+  importOnCheckChange();
+}
+function importDeselectAll(){
+  document.querySelectorAll('.import-row-cb:not(:disabled)').forEach(c=>c.checked=false);
+  importOnCheckChange();
+}
+function importOnCheckChange(){
+  const sel=importGetSelected();
+  const selEl=$('importSelCount');
+  selEl.textContent=`${sel.length} محدد`;
+  selEl.style.display=sel.length>0?'inline-block':'none';
+
+  const all=document.querySelectorAll('.import-row-cb:not(:disabled)');
+  $('importHeadCb').checked=all.length>0&&[...all].every(c=>c.checked);
+
+  document.querySelectorAll('.import-row-cb').forEach(c=>{
+    const row=document.getElementById(`irow-${c.dataset.idx}`);
+    if(row&&!c.disabled) row.classList.toggle('selected-row',c.checked);
+  });
+
+  importUpdateAddBtn();
+}
+function importUpdateAddBtn(){
+  const sel=importGetSelected();
+  $('importAddBtn').disabled=sel.length===0;
+  $('importAddBtnTxt').textContent=sel.length>0?`إضافة ${sel.length} أوردر للجدول`:'إضافة المحدد للجدول';
+}
+
+async function importAddSelected(){
+  const sel=importGetSelected();
+  if(!sel.length) return;
+  if(!isConfigured()){openSettings();return;}
+
+  closeImportDrawer();
+  showToast(`➕ جاري إضافة ${sel.length} أوردر...`);
+
+  for(const o of sel){
+    if(orders.some(existing=>existing.id===o.id)) continue;
+    await addOrder(o.id);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
