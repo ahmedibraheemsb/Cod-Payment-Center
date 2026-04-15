@@ -388,16 +388,16 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .confirm-warning-text { font-size:12px; font-weight:600; color:#9a3412; line-height:1.5; }
 .confirm-warning-title { font-size:13px; font-weight:800; color:#7c2d12; margin-bottom:2px; }
 
-/* ══ COURIER IMPORT DRAWER ══ */
-.import-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+/* ══ COURIER IMPORT MODAL ══ */
+.import-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .2s; }
 .import-overlay.open { opacity:1; pointer-events:all; }
-.import-drawer { background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; width:100%; max-width:900px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -8px 40px rgba(0,0,0,.18); transform:translateY(40px); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
-.import-overlay.open .import-drawer { transform:translateY(0); }
-.import-drawer-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0; }
-.import-drawer-title { font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
-.import-drawer-close { background:none; border:1px solid var(--border); border-radius:var(--radius-sm); padding:5px 10px; cursor:pointer; font-size:12px; color:var(--text-secondary); font-family:inherit; font-weight:600; transition:all .2s; }
-.import-drawer-close:hover { border-color:var(--red); color:var(--red); }
-.import-drawer-body { padding:14px 18px; overflow-y:auto; flex:1; }
+.import-modal { background:var(--surface); border-radius:var(--radius); width:100%; max-width:760px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.2); transform:translateY(14px); transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.import-overlay.open .import-modal { transform:translateY(0); }
+.import-modal-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0; position:sticky; top:0; background:var(--surface); z-index:1; border-radius:var(--radius) var(--radius) 0 0; }
+.import-modal-title { font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.import-modal-close { background:none; border:1px solid var(--border); border-radius:var(--radius-sm); padding:5px 10px; cursor:pointer; font-size:12px; color:var(--text-secondary); font-family:inherit; font-weight:600; transition:all .2s; }
+.import-modal-close:hover { border-color:var(--red); color:var(--red); }
+.import-modal-body { padding:16px 18px; overflow-y:auto; flex:1; }
 .import-courier-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
 .import-courier-select { flex:1; padding:9px 12px; border:1.5px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:inherit; font-size:13px; color:var(--text-primary); outline:none; cursor:pointer; transition:border-color .2s; appearance:none; -webkit-appearance:none; font-weight:600; }
 .import-courier-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
@@ -432,6 +432,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .import-already-badge { background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
 .import-prereg-badge { background:var(--purple-light); color:var(--purple); border:1px solid var(--purple-border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
 .import-empty { text-align:center; padding:32px; color:var(--text-muted); font-size:12px; }
+.import-modal-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:space-between; align-items:center; flex-shrink:0; position:sticky; bottom:0; background:var(--surface); z-index:1; border-radius:0 0 var(--radius) var(--radius); }
 </style>
 </head>
 <body>
@@ -471,7 +472,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
       <div class="manual-row">
         <input type="text" id="manualInput" class="manual-input" placeholder="أو أدخل رقم الأوردر يدوياً..." autocomplete="off" spellcheck="false" inputmode="numeric">
         <button class="btn-manual" id="manualBtn" onclick="handleManualAdd()">إضافة</button>
-        <button class="btn-manual" onclick="openImportDrawer()" style="border-color:var(--accent);color:var(--accent)">🚚 استيراد من مندوب</button>
+        <button class="btn-manual" onclick="openImportModal()" style="border-color:var(--accent);color:var(--accent)">🚚 استيراد من مندوب</button>
       </div>
     </div>
   </div>
@@ -582,14 +583,14 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
   <div id="logContainer"><div class="log-empty">لا توجد عمليات مسجلة</div></div>
 </div>
 
-<!-- Import Courier Drawer -->
+<!-- Import Courier Modal -->
 <div class="import-overlay" id="importOverlay" onclick="closeImportOnBackdrop(event)">
-  <div class="import-drawer">
-    <div class="import-drawer-header">
-      <div class="import-drawer-title">🚚 استيراد أوردرات من مندوب</div>
-      <button class="import-drawer-close" onclick="closeImportDrawer()">✕ إغلاق</button>
+  <div class="import-modal">
+    <div class="import-modal-header">
+      <div class="import-modal-title">🚚 استيراد أوردرات من مندوب</div>
+      <button class="import-modal-close" onclick="closeImportModal()">✕ إغلاق</button>
     </div>
-    <div class="import-drawer-body">
+    <div class="import-modal-body">
       <div class="import-courier-row">
         <select id="importCourierSelect" class="import-courier-select">
           <option value="">جاري تحميل المناديب...</option>
@@ -606,9 +607,6 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
             <button class="btn-import-sel" onclick="importDeselectAll()">إلغاء الكل</button>
             <span class="import-sel-count" id="importSelCount" style="display:none">0 محدد</span>
           </div>
-          <button class="btn-import-add" id="importAddBtn" onclick="importAddSelected()" disabled>
-            ➕ <span id="importAddBtnTxt">إضافة المحدد للجدول</span>
-          </button>
         </div>
         <div class="import-table-wrap">
           <table class="import-table">
@@ -628,6 +626,14 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
         </div>
       </div>
       <div class="import-empty" id="importEmptyMsg" style="display:none"></div>
+    </div>
+    <div class="import-modal-footer">
+      <span class="import-sel-count" id="importSelCountFooter" style="display:none">0 محدد</span>
+      <div style="flex:1"></div>
+      <button class="btn-modal-cancel" onclick="closeImportModal()">إلغاء</button>
+      <button class="btn-import-add" id="importAddBtn" onclick="importAddSelected()" disabled>
+        ➕ <span id="importAddBtnTxt">إضافة المحدد للجدول</span>
+      </button>
     </div>
   </div>
 </div>
@@ -1552,21 +1558,21 @@ function openConfirm(headerHTML,bodyHTML,okLabel,okClass,onConfirm){
 }
 
 // ══════════════════════════════════════════════════════════════
-// COURIER IMPORT DRAWER
+// COURIER IMPORT MODAL
 // ══════════════════════════════════════════════════════════════
 let importOrders = [];
 let importLoading = false;
 
-function openImportDrawer(){
+function openImportModal(){
   $('importOverlay').classList.add('open');
   importLoadCouriers();
 }
-function closeImportDrawer(){
+function closeImportModal(){
   $('importOverlay').classList.remove('open');
   refocus();
 }
 function closeImportOnBackdrop(e){
-  if(e.target===$('importOverlay')) closeImportDrawer();
+  if(e.target===$('importOverlay')) closeImportModal();
 }
 
 async function importLoadCouriers(){
@@ -1712,9 +1718,13 @@ function importDeselectAll(){
 }
 function importOnCheckChange(){
   const sel=importGetSelected();
-  const selEl=$('importSelCount');
-  selEl.textContent=`${sel.length} محدد`;
-  selEl.style.display=sel.length>0?'inline-block':'none';
+  const count=sel.length;
+
+  [$('importSelCount'),$('importSelCountFooter')].forEach(el=>{
+    if(!el) return;
+    el.textContent=`${count} محدد`;
+    el.style.display=count>0?'inline-block':'none';
+  });
 
   const all=document.querySelectorAll('.import-row-cb:not(:disabled)');
   $('importHeadCb').checked=all.length>0&&[...all].every(c=>c.checked);
@@ -1737,7 +1747,7 @@ async function importAddSelected(){
   if(!sel.length) return;
   if(!isConfigured()){openSettings();return;}
 
-  closeImportDrawer();
+  closeImportModal();
   showToast(`➕ جاري إضافة ${sel.length} أوردر...`);
 
   for(const o of sel){
