@@ -1543,54 +1543,99 @@ async function exportXLSX(selectedOnly){
 
   ws.views=[{state:'frozen',ySplit:1,rightToLeft:true}];
 
-  // Sheet 2 — الإجمالي
+  // ── إصلاح borders عمود 11 في كل صفوف Sheet 1 ─────────────────────
+  // applyData بتضبط الـ border على كل صف — لكن نضيف border للخلايا الفاضية أيضاً
+  ws.eachRow((row,rowNum)=>{
+    if(rowNum===1) return; // header handled
+    const c=row.getCell(11);
+    if(!c.border||!c.border.left){
+      c.border={
+        top:   {style:'thin', color:{argb:'FFD0D0D0'}},
+        bottom:{style:'thin', color:{argb:'FFD0D0D0'}},
+        left:  {style:'medium',color:{argb:'FF888888'}},
+        right: {style:'medium',color:{argb:'FF888888'}},
+      };
+    }
+  });
+
+  // ── Sheet 2 — الإجمالي ───────────────────────────────────────────────
+  // courierNet = مجموع courierCollect من الـ orders مباشرة (صحيح)
+  // الأعمدة: المندوب | تحصيل المندوب الصافي بدون شحن | نقدي | انستاباي | محفظة | شحن إضافي | عدد الأوردرات
   const ws2=wb.addWorksheet('الإجمالي',{views:[{rightToLeft:true}]});
   ws2.columns=[
-    {header:'المندوب',              key:'courier',    width:16},
-    {header:'تحصيل المندوب الصافي', key:'courierNet', width:20},
-    {header:'نقدي',                 key:'cash',       width:14},
-    {header:'انستاباي',             key:'instapay',   width:14},
-    {header:'محفظة',                key:'wallet',     width:14},
-    {header:'شحن إضافي',            key:'extra',      width:14},
-    {header:'صافي بعد الشحن',       key:'net',        width:16},
-    {header:'إجمالي الاسترداد',     key:'refund',     width:16},
-    {header:'عدد الأوردرات',        key:'orders',     width:14},
+    {header:'المندوب',                          key:'courier',    width:16},
+    {header:'تحصيل المندوب الصافي بدون شحن',    key:'courierNet', width:26},
+    {header:'نقدي',                             key:'cash',       width:14},
+    {header:'انستاباي',                         key:'instapay',   width:14},
+    {header:'محفظة',                            key:'wallet',     width:14},
+    {header:'شحن إضافي',                        key:'extra',      width:14},
+    {header:'عدد الأوردرات',                    key:'orders',     width:14},
   ];
   ws2.getRow(1).eachCell(cell=>{
     cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+HEADER_BG}};
     cell.font={bold:true,size:11,name:'Arial'};
     cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};
+    cell.border={bottom:{style:'medium',color:{argb:'FF000000'}}};
   });
   ws2.getRow(1).height=20;
 
+  // نحسب الإجماليات من orders مباشرة لضمان الدقة
   const courierTotals={};
+  let grandCourierNet=0;
   for(const entry of log){
-    const cr=entry.courier||'—'; const pm=entry.paymentMethods||{};
-    if(!courierTotals[cr]) courierTotals[cr]={courierNet:0,cash:0,instapay:0,wallet:0,extra:0,refund:0,orders:0};
-    courierTotals[cr].courierNet +=parseFloat(entry.courierCollect)||0;
-    courierTotals[cr].cash       +=parseFloat(pm.cash)||0;
-    courierTotals[cr].instapay   +=parseFloat(pm.instapay)||0;
-    courierTotals[cr].wallet     +=parseFloat(pm.wallet)||0;
-    courierTotals[cr].extra      +=parseFloat(entry.extraShipping)||0;
-    courierTotals[cr].refund     +=parseFloat(entry.totalRefund)||0;
-    courierTotals[cr].orders     +=entry.totalOrders||0;
+    const cr=entry.courier||'—';
+    const pm=entry.paymentMethods||{};
+    if(!courierTotals[cr]) courierTotals[cr]={courierNet:0,cash:0,instapay:0,wallet:0,extra:0,orders:0};
+
+    // نجمع courierCollect من كل order مباشرة — هذا هو المصدر الصحيح
+    for(const o of(entry.orders||[])){
+      courierTotals[cr].courierNet += parseFloat(o.courierCollect)||0;
+      grandCourierNet              += parseFloat(o.courierCollect)||0;
+    }
+    courierTotals[cr].cash     += parseFloat(pm.cash)||0;
+    courierTotals[cr].instapay += parseFloat(pm.instapay)||0;
+    courierTotals[cr].wallet   += parseFloat(pm.wallet)||0;
+    courierTotals[cr].extra    += parseFloat(entry.extraShipping)||0;
+    courierTotals[cr].orders   += entry.totalOrders||0;
   }
 
+  const dataStyle=(cell,col)=>{
+    cell.font={size:10,name:'Arial'};
+    cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};
+    if(col>=2&&col<=6) cell.numFmt=NUM_FMT;
+  };
+
   Object.entries(courierTotals).forEach(([cr,t])=>{
-    const net=t.courierNet-t.extra;
-    const r=ws2.addRow({courier:cr,courierNet:t.courierNet,cash:t.cash,instapay:t.instapay,wallet:t.wallet,extra:t.extra>0?t.extra:null,net,refund:t.refund>0?t.refund:null,orders:t.orders});
-    r.eachCell({includeEmpty:false},(cell,col)=>{cell.font={size:10,name:'Arial'};cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};if(col>=2&&col<=8)cell.numFmt=NUM_FMT;});
+    const r=ws2.addRow({
+      courier:cr, courierNet:t.courierNet,
+      cash:t.cash, instapay:t.instapay, wallet:t.wallet,
+      extra:t.extra>0?t.extra:null, orders:t.orders
+    });
+    r.eachCell({includeEmpty:false},(cell,col)=>dataStyle(cell,col));
   });
 
-  const grandRefund=log.reduce((s,e)=>s+(parseFloat(e.totalRefund)||0),0);
-  const grandNet=grandCourierCollect-grandExtra;
-  const gt=ws2.addRow({courier:'جميع المناديب',courierNet:grandCourierCollect,cash:grandCash,instapay:grandInstapay,wallet:grandWallet,extra:grandExtra>0?grandExtra:null,net:grandNet,refund:grandRefund>0?grandRefund:null,orders:log.reduce((s,e)=>s+(e.totalOrders||0),0)});
+  // صف الإجمالي
+  const grandCash2     = log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).cash)||0),0);
+  const grandInstapay2 = log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).instapay)||0),0);
+  const grandWallet2   = log.reduce((s,e)=>s+(parseFloat((e.paymentMethods||{}).wallet)||0),0);
+  const grandExtra2    = log.reduce((s,e)=>s+(parseFloat(e.extraShipping)||0),0);
+  const grandOrders2   = log.reduce((s,e)=>s+(e.totalOrders||0),0);
+
+  const gt=ws2.addRow({
+    courier:'جميع المناديب',
+    courierNet: grandCourierNet,
+    cash:       grandCash2,
+    instapay:   grandInstapay2,
+    wallet:     grandWallet2,
+    extra:      grandExtra2>0?grandExtra2:null,
+    orders:     grandOrders2,
+  });
   gt.eachCell({includeEmpty:true},cell=>{
     cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+GRAND_BG}};
     cell.font={bold:true,color:{argb:'FFFFFFFF'},size:11,name:'Arial'};
     cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};
   });
-  [2,3,4,5,6,7,8].forEach(c=>{gt.getCell(c).numFmt=NUM_FMT;});
+  [2,3,4,5,6].forEach(c=>{gt.getCell(c).numFmt=NUM_FMT;});
   gt.height=20;
   ws2.views=[{state:'frozen',ySplit:1,rightToLeft:true}];
 
