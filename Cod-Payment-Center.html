@@ -152,13 +152,28 @@ body { font-family:'Noto Sans Arabic',sans-serif; background:var(--bg); color:va
 .extra-entry-loading { color:var(--cyan); }
 .extra-entry-error   { color:var(--red); font-size:10px; }
 /* Scanner input inside extra entries */
-.extra-scanner-row { display:flex; gap:6px; margin-bottom:6px; }
-.extra-scan-input { flex:1; padding:7px 10px; border:1.5px dashed var(--orange-border); border-radius:var(--radius-sm); background:rgba(255,247,237,.6); font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-primary); outline:none; direction:ltr; transition:border-color .2s; }
-.extra-scan-input:focus { border-color:var(--orange); border-style:solid; box-shadow:0 0 0 2px rgba(234,88,12,.1); }
-.extra-scan-input::placeholder { color:var(--text-muted); font-size:11px; font-family:'Noto Sans Arabic',sans-serif; }
-.btn-extra-manual { padding:7px 12px; border-radius:var(--radius-sm); border:1px solid var(--orange-border); background:var(--surface); color:var(--orange); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
-.btn-extra-manual:hover:not(:disabled) { background:var(--orange-light); }
-.btn-extra-manual:disabled { opacity:.4; cursor:not-allowed; }
+.extra-add-panel { background:rgba(255,247,237,.7); border:1.5px dashed var(--orange-border); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:8px; display:none; flex-direction:column; gap:8px; }
+.extra-add-panel.show { display:flex; }
+.extra-add-panel-title { font-size:10px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:.4px; }
+.extra-scanner-row { display:flex; gap:6px; align-items:center; }
+.extra-scan-input { flex:1; padding:7px 10px; border:1.5px solid var(--orange-border); border-radius:var(--radius-sm); background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-primary); outline:none; direction:ltr; transition:border-color .2s; }
+.extra-scan-input:focus { border-color:var(--orange); box-shadow:0 0 0 2px rgba(234,88,12,.1); }
+.extra-scan-input::placeholder { color:var(--text-muted); font-size:11px; font-family:'Noto Sans Arabic',sans-serif; direction:rtl; }
+.extra-manual-row { display:flex; gap:6px; align-items:center; }
+.extra-manual-input { flex:1; padding:7px 10px; border:1.5px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-primary); outline:none; direction:ltr; transition:border-color .2s; }
+.extra-manual-input:focus { border-color:var(--orange); box-shadow:0 0 0 2px rgba(234,88,12,.1); }
+.extra-manual-input::placeholder { color:var(--text-muted); font-size:11px; font-family:'Noto Sans Arabic',sans-serif; direction:rtl; }
+.extra-row-label { font-size:10px; font-weight:700; color:var(--text-secondary); white-space:nowrap; min-width:52px; }
+.extra-row-label.orange { color:var(--orange); }
+.btn-extra-action { padding:6px 12px; border-radius:var(--radius-sm); border:1px solid var(--orange-border); background:var(--surface); color:var(--orange); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.btn-extra-action:hover:not(:disabled) { background:var(--orange-light); }
+.btn-extra-action:disabled { opacity:.4; cursor:not-allowed; }
+.btn-extra-cancel { padding:6px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:transparent; color:var(--text-muted); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; }
+.btn-extra-cancel:hover { color:var(--text-secondary); border-color:var(--border-strong); }
+/* Courier mismatch warning */
+.extra-entry-courier-warn { font-size:11px; color:var(--red); font-weight:700; flex:1; min-width:0; display:flex; align-items:center; gap:4px; }
+.extra-entry-courier-warn .warn-name { background:var(--red-light); border:1px solid var(--red-border); border-radius:5px; padding:1px 7px; font-size:11px; font-weight:700; color:var(--red); }
+.extra-entry-courier-warn .warn-label { font-size:10px; color:var(--red); font-weight:600; }
 
 /* ── Pay grid ── */
 .pay-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px; }
@@ -445,10 +460,20 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
           </div>
         </div>
         <!-- Scanner row for extra shipping -->
-        <div class="extra-scanner-row" id="extraScannerRow" style="display:none;">
-          <input type="text" id="extraScanInput" class="extra-scan-input" placeholder="امسح الباركود أو أدخل رقم الأوردر..." autocomplete="off" spellcheck="false" inputmode="none">
-          <button class="btn-extra-manual" id="extraManualBtn" onclick="handleExtraManualAdd()">إضافة</button>
-          <button class="btn-extra-manual" style="color:var(--text-muted)" onclick="hideExtraScanner()">إلغاء</button>
+        <div class="extra-add-panel" id="extraAddPanel">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span class="extra-add-panel-title">إضافة أوردر شحن إضافي</span>
+            <button class="btn-extra-cancel" onclick="hideExtraScanner()">✕ إلغاء</button>
+          </div>
+          <div class="extra-scanner-row">
+            <span class="extra-row-label orange">🔫 سكانر</span>
+            <input type="text" id="extraScanInput" class="extra-scan-input" placeholder="امسح الباركود هنا..." autocomplete="off" spellcheck="false" inputmode="none">
+          </div>
+          <div class="extra-manual-row">
+            <span class="extra-row-label">✏️ يدوي</span>
+            <input type="text" id="extraManualInput" class="extra-manual-input" placeholder="12345 أو #12345" autocomplete="off" spellcheck="false" inputmode="numeric">
+            <button class="btn-extra-action" id="extraManualBtn" onclick="handleExtraManualAdd()">إضافة</button>
+          </div>
         </div>
         <div class="extra-entries-list" id="extraEntriesList"></div>
       </div>
@@ -602,12 +627,12 @@ function updateConfigBanner(){$('notConfigBanner').classList.toggle('show',!isCo
 const scannerInput=$('scannerInput');
 let lastKeyTime=0,scanTimer=null;
 function refocus(){
-  if($('page-scan').classList.contains('active')&&!$('extraScannerRow').style.display!=='none'){
+  if($('page-scan').classList.contains('active')&&!$('extraAddPanel').classList.contains('show')){
     scannerInput.focus();
   }
 }
 document.addEventListener('click',e=>{
-  const skip=['.modal-overlay','.log-toolbar','#logContainer','.pay-methods-card','.table-wrap','.result-box','.manual-row','#settingsBtn','#extraScannerRow'];
+  const skip=['.modal-overlay','.log-toolbar','#logContainer','.pay-methods-card','.table-wrap','.result-box','.manual-row','#settingsBtn','#extraAddPanel'];
   if(skip.some(s=>e.target.closest(s)))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON')return;
   setTimeout(refocus,50);
@@ -696,13 +721,13 @@ async function addOrder(numericId){
     }
   }catch(e){order.status='error';order.error='خطأ في الاتصال';}
 
-  updateStats(); renderTable(); updatePayBtn(); updatePayMethodsCard(); refocus();
+  updateStats(); renderTable(); renderExtraEntries(); updatePayBtn(); updatePayMethodsCard(); refocus();
 }
 
 function deleteOrder(idx){
   orders.splice(idx,1);
-  if(!orders.length){$('tableWrap').classList.remove('show');$('statsBar').classList.remove('show');}
-  updateStats();updatePayBtn();renderTable();hideResult();updatePayMethodsCard();refocus();
+  if(!orders.length&&!extraEntries.length){$('tableWrap').classList.remove('show');$('statsBar').classList.remove('show');}
+  updateStats();updatePayBtn();renderTable();renderExtraEntries();hideResult();updatePayMethodsCard();refocus();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -711,23 +736,32 @@ function deleteOrder(idx){
 let extraScanTimer=null, extraLastKeyTime=0;
 
 function showExtraScanner(){
-  $('extraScannerRow').style.display='flex';
+  $('extraAddPanel').classList.add('show');
   $('extraScanInput').focus();
 }
 function hideExtraScanner(){
-  $('extraScannerRow').style.display='none';
+  $('extraAddPanel').classList.remove('show');
   $('extraScanInput').value='';
+  $('extraManualInput').value='';
   refocus();
 }
 
 const extraScanInput=$('extraScanInput');
+// Scanner: uses gap-based auto-fire (scanner gun fires fast)
 extraScanInput.addEventListener('input',()=>{
   const gap=Date.now()-extraLastKeyTime; extraLastKeyTime=Date.now();
   clearTimeout(extraScanTimer);
-  extraScanTimer=setTimeout(handleExtraScan, gap<80?150:400);
+  // Only auto-fire for scanner gun (gap < 80ms → 150ms timeout)
+  // For manual typing, do NOT auto-fire — wait for Enter only
+  if(gap<80) extraScanTimer=setTimeout(handleExtraScan, 150);
 });
 extraScanInput.addEventListener('keypress',e=>{
   if(e.key==='Enter'){e.preventDefault();clearTimeout(extraScanTimer);handleExtraScan();}
+});
+
+// Manual input: Enter key only, never auto-fires
+$('extraManualInput').addEventListener('keypress',e=>{
+  if(e.key==='Enter'){e.preventDefault();handleExtraManualAdd();}
 });
 
 async function handleExtraScan(){
@@ -743,12 +777,13 @@ async function handleExtraScan(){
 }
 
 async function handleExtraManualAdd(){
-  const input=$('extraScanInput'), raw=input.value.trim().replace(/^#/,'');
+  const input=$('extraManualInput'), raw=input.value.trim().replace(/^#/,'');
   if(!raw){input.focus();return;}
   if(!isConfigured()){openSettings();return;}
-  input.disabled=true; $('extraManualBtn').disabled=true; $('extraManualBtn').textContent='...';
+  const btn=$('extraManualBtn');
+  input.disabled=true; btn.disabled=true; btn.textContent='...';
   try{ await processExtraOrderByName(raw); }
-  finally{ input.disabled=false; $('extraManualBtn').disabled=false; $('extraManualBtn').textContent='إضافة'; input.value=''; input.focus(); }
+  finally{ input.disabled=false; btn.disabled=false; btn.textContent='إضافة'; input.value=''; input.focus(); }
 }
 
 async function processExtraOrderByName(orderNumber){
@@ -821,13 +856,40 @@ function renderExtraEntries(){
 
   if(!extraEntries.length){ list.innerHTML=''; return; }
 
+  // الكوريير المتوقع = من الأوردرات العادية ready
+  const expectedCourier = (()=>{
+    const readyOrders=orders.filter(o=>o.status==='ready');
+    const couriers=[...new Set(readyOrders.map(o=>o.courier).filter(Boolean))];
+    return couriers.length===1?couriers[0]:null;
+  })();
+
   list.innerHTML=extraEntries.map((e,i)=>{
     let statusHtml='';
     if(e.status==='loading') statusHtml=`<span class="extra-entry-status extra-entry-loading"><span class="spinner"></span></span>`;
     else if(e.status==='error'||e.status==='notfound') statusHtml=`<span class="extra-entry-status extra-entry-error">⚠ ${e.error}</span>`;
-    return `<div class="extra-entry">
+
+    // تحديد حالة المندوب
+    let courierHtml='';
+    if(e.status==='loading'){
+      courierHtml=`<span class="extra-entry-courier" style="color:var(--text-muted)">...</span>`;
+    } else if(!e.courier){
+      // لا يوجد مندوب — تنبيه واضح
+      courierHtml=`<span class="extra-entry-courier-warn">
+        <span class="warn-name">⚠ لا يوجد مندوب</span>
+      </span>`;
+    } else if(expectedCourier && e.courier !== expectedCourier){
+      // مندوب مختلف — تنبيه بصري مع الاسم
+      courierHtml=`<span class="extra-entry-courier-warn">
+        <span class="warn-name">⚠ ${e.courier}</span>
+        <span class="warn-label">مندوب مختلف!</span>
+      </span>`;
+    } else {
+      courierHtml=`<span class="extra-entry-courier">${e.courier}</span>`;
+    }
+
+    return `<div class="extra-entry" style="${(!e.courier||(expectedCourier&&e.courier!==expectedCourier))&&e.status==='ok'?'border-color:var(--red-border);background:var(--red-light);':''}" >
       <span class="extra-entry-order">${e.orderName||('#'+e.id)}</span>
-      <span class="extra-entry-courier">${e.courier||'<span style="color:var(--text-muted)">لا يوجد مندوب</span>'}</span>
+      ${courierHtml}
       ${statusHtml}
       <div class="extra-entry-amount-wrap">
         <input type="number" class="extra-entry-amount" placeholder="0.00" min="0" step="0.01"
