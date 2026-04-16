@@ -1033,6 +1033,7 @@ async function processExtraOrderById(numericId){
       entry.courier=d.courier||null;
       entry.s1=d.s1||null;
       entry.s2=d.s2||null;
+      entry.cancelled=d.cancelled||false;
       entry.statusError=calcStatusError(entry,true);
       entry.status='ok';
     } else if(d.notFound){
@@ -1078,6 +1079,7 @@ function renderExtraEntries(){
     let statusHtml='';
     if(e.status==='loading') statusHtml=`<span class="extra-entry-status extra-entry-loading"><span class="spinner"></span></span>`;
     else if(e.status==='error'||e.status==='notfound') statusHtml=`<span class="extra-entry-status extra-entry-error">⚠ ${e.error}</span>`;
+    else if(e.cancelled) statusHtml=`<span class="extra-entry-status" style="color:var(--text-muted);font-size:10px">ملغي</span>`;
 
     let courierHtml='';
     if(e.status==='loading'){
@@ -1137,7 +1139,9 @@ function calcStatusError(order, isExtra){
   const s2 = order.s2 || null;
 
   if(isExtra){
-    // شحن إضافي: S1=Returned أو S2=Returned
+    // شحن إضافي: الأوردر الملغي مقبول دائماً بدون S1/S2
+    if(order.cancelled) return null;
+    // S1=Returned أو S2=Returned
     if(s1==='Returned'||s2==='Returned') return null; // صح
     const parts=[];
     if(s1!=='Returned') parts.push(`S1=${s1||'فارغ'}`);
@@ -1334,7 +1338,9 @@ function renderTable(){
         ?`<span class="badge badge-error">${e.error}</span>`
         :e.statusError
           ?`<span class="badge badge-status-err">⚠ حالة خاطئة</span>`
-          :`<span class="badge badge-extra">🚚 شحن إضافي</span>`;
+          :e.cancelled
+            ?`<span class="badge badge-extra">🚚 شحن إضافي <span style="font-size:9px;opacity:.7">ملغي</span></span>`
+            :`<span class="badge badge-extra">🚚 شحن إضافي</span>`;
 
     const isOk=e.status==='ok';
     let s1Cell,s2Cell;
