@@ -218,6 +218,7 @@ tbody tr.order-row.refund-row:hover { background:#ffe4e6; }
 tbody tr.order-row.refund-row.expanded { background:#ffe4e6; }
 tbody tr.order-row.extra-row    { background:var(--orange-light); border-right:3px solid var(--orange); }
 tbody tr.order-row.extra-row:hover { background:#fed7aa33; }
+tbody tr.order-row.status-err-row { border-right:3px solid var(--red) !important; }
 
 @keyframes rowIn { from { background:rgba(37,99,235,.08); } to { background:transparent; } }
 
@@ -267,7 +268,65 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .badge-skipped    { background:var(--surface-2);    color:var(--text-secondary); border:1px solid var(--border-strong); }
 .badge-notfound   { background:var(--surface-2);    color:var(--text-muted);     border:1px solid var(--border); }
 .badge-error      { background:var(--red-light);    color:var(--red);    border:1px solid var(--red-border); }
-.badge-extra      { background:var(--orange-light); color:var(--orange); border:1px solid var(--orange-border); font-weight:700; }
+.badge-status-err { background:var(--red-light); color:var(--red); border:2px solid var(--red-border); font-weight:800; font-size:10px; }
+
+/* S1 / S2 badges */
+.s-badge { display:inline-block; padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; white-space:nowrap; }
+.s-badge-delivered { background:#dcfce7; color:#15803d; border:1px solid #86efac; }
+.s-badge-returned  { background:#ffe4e6; color:var(--red); border:1px solid #fda4af; }
+.s-badge-other     { background:var(--surface-2); color:var(--text-secondary); border:1px solid var(--border); }
+.s-badge-empty     { color:var(--text-muted); font-size:10px; }
+.s-badge-err       { background:var(--red-light); color:var(--red); border:2px solid var(--red-border); font-weight:800; font-size:10px; }
+
+/* ══ COURIER IMPORT MODAL ══ */
+.import-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .2s; }
+.import-overlay.open { opacity:1; pointer-events:all; }
+.import-modal { background:var(--surface); border-radius:var(--radius); width:100%; max-width:820px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.2); transform:translateY(14px); transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.import-overlay.open .import-modal { transform:translateY(0); }
+.import-modal-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0; position:sticky; top:0; background:var(--surface); z-index:1; border-radius:var(--radius) var(--radius) 0 0; }
+.import-modal-title { font-size:14px; font-weight:700; }
+.import-modal-close { background:none; border:1px solid var(--border); border-radius:var(--radius-sm); padding:5px 10px; cursor:pointer; font-size:12px; color:var(--text-secondary); font-family:inherit; font-weight:600; transition:all .2s; }
+.import-modal-close:hover { border-color:var(--red); color:var(--red); }
+.import-modal-body { padding:16px 18px; overflow-y:auto; flex:1; }
+.import-modal-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:space-between; align-items:center; flex-shrink:0; background:var(--surface); border-radius:0 0 var(--radius) var(--radius); }
+.import-courier-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+.import-courier-select { flex:1; padding:9px 12px; border:1.5px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:inherit; font-size:13px; color:var(--text-primary); outline:none; cursor:pointer; transition:border-color .2s; appearance:none; -webkit-appearance:none; font-weight:600; }
+.import-courier-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+.import-fetch-btn { padding:9px 18px; border-radius:var(--radius-sm); border:none; background:var(--accent); color:#fff; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:6px; }
+.import-fetch-btn:hover:not(:disabled) { background:var(--accent-dark); }
+.import-fetch-btn:disabled { opacity:.4; cursor:not-allowed; }
+.import-hint { font-size:11px; color:var(--text-muted); margin-bottom:12px; }
+.import-toolbar { display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.import-sel-count { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:800; color:#fff; background:var(--accent); border:2px solid var(--accent-dark); padding:4px 12px; border-radius:20px; box-shadow:0 2px 6px rgba(37,99,235,.35); }
+.btn-import-sel { padding:5px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.btn-import-sel:hover { border-color:var(--accent); color:var(--accent); }
+.import-section-divider { display:flex; align-items:center; gap:10px; margin:12px 0 8px; }
+.import-section-divider-label { font-size:11px; font-weight:700; color:var(--red); text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; background:var(--red-light); border:1px solid var(--red-border); padding:3px 10px; border-radius:20px; }
+.import-section-divider-line { flex:1; height:1px; background:var(--red-border); }
+.btn-import-add { padding:8px 20px; border-radius:var(--radius-sm); border:none; background:var(--green); color:#fff; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap; display:flex; align-items:center; gap:6px; }
+.btn-import-add:hover:not(:disabled) { filter:brightness(.95); }
+.btn-import-add:disabled { opacity:.4; cursor:not-allowed; }
+.import-table-wrap { border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin-bottom:10px; }
+.import-table { width:100%; border-collapse:collapse; font-size:12px; background:var(--surface); }
+.import-table thead { background:#e5e7eb; }
+.import-table thead th { padding:8px 10px; text-align:right; font-size:10px; font-weight:700; color:var(--text-primary); border-bottom:2px solid var(--border-strong); white-space:nowrap; }
+.import-table thead th.col-check { width:36px; text-align:center; }
+.import-table thead th.col-ltr { text-align:left; direction:ltr; }
+.import-table thead th.col-center { text-align:center; }
+.import-table tbody tr { border-bottom:1px solid var(--border); transition:background .1s; }
+.import-table tbody tr:hover { background:var(--surface-2); }
+.import-table tbody tr.selected-row { background:var(--accent-light); }
+.import-table tbody tr.already-row { opacity:.55; }
+.import-table tbody tr.import-err-row { border-right:3px solid var(--red); }
+.import-table tbody td { padding:8px 10px; vertical-align:middle; }
+.import-table td.col-check { text-align:center; padding:8px 6px; }
+.import-table td.col-center { text-align:center; }
+.import-table .cell-mono { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:12px; }
+.import-table .cell-money { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:12px; text-align:left; direction:ltr; color:var(--green); }
+.import-table .cell-dim { font-size:11px; color:var(--text-secondary); }
+.import-already-badge { background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
+.import-prereg-badge { background:var(--purple-light); color:var(--purple); border:1px solid var(--purple-border); padding:2px 7px; border-radius:5px; font-size:10px; font-weight:600; }
+.import-empty { text-align:center; padding:32px; color:var(--text-muted); font-size:12px; }
 
 .row-del-btn { background:none; border:none; cursor:pointer; font-size:16px; padding:2px 4px; border-radius:4px; transition:transform .15s; display:inline-flex; align-items:center; justify-content:center; }
 .row-del-btn:hover { transform:scale(1.2); }
@@ -483,6 +542,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
       <div class="manual-row">
         <input type="text" id="manualInput" class="manual-input" placeholder="أو أدخل رقم الأوردر يدوياً..." autocomplete="off" spellcheck="false" inputmode="numeric">
         <button class="btn-manual" id="manualBtn" onclick="handleManualAdd()">إضافة</button>
+        <button class="btn-manual" onclick="openImportModal()" style="border-color:var(--accent);color:var(--accent)">🚚 استيراد من مندوب</button>
       </div>
     </div>
   </div>
@@ -574,7 +634,9 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
           <th class="col-ltr">إجمالي شوبيفاي</th>
           <th class="col-center">نوع الأوردر</th>
           <th class="col-center">Payment Status</th>
-          <th class="col-center">الحالة</th>
+          <th class="col-center">حالة الدفع</th>
+          <th class="col-center">S1</th>
+          <th class="col-center">S2</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -602,6 +664,61 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
     </div>
   </div>
   <div id="logContainer"><div class="log-empty">لا توجد عمليات مسجلة</div></div>
+</div>
+
+<!-- Import Courier Modal -->
+<div class="import-overlay" id="importOverlay" onclick="closeImportOnBackdrop(event)">
+  <div class="import-modal">
+    <div class="import-modal-header">
+      <div class="import-modal-title">🚚 استيراد أوردرات من مندوب</div>
+      <button class="import-modal-close" onclick="closeImportModal()">✕ إغلاق</button>
+    </div>
+    <div class="import-modal-body">
+      <div class="import-courier-row">
+        <select id="importCourierSelect" class="import-courier-select">
+          <option value="">جاري تحميل المناديب...</option>
+        </select>
+        <button class="import-fetch-btn" id="importFetchBtn" onclick="importFetchOrders()" disabled>
+          <span id="importFetchBtnTxt">🔍 استعلام</span>
+        </button>
+      </div>
+      <div class="import-hint" id="importHint">اختر مندوباً واستعلم عن الأوردرات</div>
+      <div id="importTableSection" style="display:none">
+        <div class="import-toolbar">
+          <button class="btn-import-sel" onclick="importSelectAll()">تحديد الكل</button>
+          <button class="btn-import-sel" onclick="importDeselectAll()">إلغاء الكل</button>
+          <span class="import-sel-count" id="importSelCount" style="display:none">0 محدد</span>
+        </div>
+        <div class="import-table-wrap">
+          <table class="import-table">
+            <thead>
+              <tr>
+                <th class="col-check"><input type="checkbox" id="importHeadCb" onchange="importToggleAll(this)" style="width:14px;height:14px;accent-color:var(--accent);cursor:pointer"></th>
+                <th>رقم الأوردر</th>
+                <th>العميل</th>
+                <th class="col-ltr">إجمالي شوبيفاي</th>
+                <th class="col-ltr">شحن</th>
+                <th>تاريخ الإنشاء</th>
+                <th class="col-center">S1</th>
+                <th class="col-center">S2</th>
+                <th class="col-center">الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="importTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="import-empty" id="importEmptyMsg" style="display:none"></div>
+    </div>
+    <div class="import-modal-footer">
+      <span class="import-sel-count" id="importSelCountFooter" style="display:none"></span>
+      <div style="flex:1"></div>
+      <button class="btn-modal-cancel" onclick="closeImportModal()">إلغاء</button>
+      <button class="btn-import-add" id="importAddBtn" onclick="importAddSelected()" disabled>
+        ➕ <span id="importAddBtnTxt">إضافة المحدد للجدول</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="page" id="page-balance">
@@ -667,7 +784,7 @@ function isConfigured()        { const c=getConfig(); return c.url.startsWith('h
 function isLogConfigured()     { const c=getConfig(); return c.logUrl.startsWith('http')&&c.logSecret.length>0; }
 function isBalanceConfigured() { const c=getConfig(); return c.balanceUrl.startsWith('http')&&c.balanceSecret.length>0; }
 
-// رصيد المندوب الحالي للجلسة
+// رصيد المندوب الحالي المُحمَّل للجلسة
 let currentCourierBalance = 0;
 
 // orders = regular orders in table
@@ -716,7 +833,7 @@ function updateConfigBanner(){$('notConfigBanner').classList.toggle('show',!isCo
 const scannerInput=$('scannerInput');
 let lastKeyTime=0,scanTimer=null;
 function refocus(){
-  if($('page-scan').classList.contains('active')&&!$('extraAddPanel').classList.contains('show')){
+  if($('page-scan').classList.contains('active')&&!$('extraAddPanel').classList.contains('show')&&!$('importOverlay').classList.contains('open')){
     scannerInput.focus();
   }
 }
@@ -768,6 +885,7 @@ async function addOrder(numericId){
     hasReturn:false, returnShipping:'0.00', returnedItems:[],
     refundAmount:null, parentTransactionId:null, orderDiscount:null,
     isExtraShipping: false,
+    s1:null, s2:null, statusError:null,
   };
   orders.unshift(order);
   showTable(); updateStats(); renderTable();
@@ -797,6 +915,9 @@ async function addOrder(numericId){
         order.hasReturn           = d.hasReturn||false;
         order.returnShipping      = d.returnShipping||'0.00';
         order.returnedItems       = d.returnedItems||[];
+        order.s1                  = d.s1||null;
+        order.s2                  = d.s2||null;
+        order.statusError         = calcStatusError(order, false);
         if(d.skipReason==='مستحق استرداد'){
           order.status='refund'; order.refundAmount=Math.abs(order.amount);
         } else {
@@ -898,7 +1019,7 @@ async function processExtraOrderById(numericId){
     return;
   }
 
-  const entry={ id:numericId, orderName:null, courier:null, amount:'', status:'loading', error:null };
+  const entry={ id:numericId, orderName:null, courier:null, amount:'', status:'loading', error:null, s1:null, s2:null, statusError:null };
   extraEntries.push(entry);
   hideExtraScanner();
   renderExtraEntries();
@@ -910,6 +1031,9 @@ async function processExtraOrderById(numericId){
     if(d.success&&!d.notFound){
       entry.orderName=d.orderName||('#'+numericId);
       entry.courier=d.courier||null;
+      entry.s1=d.s1||null;
+      entry.s2=d.s2||null;
+      entry.statusError=calcStatusError(entry,true);
       entry.status='ok';
     } else if(d.notFound){
       entry.status='notfound'; entry.error='غير موجود';
@@ -1000,6 +1124,43 @@ function updateExtraAmount(idx, val){
 
 function getTotalExtraShipping(){
   return extraEntries.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATUS VALIDATION (S1 / S2)
+// ══════════════════════════════════════════════════════════════
+// أوردر تحصيل/استرداد: S1 = Delivered، S2 = فارغ أو Returned
+// أوردر شحن إضافي:     S1 = Returned أو S2 = Returned
+
+function calcStatusError(order, isExtra){
+  const s1 = order.s1 || null;
+  const s2 = order.s2 || null;
+
+  if(isExtra){
+    // شحن إضافي: S1=Returned أو S2=Returned
+    if(s1==='Returned'||s2==='Returned') return null; // صح
+    const parts=[];
+    if(s1!=='Returned') parts.push(`S1=${s1||'فارغ'}`);
+    if(s2!=='Returned') parts.push(`S2=${s2||'فارغ'}`);
+    return `حالة خاطئة — يجب S1 أو S2 = Returned (${parts.join(', ')})`;
+  } else {
+    // تحصيل/استرداد: S1=Delivered و S2 فارغ أو Returned
+    const s1ok = s1==='Delivered';
+    const s2ok = !s2||s2==='Returned';
+    if(s1ok&&s2ok) return null; // صح
+    const parts=[];
+    if(!s1ok) parts.push(`S1=${s1||'فارغ'} (يجب Delivered)`);
+    if(!s2ok) parts.push(`S2=${s2} (يجب فارغ أو Returned)`);
+    return `حالة خاطئة — ${parts.join('، ')}`;
+  }
+}
+
+function renderSBadge(val, isErr){
+  if(isErr) return `<span class="s-badge s-badge-err">⚠ ${val||'فارغ'}</span>`;
+  if(!val)  return `<span class="s-badge-empty">—</span>`;
+  if(val==='Delivered') return `<span class="s-badge s-badge-delivered">${val}</span>`;
+  if(val==='Returned')  return `<span class="s-badge s-badge-returned">${val}</span>`;
+  return `<span class="s-badge s-badge-other">${val}</span>`;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1104,6 +1265,23 @@ function renderTable(){
     if(i===0&&orders.length===1) rowClass+=' row-new';
     if(isRefundStatus) rowClass+=' refund-row';
     else if(o.status==='ready'||o.status==='done') rowClass+=' ready-row';
+    if(o.statusError) rowClass+=' status-err-row';
+
+    // S1 / S2 badges
+    const isActiveOrder=(o.status==='ready'||o.status==='refund'||o.status==='done'||o.status==='refund-done');
+    let s1Cell, s2Cell;
+    if(!isActiveOrder||isCancelled){
+      s1Cell=`<span class="s-badge-empty">—</span>`;
+      s2Cell=`<span class="s-badge-empty">—</span>`;
+    } else if(o.statusError){
+      const s1ok=o.s1==='Delivered';
+      const s2ok=!o.s2||o.s2==='Returned';
+      s1Cell=renderSBadge(o.s1,!s1ok);
+      s2Cell=renderSBadge(o.s2,!s2ok);
+    } else {
+      s1Cell=renderSBadge(o.s1,false);
+      s2Cell=renderSBadge(o.s2,false);
+    }
 
     rows.push(`<tr class="${rowClass}" data-idx="${i}" data-type="order">
       <td style="padding:6px 8px;text-align:center">
@@ -1111,6 +1289,7 @@ function renderTable(){
       </td>
       <td class="cell-order" onclick="${hasDetails?`toggleRow(${i})`:''}" style="${hasDetails?'cursor:pointer':''}">
         ${expandIcon}${nameDisplay}
+        ${o.statusError?`<div style="font-size:10px;color:var(--red);font-weight:700;margin-top:3px">⚠ ${o.statusError}</div>`:''}
       </td>
       <td class="cell-courier">${courierDisplay}</td>
       <td class="cell-money">${courierCollect!=null?moneyCell(courierCollect,courierCollect<0?'var(--red)':null):`<span style="color:var(--text-muted)">—</span>`}</td>
@@ -1119,6 +1298,8 @@ function renderTable(){
       <td class="cell-center">${orderTypeCol}</td>
       <td class="cell-center">${paymentStatusDisplay}</td>
       <td class="cell-center">${badge}</td>
+      <td class="cell-center">${s1Cell}</td>
+      <td class="cell-center">${s2Cell}</td>
     </tr>`);
 
     let detailContent='';
@@ -1139,7 +1320,7 @@ function renderTable(){
         <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red);font-weight:700">−${fmt(parseFloat(o.returnShipping))} EGP</span></div>`:''}
       </div>`;
     }
-    rows.push(`<tr class="detail-row" data-idx="${i}"><td colspan="9">${hasDetails?detailContent:''}</td></tr>`);
+    rows.push(`<tr class="detail-row" data-idx="${i}"><td colspan="11">${hasDetails?detailContent:''}</td></tr>`);
   });
 
   extraEntries.forEach((e,i)=>{
@@ -1151,13 +1332,35 @@ function renderTable(){
       ?`<span class="badge badge-loading"><span class="spinner"></span> جاري...</span>`
       :e.status==='error'||e.status==='notfound'
         ?`<span class="badge badge-error">${e.error}</span>`
-        :`<span class="badge badge-extra">🚚 شحن إضافي</span>`;
+        :e.statusError
+          ?`<span class="badge badge-status-err">⚠ حالة خاطئة</span>`
+          :`<span class="badge badge-extra">🚚 شحن إضافي</span>`;
 
-    rows.push(`<tr class="order-row extra-row" data-type="extra" data-idx="${i}">
+    const isOk=e.status==='ok';
+    let s1Cell,s2Cell;
+    if(!isOk){
+      s1Cell=`<span class="s-badge-empty">—</span>`;
+      s2Cell=`<span class="s-badge-empty">—</span>`;
+    } else if(e.statusError){
+      const s1ok=e.s1==='Returned';
+      const s2ok=e.s2==='Returned';
+      const eitherOk=s1ok||s2ok;
+      s1Cell=renderSBadge(e.s1, !eitherOk||(!s1ok&&!s2ok));
+      s2Cell=renderSBadge(e.s2, !eitherOk||(!s1ok&&!s2ok));
+    } else {
+      s1Cell=renderSBadge(e.s1,false);
+      s2Cell=renderSBadge(e.s2,false);
+    }
+
+    const extraRowClass='order-row extra-row'+(e.statusError?' status-err-row':'');
+    rows.push(`<tr class="${extraRowClass}" data-type="extra" data-idx="${i}">
       <td style="padding:6px 8px;text-align:center">
         <button class="row-del-btn" onclick="deleteExtraEntry(${i})" title="حذف">❌</button>
       </td>
-      <td class="cell-order">${nameDisplay}</td>
+      <td class="cell-order">
+        ${nameDisplay}
+        ${e.statusError?`<div style="font-size:10px;color:var(--red);font-weight:700;margin-top:3px">⚠ ${e.statusError}</div>`:''}
+      </td>
       <td class="cell-courier">${courierDisplay}</td>
       <td class="cell-money">${moneyDisplay}</td>
       <td class="cell-money"><span style="color:var(--text-muted)">—</span></td>
@@ -1165,8 +1368,10 @@ function renderTable(){
       <td class="cell-center"><span style="background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-border);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">شحن إضافي</span></td>
       <td class="cell-center"><span style="color:var(--text-muted);font-size:11px">—</span></td>
       <td class="cell-center">${statusHtml}</td>
+      <td class="cell-center">${s1Cell}</td>
+      <td class="cell-center">${s2Cell}</td>
     </tr>`);
-    rows.push(`<tr class="detail-row"><td colspan="9"></td></tr>`);
+    rows.push(`<tr class="detail-row"><td colspan="11"></td></tr>`);
   });
 
   tbody.innerHTML=rows.join('');
@@ -1250,7 +1455,7 @@ function getNetTarget(){ return getCourierCollectNet() + currentCourierBalance; 
 function getPaySum(){return(parseFloat($('pmCash').value)||0)+(parseFloat($('pmInstapay').value)||0)+(parseFloat($('pmWallet').value)||0)+(parseFloat($('pmBalance').value)||0);}
 function isPayEmpty(){return!$('pmCash').value&&!$('pmInstapay').value&&!$('pmWallet').value&&!$('pmBalance').value;}
 
-// جلب رصيد المندوب من KV وتحديث البانر
+// جلب رصيد المندوب من courier-balance-worker
 async function loadCourierBalance(courierName){
   currentCourierBalance=0;
   $('balancePrevBanner').classList.remove('show');
@@ -1289,7 +1494,6 @@ function updatePayMethodsCard(){
   $('courierBannerName').textContent=courierErr?'⚠ خطأ في المندوب':(courier||'—');
   $('courierBannerName').style.color=courierErr?'var(--red)':'var(--purple)';
   $('courierBannerTotal').textContent='';
-  // جلب رصيد المندوب لو تغير اسمه
   if(courier) loadCourierBalance(courier);
   updatePayValidation();
 }
@@ -1376,8 +1580,11 @@ function updatePayBtn(){
   const hasReady  =orders.filter(o=>o.status==='ready').length>0;
   const hasRefund =orders.filter(o=>o.status==='refund').length>0;
   const courierErr=getReadyCourierError();
+  // منع الدفع لو في أي أوردر عنده statusError (في الجدول الرئيسي أو الشحن الإضافي)
+  const hasStatusErr=orders.some(o=>o.statusError&&(o.status==='ready'||o.status==='refund'))
+    ||extraEntries.some(e=>e.statusError&&e.status==='ok');
   const btn=$('payBtn');
-  btn.disabled=(!hasReady&&!hasRefund)||!!courierErr||!isPayValid()||isProcessing;
+  btn.disabled=(!hasReady&&!hasRefund)||!!courierErr||!isPayValid()||isProcessing||hasStatusErr;
   if(hasReady&&hasRefund){btn.textContent='💵 تسجيل الدفع + 💸 تنفيذ الاسترداد';btn.classList.add('has-refund');}
   else if(hasRefund&&!hasReady){btn.textContent='💸 تنفيذ الاسترداد';btn.classList.add('has-refund');}
   else{btn.textContent='💵 تسجيل الدفع على شوبيفاي';btn.classList.remove('has-refund');}
@@ -1399,13 +1606,13 @@ async function confirmBulkPay(){
   const instapay     =parseFloat($('pmInstapay').value)||0;
   const wallet       =parseFloat($('pmWallet').value)||0;
   const balanceDebit =parseFloat($('pmBalance').value)||0;
-  const extraTotal   =getTotalExtraShipping();
   const prevBalance  =currentCourierBalance;
+  const extraTotal   =getTotalExtraShipping();
 
   const readyCollectOnly  = readyOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
   const refundCollectOnly = refundOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
   const totalNet          = readyCollectOnly + refundCollectOnly - extraTotal;
-  const grandTotal        = totalNet + prevBalance; // الإجمالي مع الرصيد السابق
+  const grandTotal        = totalNet + prevBalance;
 
   const totalRefund = refundOrders.reduce((s,o)=>s+(o.refundAmount||0),0);
   const totalRetShip= refundOrders.reduce((s,o)=>s+(parseFloat(o.returnShipping)||0),0);
@@ -1435,19 +1642,11 @@ async function confirmBulkPay(){
       <span style="font-size:12px;font-weight:700">صافي تحصيل اليوم</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:800;color:${totalNet<0?'var(--red)':'var(--green)'}">${fmtSigned(totalNet)} جنيه</span>
     </div>
-    ${prevBalance>0?`
-    <div style="background:#fefce8;border:2px solid #facc15;border-radius:var(--radius-sm);padding:8px 14px;margin:4px 0;display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:12px;font-weight:700;color:#92400e;">رصيد سابق مضاف</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:800;color:#92400e;">+ ${fmt(prevBalance)} جنيه</span>
+    ${prevBalance>0?`<div style="background:#fefce8;border:2px solid #facc15;border-radius:var(--radius-sm);padding:8px 14px;margin:4px 0;display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;font-weight:700;color:#92400e;">رصيد سابق مضاف</span><span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:800;color:#92400e;">+ ${fmt(prevBalance)} جنيه</span></div>`:''}
+    <div style="background:var(--accent-light);border:2px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin:6px 0;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:13px;font-weight:700">الإجمالي المستحق</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:var(--accent)">${fmtSigned(grandTotal)} جنيه</span>
     </div>
-    <div style="background:var(--accent-light);border:2px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin:6px 0;display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:13px;font-weight:700">الإجمالي المستحق</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:var(--accent)">${fmtSigned(grandTotal)} جنيه</span>
-    </div>`:`
-    <div style="background:var(--accent-light);border:2px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin:6px 0;display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:13px;font-weight:700">الإجمالي المستحق</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:800;color:var(--accent)">${fmtSigned(grandTotal)} جنيه</span>
-    </div>`}
     ${cash>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">💵 نقدي</span><span class="confirm-detail-val">${fmt(cash)} جنيه</span></div>`:''}
     ${instapay>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">📱 انستاباي</span><span class="confirm-detail-val">${fmt(instapay)} جنيه</span></div>`:''}
     ${wallet>0?`<div class="confirm-detail-row"><span class="confirm-detail-label">👛 محفظة</span><span class="confirm-detail-val">${fmt(wallet)} جنيه</span></div>`:''}
@@ -1535,11 +1734,7 @@ async function doBulkPayAndRefund(){
     netCollect: Math.max(0, paidCourierColl - extraTotal).toFixed(2),
     totalRefund:refundedTotal.toFixed(2), totalReturnShipping:refundedShip.toFixed(2),
     paymentMethods:{cash:cash.toFixed(2),instapay:instapay.toFixed(2),wallet:wallet.toFixed(2),balance:balanceDebit.toFixed(2)},
-    courierBalance: balanceDebit>0 ? {
-      prevBalance: prevBalance.toFixed(2),
-      debitAmount: balanceDebit.toFixed(2),
-      newBalance:  (prevBalance+balanceDebit).toFixed(2),
-    } : (prevBalance>0 ? { prevBalance: prevBalance.toFixed(2), debitAmount: '0.00', newBalance: prevBalance.toFixed(2) } : null),
+    courierBalance: balanceDebit>0 ? {prevBalance:prevBalance.toFixed(2),debitAmount:balanceDebit.toFixed(2),newBalance:(prevBalance+balanceDebit).toFixed(2)} : (prevBalance>0?{prevBalance:prevBalance.toFixed(2),debitAmount:'0.00',newBalance:prevBalance.toFixed(2)}:null),
     orders:allProcessed.map(o=>({
       order:o.id, orderName:o.orderName||'', courier:o.courier||'',
       amount:o.amount!=null?o.amount.toFixed(2):'0.00',
@@ -1557,16 +1752,14 @@ async function doBulkPayAndRefund(){
   };
   saveLogEntry(logEntry);
 
-  // لو المندوب احتجز رصيد — يُسجَّل في KV بعد نجاح التحصيل
+  // لو المندوب احتجز رصيد — يُسجَّل في courier-balance-worker بعد نجاح التحصيل
   if(balanceDebit>0&&courierName&&isBalanceConfigured()){
     try{
-      const c2=getConfig();
-      const paidCourierColl2=paidOrders.reduce((s,o)=>s+(calcCourierCollect(o)||0),0);
-      const successOrders=paidOrders.length+refundedOrders.length;
-      await fetch(c2.balanceUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c2.balanceSecret}`},
-        body:JSON.stringify({action:'addDebit',courierName,amount:balanceDebit.toFixed(2),
-          note:`جلسة تحصيل — ${successOrders} أوردر`,sessionDate:logEntry.date})});
-    }catch(e){showToast('⚠ تم التحصيل لكن فشل تسجيل الرصيد','error');}
+      const cb=getConfig();
+      const successCount=(readyOrders.filter(o=>o.status==='done').length)+(refundOrders.filter(o=>o.status==='refund-done').length);
+      await fetch(cb.balanceUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${cb.balanceSecret}`},
+        body:JSON.stringify({action:'addDebit',courierName,amount:balanceDebit.toFixed(2),note:`جلسة تحصيل — ${successCount} أوردر`,sessionDate:logEntry.date})});
+    }catch{showToast('⚠ تم التحصيل لكن فشل تسجيل الرصيد — راجع Courier-Balance','error');}
   }
 
   orders=orders.filter(o=>o.status!=='done'&&o.status!=='refund-done');
@@ -1611,6 +1804,235 @@ function openConfirm(headerHTML,bodyHTML,okLabel,okClass,onConfirm){
   newOk.addEventListener('click',()=>{$('confirmOverlay').classList.remove('open');onConfirm();});
   newCancel.addEventListener('click',()=>$('confirmOverlay').classList.remove('open'));
   $('confirmOverlay').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════════════
+// COURIER IMPORT MODAL
+// ══════════════════════════════════════════════════════════════
+let importOrders=[], importLoading=false;
+
+function importReset(){
+  importOrders=[];
+  importLoading=false;
+  const sel=$('importCourierSelect');
+  if(sel) sel.selectedIndex=0;
+  $('importFetchBtn').disabled=true;
+  $('importTableSection').style.display='none';
+  $('importEmptyMsg').style.display='none';
+  if($('importHeadCb')) $('importHeadCb').checked=false;
+  $('importHint').textContent='اختر مندوباً للاستعلام عن أوردراته';
+  [$('importSelCount'),$('importSelCountFooter')].forEach(el=>{if(el){el.style.display='none';}});
+  $('importAddBtn').disabled=true;
+  $('importAddBtnTxt').textContent='إضافة المحدد للجدول';
+}
+
+function openImportModal(){
+  importReset();
+  $('importOverlay').classList.add('open');
+  importLoadCouriers();
+}
+function closeImportModal(){
+  $('importOverlay').classList.remove('open');
+  importReset();
+  refocus();
+}
+function closeImportOnBackdrop(e){
+  if(e.target===$('importOverlay')) closeImportModal();
+}
+
+async function importLoadCouriers(){
+  const sel=$('importCourierSelect'), btn=$('importFetchBtn'), hint=$('importHint');
+  if(!isConfigured()){
+    sel.innerHTML='<option value="">أدخل Worker URL في الإعدادات أولاً</option>';
+    btn.disabled=true; hint.textContent='⚠ الأداة غير مضبوطة'; return;
+  }
+  const activeCourier=getReadyCourier();
+  sel.innerHTML='<option value="">جاري تحميل المناديب...</option>';
+  btn.disabled=true; hint.textContent='جاري تحميل قائمة المناديب...';
+  try{
+    const c=getConfig();
+    const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},body:JSON.stringify({action:'getCourierValues'})});
+    const data=await res.json();
+    if(data.success&&data.values?.length){
+      let values=data.values;
+      if(activeCourier) values=values.filter(v=>v===activeCourier);
+      if(values.length){
+        sel.innerHTML='<option value="">اختر مندوباً...</option>'+values.map(v=>`<option value="${v}">${v}</option>`).join('');
+        if(values.length===1){ sel.value=values[0]; btn.disabled=false; }
+        else { btn.disabled=true; }
+        hint.textContent=activeCourier?`يظهر فقط مندوب الأوردرات الحالية: ${activeCourier}`:'اختر مندوباً للاستعلام عن أوردراته';
+      } else {
+        sel.innerHTML=`<option value="">${activeCourier} — غير موجود في القائمة</option>`;
+        hint.textContent=`المندوب الحالي (${activeCourier}) غير موجود في الـ metafield choices`;
+      }
+    } else {
+      sel.innerHTML='<option value="">لا توجد مناديب</option>';
+      hint.textContent='لا توجد مناديب محددة في الـ metafield definition';
+    }
+  } catch {
+    sel.innerHTML='<option value="">خطأ في التحميل</option>';
+    hint.textContent='خطأ في تحميل قائمة المناديب';
+  }
+}
+
+$('importCourierSelect').addEventListener('change',()=>{
+  $('importFetchBtn').disabled=!$('importCourierSelect').value||importLoading;
+});
+
+async function importFetchOrders(){
+  const courier=$('importCourierSelect').value;
+  if(!courier||importLoading) return;
+  if(!isConfigured()){openSettings();return;}
+  importLoading=true;
+  const btn=$('importFetchBtn'), txt=$('importFetchBtnTxt');
+  btn.disabled=true; txt.innerHTML='<span class="spinner"></span> جاري...';
+  $('importHint').textContent=`جاري الاستعلام عن أوردرات ${courier}...`;
+  $('importTableSection').style.display='none';
+  $('importEmptyMsg').style.display='none';
+  importOrders=[];
+  try{
+    const c=getConfig();
+    const res=await fetch(c.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.secret}`},body:JSON.stringify({action:'getCourierOrders',courier})});
+    const data=await res.json();
+    if(!data.success){
+      $('importHint').textContent=data.error||'خطأ في الاستعلام';
+    } else {
+      importOrders=data.orders||[];
+      if(!importOrders.length){
+        $('importHint').textContent=`لا توجد أوردرات مؤهلة لـ ${courier}`;
+        $('importEmptyMsg').textContent=`لا توجد أوردرات مؤهلة لـ ${courier}`;
+        $('importEmptyMsg').style.display='block';
+      } else {
+        const eligible=importOrders.filter(o=>!importCalcStatusError(o)&&!orders.some(ex=>ex.id===o.id));
+        const errs=importOrders.filter(o=>!!importCalcStatusError(o));
+        $('importHint').textContent=`تم الاستعلام — ${eligible.length} مؤهل، ${errs.length} خطأ حالة`;
+        $('importTableSection').style.display='block';
+        importRenderTable();
+      }
+    }
+  } catch { $('importHint').textContent='خطأ في الاتصال'; }
+  importLoading=false; btn.disabled=false; txt.textContent='🔍 استعلام';
+}
+
+function importFmtDate(iso){
+  if(!iso) return '—';
+  const d=new Date(iso);
+  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
+function importCalcStatusError(o){
+  const s1=o.s1||null, s2=o.s2||null;
+  const s1ok=s1==='Delivered', s2ok=!s2||s2==='Returned';
+  if(s1ok&&s2ok) return null;
+  const parts=[];
+  if(!s1ok) parts.push(`S1=${s1||'فارغ'}`);
+  if(!s2ok) parts.push(`S2=${s2}`);
+  return parts.join('، ');
+}
+
+function importMakeRow(o,i){
+  const alreadyInTable=orders.some(ex=>ex.id===o.id);
+  const amount=parseFloat(o.amount), shipping=parseFloat(o.shippingAmount);
+  const statusErr=importCalcStatusError(o);
+  const s1=o.s1||null, s2=o.s2||null;
+  const s1Badge=s1==='Delivered'?`<span class="s-badge s-badge-delivered">${s1}</span>`
+    :s1==='Returned'?`<span class="s-badge s-badge-returned">${s1}</span>`
+    :s1?`<span class="s-badge s-badge-other">${s1}</span>`:`<span class="s-badge-empty">—</span>`;
+  const s2Badge=s2==='Returned'?`<span class="s-badge s-badge-returned">${s2}</span>`
+    :s2?`<span class="s-badge s-badge-other">${s2}</span>`:`<span class="s-badge-empty">—</span>`;
+  const statusBadge=alreadyInTable
+    ?`<span class="import-already-badge">موجود بالجدول</span>`
+    :statusErr
+      ?`<span class="s-badge-err" style="display:inline-block;padding:2px 7px;border-radius:5px">⚠ ${statusErr}</span>`
+      :o.preRegistered?`<span class="import-prereg-badge">📋 مسجل مسبقاً</span>`
+      :`<span style="color:var(--green);font-size:10px;font-weight:600">✓ مؤهل</span>`;
+  const rowClass=alreadyInTable?'already-row':(statusErr?' import-err-row':'');
+  return `<tr class="${rowClass}" id="irow-${i}">
+    <td class="col-check"><input type="checkbox" class="import-row-cb" data-idx="${i}"
+      style="width:14px;height:14px;accent-color:var(--accent);cursor:pointer"
+      ${(alreadyInTable||!!statusErr)?'disabled':''}
+      onchange="importOnCheckChange()"></td>
+    <td class="cell-mono">${o.orderName}</td>
+    <td class="cell-dim">${o.customerName||'—'}</td>
+    <td class="cell-money">${amount.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+    <td class="cell-money" style="color:var(--text-secondary)">${shipping.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+    <td class="cell-dim">${importFmtDate(o.createdAt)}</td>
+    <td class="col-center">${s1Badge}</td>
+    <td class="col-center">${s2Badge}</td>
+    <td class="col-center">${statusBadge}</td>
+  </tr>`;
+}
+
+function importRenderTable(){
+  const tbody=$('importTableBody');
+  if(!importOrders.length){ tbody.innerHTML=''; importUpdateAddBtn(); return; }
+  const eligible=[], errored=[];
+  importOrders.forEach((o,i)=>{
+    const alreadyInTable=orders.some(ex=>ex.id===o.id);
+    if(!alreadyInTable&&!importCalcStatusError(o)) eligible.push({o,i});
+    else errored.push({o,i});
+  });
+  let html='';
+  eligible.forEach(({o,i})=>{ html+=importMakeRow(o,i); });
+  if(errored.length){
+    html+=`<tr><td colspan="9" style="padding:0">
+      <div class="import-section-divider">
+        <div class="import-section-divider-line"></div>
+        <div class="import-section-divider-label">⚠ أوردرات لا يمكن إضافتها (${errored.length})</div>
+        <div class="import-section-divider-line"></div>
+      </div></td></tr>`;
+    errored.forEach(({o,i})=>{ html+=importMakeRow(o,i); });
+  }
+  tbody.innerHTML=html;
+  $('importHeadCb').checked=false;
+  importUpdateAddBtn();
+}
+
+function importGetSelected(){
+  return [...document.querySelectorAll('.import-row-cb:checked')].map(c=>importOrders[parseInt(c.dataset.idx)]).filter(Boolean);
+}
+function importToggleAll(cb){
+  document.querySelectorAll('.import-row-cb:not(:disabled)').forEach(c=>c.checked=cb.checked);
+  importOnCheckChange();
+}
+function importSelectAll(){
+  document.querySelectorAll('.import-row-cb:not(:disabled)').forEach(c=>c.checked=true);
+  importOnCheckChange();
+}
+function importDeselectAll(){
+  document.querySelectorAll('.import-row-cb:not(:disabled)').forEach(c=>c.checked=false);
+  importOnCheckChange();
+}
+function importOnCheckChange(){
+  const sel=importGetSelected(), count=sel.length;
+  [$('importSelCount'),$('importSelCountFooter')].forEach(el=>{
+    if(!el) return;
+    el.textContent=`${count} محدد`;
+    el.style.display=count>0?'inline-flex':'none';
+  });
+  const all=document.querySelectorAll('.import-row-cb:not(:disabled)');
+  $('importHeadCb').checked=all.length>0&&[...all].every(c=>c.checked);
+  document.querySelectorAll('.import-row-cb').forEach(c=>{
+    const row=document.getElementById(`irow-${c.dataset.idx}`);
+    if(row&&!c.disabled) row.classList.toggle('selected-row',c.checked);
+  });
+  importUpdateAddBtn();
+}
+function importUpdateAddBtn(){
+  const sel=importGetSelected();
+  $('importAddBtn').disabled=sel.length===0;
+  $('importAddBtnTxt').textContent=sel.length>0?`إضافة ${sel.length} أوردر للجدول`:'إضافة المحدد للجدول';
+}
+async function importAddSelected(){
+  const sel=importGetSelected();
+  if(!sel.length) return;
+  if(!isConfigured()){openSettings();return;}
+  closeImportModal();
+  showToast(`➕ جاري إضافة ${sel.length} أوردر...`);
+  for(const o of sel){
+    if(orders.some(ex=>ex.id===o.id)) continue;
+    await addOrder(o.id);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1994,7 +2416,6 @@ async function exportXLSX(selectedOnly){
     cell.alignment={horizontal:'center',vertical:'middle',readingOrder:'rightToLeft'};
     cell.border={bottom:{style:'medium',color:{argb:'FF000000'}}};
   });
-  // عمود "رصيد معه" بخلفية صفراء
   ws2.getRow(1).getCell(6).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF3CD'}};
   ws2.getRow(1).height=20;
 
@@ -2011,9 +2432,9 @@ async function exportXLSX(selectedOnly){
     const extraArr=Array.isArray(entry.extraShipping)?entry.extraShipping:[];
     for(const e of extraArr){
       const amt=parseFloat(e.amount)||0;
-      courierTotals[cr].extra      += amt;
+      courierTotals[cr].extra    += amt;
       courierTotals[cr].courierNet -= amt;
-      grandNet2                    -= amt;
+      grandNet2                   -= amt;
     }
     courierTotals[cr].cash     += parseFloat(pm.cash)||0;
     courierTotals[cr].instapay += parseFloat(pm.instapay)||0;
@@ -2061,7 +2482,7 @@ async function exportXLSX(selectedOnly){
 // ══════════════════════════════════════════════════════════════
 // COURIER BALANCE PAGE
 // ══════════════════════════════════════════════════════════════
-function fmtDate(iso){
+function fmtBalanceDate(iso){
   const d=new Date(iso);const pad=n=>String(n).padStart(2,'0');
   let h=d.getHours();const m=pad(d.getMinutes());const ampm=h>=12?'م':'ص';
   h=h%12||12;return`${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()} ${pad(h)}:${m}${ampm}`;
@@ -2073,7 +2494,7 @@ async function loadAllBalances(){
     container.innerHTML='<div class="balance-empty">⚠ أدخل Courier-Balance Worker بيانات في الإعدادات أولاً</div>';
     openSettings(); return;
   }
-  container.innerHTML='<div class="balance-empty"><span class="spinner" style="width:18px;height:18px;border-width:3px"></span> جاري التحميل...</div>';
+  container.innerHTML='<div class="balance-empty" style="display:flex;align-items:center;justify-content:center;gap:8px"><span class="spinner" style="width:16px;height:16px;border-width:2px"></span> جاري التحميل...</div>';
   try{
     const c=getConfig();
     const res=await fetch(c.balanceUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${c.balanceSecret}`},body:JSON.stringify({action:'getAllBalances'})});
@@ -2111,7 +2532,7 @@ function renderBalancePage(couriers){
             <div class="balance-credit-label">💵 مبلغ السداد</div>
             <input type="number" class="balance-credit-input" id="creditInput-${ci}" placeholder="0" min="0" step="1" max="${c.balance}">
           </div>
-          <button class="btn-pay-credit" onclick="submitCredit(${ci},'${c.courierName}',${c.balance})">✓ تسجيل السداد</button>
+          <button class="btn-pay-credit" onclick="submitCredit(${ci},'${c.courierName.replace(/'/g,"\'")}',${c.balance})">✓ تسجيل السداد</button>
         </div>
         <div class="balance-history-label">سجل الحركات (${c.history.length})</div>
         <div class="balance-history-list">
@@ -2119,7 +2540,7 @@ function renderBalancePage(couriers){
             [...c.history].reverse().map(h=>`
             <div class="balance-history-item ${h.type}">
               <span class="balance-history-badge ${h.type}">${h.type==='debit'?'احتجاز':'سداد'}</span>
-              <span class="balance-history-date">${fmtDate(h.date)}</span>
+              <span class="balance-history-date">${fmtBalanceDate(h.date)}</span>
               <span class="balance-history-note">${h.note||''}</span>
               <span class="balance-history-amount ${h.type}">${h.type==='debit'?'+':'-'}${fmt(h.amount)}</span>
             </div>`).join('')}
@@ -2157,7 +2578,7 @@ async function submitCredit(ci, courierName, currentBalance){
         } else {
           showToast(`فشل: ${d.error||'خطأ'}`, 'error');
         }
-      }catch(e){showToast('خطأ في الاتصال','error');}
+      }catch{showToast('خطأ في الاتصال','error');}
     });
 }
 </script>
