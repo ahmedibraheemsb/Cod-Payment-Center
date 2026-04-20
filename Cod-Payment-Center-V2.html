@@ -499,6 +499,29 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 .balance-history-badge.debit  { background:var(--red-light);   color:var(--red);   border:1px solid var(--red-border); }
 .balance-history-badge.credit { background:var(--green-light); color:var(--green); border:1px solid var(--green-border); }
 .tab-badge.amber { background:var(--amber-light); color:var(--amber); border:1px solid var(--amber-border); }
+
+/* ── Extra Entry wrap + status error ── */
+.extra-entry-wrap { display:flex; flex-direction:column; gap:0; }
+.extra-status-err-row { font-size:11px; font-weight:600; color:var(--amber); background:var(--amber-light); border:1px solid var(--amber-border); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); padding:4px 10px; display:flex; align-items:center; gap:4px; }
+
+/* ── Changelog button ── */
+.changelog-btn { display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface-2); color:var(--text-secondary); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all .2s; }
+.changelog-btn:hover { border-color:var(--accent); color:var(--accent); }
+.changelog-version { font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:700; color:var(--accent); background:var(--accent-light); padding:1px 6px; border-radius:4px; }
+
+/* ── Changelog modal ── */
+.changelog-modal { max-width:500px; }
+.changelog-list { display:flex; flex-direction:column; gap:0; }
+.changelog-item { border-bottom:1px solid var(--border); padding:14px 0; }
+.changelog-item:last-child { border-bottom:none; padding-bottom:0; }
+.changelog-item-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.changelog-ver-badge { font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:700; background:var(--accent); color:#fff; padding:2px 8px; border-radius:5px; }
+.changelog-ver-badge.latest { background:var(--green); }
+.changelog-date { font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; }
+.changelog-notes { display:flex; flex-direction:column; gap:5px; padding-right:4px; }
+.changelog-note { font-size:12px; color:var(--text-secondary); line-height:1.5; display:flex; align-items:flex-start; gap:6px; }
+.changelog-note::before { content:'•'; color:var(--accent); font-weight:700; flex-shrink:0; margin-top:1px; }
+.changelog-note b { color:var(--text-primary); font-weight:700; }
 </style>
 </head>
 <body>
@@ -509,8 +532,63 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
     <div class="app-title-icon">💳</div>
     COD Payment Center
   </div>
-  <button class="settings-btn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button class="changelog-btn" onclick="openChangelog()">
+      📋 <span class="changelog-version">v1.2.0</span>
+    </button>
+    <button class="settings-btn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+  </div>
 </header>
+
+<!-- Changelog Modal -->
+<div class="modal-overlay" id="changelogOverlay" onclick="closeChangelogOnBackdrop(event)">
+  <div class="modal changelog-modal">
+    <div class="modal-header">📋 سجل التحديثات</div>
+    <div class="modal-body">
+      <div class="changelog-list">
+
+        <div class="changelog-item">
+          <div class="changelog-item-header">
+            <span class="changelog-ver-badge latest">v1.2.0</span>
+            <span class="changelog-date">20-04-2026</span>
+          </div>
+          <div class="changelog-notes">
+            <div class="changelog-note"><b>شرط الشحن الإضافي:</b> توسيع الحالات المقبولة — S1 يقبل الآن Returned / Ready / Cancelled، وS2 يقبل Returned / Ready</div>
+            <div class="changelog-note"><b>تنبيه الحالة الخاطئة:</b> أوردرات الشحن الإضافي ذات الحالة الخاطئة تُظهر تنبيهاً أصفر بالسبب تحت الصف مباشرةً</div>
+            <div class="changelog-note"><b>سجل التحديثات:</b> إضافة هذه النافذة</div>
+          </div>
+        </div>
+
+        <div class="changelog-item">
+          <div class="changelog-item-header">
+            <span class="changelog-ver-badge">v1.1.0</span>
+            <span class="changelog-date">—</span>
+          </div>
+          <div class="changelog-notes">
+            <div class="changelog-note"><b>Courier-Balance:</b> تكامل مع worker الأرصدة — عرض الرصيد السابق للمندوب وإضافة المبالغ المحتجزة</div>
+            <div class="changelog-note"><b>Import Modal:</b> استيراد أوردرات مندوب بالكامل من Shopify مع فلترة الحالة</div>
+            <div class="changelog-note"><b>الشحن الإضافي:</b> قسم منفصل لأوردرات الشحن الإضافي مع مسح باركود مستقل</div>
+            <div class="changelog-note"><b>Pre-Registration:</b> تكامل مع pre-register worker لعرض الأوردرات المسجلة مسبقاً</div>
+          </div>
+        </div>
+
+        <div class="changelog-item">
+          <div class="changelog-item-header">
+            <span class="changelog-ver-badge">v1.0.0</span>
+            <span class="changelog-date">—</span>
+          </div>
+          <div class="changelog-notes">
+            <div class="changelog-note">الإصدار الأول — مسح باركود، تحصيل واسترداد، سجل عمليات، تصدير XLSX</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeChangelog()">إغلاق</button>
+    </div>
+  </div>
+</div>
 
 <div class="tabs-bar">
   <button class="tab-btn active" data-tab="scan" onclick="switchTab('scan')">
@@ -828,6 +906,13 @@ function updateSettingsBtn(){$('settingsBtn').classList.toggle('configured',isCo
 function updateConfigBanner(){$('notConfigBanner').classList.toggle('show',!isConfigured());}
 
 // ══════════════════════════════════════════════════════════════
+// CHANGELOG
+// ══════════════════════════════════════════════════════════════
+function openChangelog(){$('changelogOverlay').classList.add('open');}
+function closeChangelog(){$('changelogOverlay').classList.remove('open');}
+function closeChangelogOnBackdrop(e){if(e.target===$('changelogOverlay'))closeChangelog();}
+
+// ══════════════════════════════════════════════════════════════
 // MAIN SCANNER
 // ══════════════════════════════════════════════════════════════
 const scannerInput=$('scannerInput');
@@ -1076,6 +1161,14 @@ function renderExtraEntries(){
   })();
 
   list.innerHTML=extraEntries.map((e,i)=>{
+    const hasStatusErr = e.statusError && e.status==='ok';
+    const hasCourierErr = e.status==='ok' && (!e.courier||(expectedCourier&&e.courier!==expectedCourier));
+    const rowBg = hasStatusErr
+      ? 'border-color:var(--amber-border);background:var(--amber-light);'
+      : hasCourierErr
+        ? 'border-color:var(--red-border);background:var(--red-light);'
+        : '';
+
     let statusHtml='';
     if(e.status==='loading') statusHtml=`<span class="extra-entry-status extra-entry-loading"><span class="spinner"></span></span>`;
     else if(e.status==='error'||e.status==='notfound') statusHtml=`<span class="extra-entry-status extra-entry-error">⚠ ${e.error}</span>`;
@@ -1097,18 +1190,25 @@ function renderExtraEntries(){
       courierHtml=`<span class="extra-entry-courier">${e.courier}</span>`;
     }
 
-    return `<div class="extra-entry" style="${(!e.courier||(expectedCourier&&e.courier!==expectedCourier))&&e.status==='ok'?'border-color:var(--red-border);background:var(--red-light);':''}" >
-      <span class="extra-entry-order">${e.orderName||('#'+e.id)}</span>
-      ${courierHtml}
-      ${statusHtml}
-      <div class="extra-entry-amount-wrap">
-        <input type="number" class="extra-entry-amount" placeholder="0.00" min="0" step="0.01"
-          value="${e.amount}"
-          oninput="updateExtraAmount(${i}, this.value)"
-          ${e.status==='loading'?'disabled':''}>
-        <span class="extra-entry-currency">EGP</span>
+    const statusErrHtml = hasStatusErr
+      ? `<div class="extra-status-err-row">⚠ ${e.statusError}</div>`
+      : '';
+
+    return `<div class="extra-entry-wrap">
+      <div class="extra-entry" style="${rowBg}">
+        <span class="extra-entry-order">${e.orderName||('#'+e.id)}</span>
+        ${courierHtml}
+        ${statusHtml}
+        <div class="extra-entry-amount-wrap">
+          <input type="number" class="extra-entry-amount" placeholder="0.00" min="0" step="0.01"
+            value="${e.amount}"
+            oninput="updateExtraAmount(${i}, this.value)"
+            ${e.status==='loading'?'disabled':''}>
+          <span class="extra-entry-currency">EGP</span>
+        </div>
+        <button class="btn-del-extra" onclick="deleteExtraEntry(${i})" title="حذف">❌</button>
       </div>
-      <button class="btn-del-extra" onclick="deleteExtraEntry(${i})" title="حذف">❌</button>
+      ${statusErrHtml}
     </div>`;
   }).join('');
 }
@@ -1132,7 +1232,11 @@ function getTotalExtraShipping(){
 // STATUS VALIDATION (S1 / S2)
 // ══════════════════════════════════════════════════════════════
 // أوردر تحصيل/استرداد: S1 = Delivered، S2 = فارغ أو Returned
-// أوردر شحن إضافي:     S1 = Returned أو S2 = Returned
+// أوردر شحن إضافي:     S1 = Returned أو Ready أو Cancelled
+//                       أو S2 = Returned أو Ready
+
+const EXTRA_S1_OK = ['Returned','Ready','Cancelled'];
+const EXTRA_S2_OK = ['Returned','Ready'];
 
 function calcStatusError(order, isExtra){
   const s1 = order.s1 || null;
@@ -1141,12 +1245,9 @@ function calcStatusError(order, isExtra){
   if(isExtra){
     // شحن إضافي: الأوردر الملغي مقبول دائماً بدون S1/S2
     if(order.cancelled) return null;
-    // S1=Returned أو S2=Returned
-    if(s1==='Returned'||s2==='Returned') return null; // صح
-    const parts=[];
-    if(s1!=='Returned') parts.push(`S1=${s1||'فارغ'}`);
-    if(s2!=='Returned') parts.push(`S2=${s2||'فارغ'}`);
-    return `حالة خاطئة — يجب S1 أو S2 = Returned (${parts.join(', ')})`;
+    // يكفي S1 في القائمة المقبولة أو S2 في القائمة المقبولة
+    if(EXTRA_S1_OK.includes(s1)||EXTRA_S2_OK.includes(s2)) return null;
+    return `حالة خاطئة — S1=${s1||'فارغ'}, S2=${s2||'فارغ'}`;
   } else {
     // تحصيل/استرداد: S1=Delivered و S2 فارغ أو Returned
     const s1ok = s1==='Delivered';
