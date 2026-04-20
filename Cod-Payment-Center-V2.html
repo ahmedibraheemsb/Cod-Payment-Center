@@ -77,20 +77,37 @@ body { font-family:'Noto Sans Arabic',sans-serif; background:var(--bg); color:va
 .card-header { padding:14px 16px 0; font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
 .card-body { padding:0 16px 16px; }
 
+/* ── Input Methods ── */
+.input-methods { display:flex; flex-direction:column; gap:6px; }
+.input-method { border:0.5px solid var(--color-border-tertiary,var(--border)); border-radius:var(--radius-sm); background:var(--surface); transition:all .2s; overflow:hidden; }
+.input-method.active { border-color:var(--accent); background:var(--accent-light); }
+.input-method-header { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:default; user-select:none; }
+.input-method-icon { font-size:14px; flex-shrink:0; }
+.input-method-label { font-size:12px; font-weight:600; color:var(--text-secondary); flex:1; }
+.input-method.active .input-method-label { color:var(--accent); }
+.input-method-body { padding:0 12px 10px; }
+
 /* ── Scanner ── */
 .scanner-wrap { position:relative; }
-.scanner-input { width:100%; padding:12px 16px 12px 44px; border:2px solid var(--accent); border-radius:var(--radius-sm); background:var(--accent-light); font-family:'IBM Plex Mono',monospace; font-size:15px; color:var(--text-primary); outline:none; direction:ltr; transition:box-shadow .2s; }
-.scanner-input:focus { box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+.scanner-input { width:100%; padding:8px 12px 8px 34px; border:0.5px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--text-primary); outline:none; direction:ltr; transition:all .2s; }
+.input-method.active .scanner-input { border-color:var(--accent); background:#fff; box-shadow:0 0 0 2px rgba(37,99,235,.1); }
 .scanner-input::placeholder { color:var(--text-muted); font-size:12px; font-family:'Noto Sans Arabic',sans-serif; }
-.scanner-icon-wrap { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:16px; pointer-events:none; }
-.scanner-hint { font-size:11px; color:var(--text-muted); margin-top:6px; }
-.manual-row { display:flex; gap:8px; margin-top:12px; }
-.manual-input { flex:1; padding:9px 12px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-primary); outline:none; direction:ltr; transition:border-color .2s; }
-.manual-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+.scanner-icon-wrap { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:14px; pointer-events:none; }
+.scanner-hint { font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+/* ── Manual ── */
+.manual-row { display:flex; gap:6px; }
+.manual-input { flex:1; padding:8px 10px; border:0.5px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-primary); outline:none; direction:ltr; transition:border-color .2s; }
+.manual-input:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(37,99,235,.08); }
 .manual-input::placeholder { color:var(--text-muted); font-size:12px; }
-.btn-manual { padding:9px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.btn-manual { padding:8px 14px; border-radius:var(--radius-sm); border:0.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
 .btn-manual:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
 .btn-manual:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ── Import method ── */
+.btn-import-method { width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:9px 16px; border-radius:var(--radius-sm); border:none; background:var(--accent); color:#fff; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
+.btn-import-method:hover { background:var(--accent-dark); }
+.btn-import-method-courier { font-family:'IBM Plex Mono',monospace; font-size:11px; background:rgba(255,255,255,.2); padding:1px 8px; border-radius:10px; }
 
 /* ── Stats ── */
 .stats-bar { display:none; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
@@ -610,17 +627,52 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
   <div class="not-configured-banner" id="notConfigBanner">⚠ الأداة غير مضبوطة — افتح الإعدادات وأدخل بيانات الاتصال</div>
 
   <div class="card">
-    <div class="card-header">ماسح الباركود</div>
-    <div class="card-body">
-      <div class="scanner-wrap">
-        <span class="scanner-icon-wrap">🔫</span>
-        <input type="text" id="scannerInput" class="scanner-input" placeholder="امسح الباركود هنا..." autocomplete="off" spellcheck="false" inputmode="none">
-      </div>
-      <div class="scanner-hint">💡 Scanner Gun: امسح وسيتم الاستعلام تلقائياً</div>
-      <div class="manual-row">
-        <input type="text" id="manualInput" class="manual-input" placeholder="أو أدخل رقم الأوردر يدوياً..." autocomplete="off" spellcheck="false" inputmode="numeric">
-        <button class="btn-manual" id="manualBtn" onclick="handleManualAdd()">إضافة</button>
-        <button class="btn-manual" onclick="openImportModal()" style="border-color:var(--accent);color:var(--accent)">🚚 استيراد من مندوب</button>
+    <div class="card-header">إضافة أوردرات</div>
+    <div class="card-body" style="padding-bottom:16px">
+      <div class="input-methods">
+
+        <!-- ١. ماسح الباركود -->
+        <div class="input-method active" id="methodScanner">
+          <div class="input-method-header">
+            <span class="input-method-icon">🔫</span>
+            <span class="input-method-label">ماسح الباركود</span>
+          </div>
+          <div class="input-method-body">
+            <div class="scanner-wrap">
+              <span class="scanner-icon-wrap">🔫</span>
+              <input type="text" id="scannerInput" class="scanner-input" placeholder="امسح الباركود هنا..." autocomplete="off" spellcheck="false" inputmode="none">
+            </div>
+            <div class="scanner-hint">💡 Scanner Gun: امسح وسيتم الاستعلام تلقائياً</div>
+          </div>
+        </div>
+
+        <!-- ٢. إدخال يدوي -->
+        <div class="input-method" id="methodManual">
+          <div class="input-method-header">
+            <span class="input-method-icon">⌨️</span>
+            <span class="input-method-label">إدخال يدوي</span>
+          </div>
+          <div class="input-method-body">
+            <div class="manual-row">
+              <input type="text" id="manualInput" class="manual-input" placeholder="أدخل رقم الأوردر..." autocomplete="off" spellcheck="false" inputmode="numeric">
+              <button class="btn-manual" id="manualBtn" onclick="handleManualAdd()">إضافة</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ٣. البحث عن أوردرات المندوب -->
+        <div class="input-method" id="methodImport">
+          <div class="input-method-header">
+            <span class="input-method-icon">🔍</span>
+            <span class="input-method-label">البحث عن أوردرات المندوب</span>
+          </div>
+          <div class="input-method-body">
+            <button class="btn-import-method" id="importBtn" onclick="openImportModal()">
+              🔍 <span id="importBtnText">البحث عن أوردرات المندوب</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -905,6 +957,32 @@ function saveSettings(){
 function updateSettingsBtn(){$('settingsBtn').classList.toggle('configured',isConfigured());}
 function updateConfigBanner(){$('notConfigBanner').classList.toggle('show',!isConfigured());}
 
+// ── تحديث نص زرار البحث عن أوردرات المندوب ──────────────────
+function updateImportBtn(){
+  const courier  = getReadyCourier();
+  const textEl   = $('importBtnText');
+  const methodEl = $('methodImport');
+  if(!textEl) return;
+  if(courier){
+    textEl.innerHTML = `البحث عن أوردرات <span class="btn-import-method-courier">${courier}</span>`;
+    if(methodEl) methodEl.classList.add('active');
+  } else {
+    textEl.textContent = 'البحث عن أوردرات المندوب';
+    if(methodEl) methodEl.classList.remove('active');
+  }
+}
+
+// ── active state للـ methods بناءً على الـ focus ─────────────
+function setActiveMethod(methodId){
+  ['methodScanner','methodManual','methodImport'].forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    // الـ import يتحكم فيه updateImportBtn بشكل مستقل
+    if(id === 'methodImport') return;
+    el.classList.toggle('active', id === methodId);
+  });
+}
+
 // ══════════════════════════════════════════════════════════════
 // CHANGELOG
 // ══════════════════════════════════════════════════════════════
@@ -920,6 +998,7 @@ let lastKeyTime=0,scanTimer=null;
 function refocus(){
   if($('page-scan').classList.contains('active')&&!$('extraAddPanel').classList.contains('show')&&!$('importOverlay').classList.contains('open')){
     scannerInput.focus();
+    setActiveMethod('methodScanner');
   }
 }
 document.addEventListener('click',e=>{
@@ -928,6 +1007,8 @@ document.addEventListener('click',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON')return;
   setTimeout(refocus,50);
 });
+scannerInput.addEventListener('focus',()=>setActiveMethod('methodScanner'));
+$('manualInput') && $('manualInput').addEventListener('focus',()=>setActiveMethod('methodManual'));
 scannerInput.addEventListener('input',()=>{
   if(isProcessing)return;
   const gap=Date.now()-lastKeyTime; lastKeyTime=Date.now();
@@ -1016,13 +1097,13 @@ async function addOrder(numericId){
     }
   }catch(e){order.status='error';order.error='خطأ في الاتصال';}
 
-  updateStats(); renderTable(); renderExtraEntries(); updatePayBtn(); updatePayMethodsCard(); refocus();
+  updateStats(); renderTable(); renderExtraEntries(); updatePayBtn(); updatePayMethodsCard(); updateImportBtn(); refocus();
 }
 
 function deleteOrder(idx){
   orders.splice(idx,1);
   if(!orders.length&&!extraEntries.length){$('tableWrap').classList.remove('show');$('statsBar').classList.remove('show');}
-  updateStats();updatePayBtn();renderTable();renderExtraEntries();hideResult();updatePayMethodsCard();refocus();
+  updateStats();updatePayBtn();renderTable();renderExtraEntries();hideResult();updatePayMethodsCard();updateImportBtn();refocus();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1873,7 +1954,7 @@ async function doBulkPayAndRefund(){
   extraEntries=[];
   renderExtraEntries();
   if(!orders.length){$('tableWrap').classList.remove('show');$('statsBar').classList.remove('show');}
-  updateStats();renderTable();updatePayMethodsCard();
+  updateStats();renderTable();updatePayMethodsCard();updateImportBtn();
 
   const anySuccess=successPay>0||successRefund>0;
   const anyFail=failPay>0||failRefund>0;
