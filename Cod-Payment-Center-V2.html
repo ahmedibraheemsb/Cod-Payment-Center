@@ -551,7 +551,7 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <button class="changelog-btn" onclick="openChangelog()">
-      📋 <span class="changelog-version">v1.2.0</span>
+      📋 <span class="changelog-version">v1.2.1</span>
     </button>
     <button class="settings-btn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
   </div>
@@ -566,7 +566,17 @@ tbody tr.detail-row td { padding:0 12px 12px; border-bottom:1px solid var(--bord
 
         <div class="changelog-item">
           <div class="changelog-item-header">
-            <span class="changelog-ver-badge latest">v1.2.0</span>
+            <span class="changelog-ver-badge latest">v1.2.1</span>
+            <span class="changelog-date">18-05-2026</span>
+          </div>
+          <div class="changelog-notes">
+            <div class="changelog-note"><b>إصلاح زرار الاسترداد:</b> قسم طريقة الدفع يظهر الآن حتى لو لم يكن هناك أوردرات تحصيل — كان الزرار معطلاً مع أوردرات الاسترداد فقط</div>
+          </div>
+        </div>
+
+        <div class="changelog-item">
+          <div class="changelog-item-header">
+            <span class="changelog-ver-badge">v1.2.0</span>
             <span class="changelog-date">20-04-2026</span>
           </div>
           <div class="changelog-notes">
@@ -977,7 +987,6 @@ function setActiveMethod(methodId){
   ['methodScanner','methodManual','methodImport'].forEach(id=>{
     const el = $(id);
     if(!el) return;
-    // الـ import يتحكم فيه updateImportBtn بشكل مستقل
     if(id === 'methodImport') return;
     el.classList.toggle('active', id === methodId);
   });
@@ -1109,7 +1118,6 @@ function deleteOrder(idx){
 // ══════════════════════════════════════════════════════════════
 // EXTRA SHIPPING SCANNER
 // ══════════════════════════════════════════════════════════════
-// ── [FIX #3]: Same gap-based auto-fire logic as main scanner ──
 let extraScanTimer=null, extraLastKeyTime=0;
 
 function showExtraScanner(){
@@ -1125,10 +1133,6 @@ function hideExtraScanner(){
 
 const extraScanInput=$('extraScanInput');
 
-// ── [FIX #3]: Use same gap-based pattern as main scanner.
-// gap < 80ms = scanner gun → auto-fire after 150ms timeout
-// gap >= 80ms = manual typing → auto-fire after 400ms timeout (same as main scanner)
-// Enter key always fires immediately regardless of gap
 extraScanInput.addEventListener('input',()=>{
   const gap=Date.now()-extraLastKeyTime; extraLastKeyTime=Date.now();
   clearTimeout(extraScanTimer);
@@ -1138,7 +1142,6 @@ extraScanInput.addEventListener('keypress',e=>{
   if(e.key==='Enter'){e.preventDefault();clearTimeout(extraScanTimer);handleExtraScan();}
 });
 
-// Manual input: Enter key only, never auto-fires
 $('extraManualInput').addEventListener('keypress',e=>{
   if(e.key==='Enter'){e.preventDefault();handleExtraManualAdd();}
 });
@@ -1234,7 +1237,6 @@ function renderExtraEntries(){
 
   if(!extraEntries.length){ list.innerHTML=''; return; }
 
-  // الكوريير المتوقع = من الأوردرات العادية ready
   const expectedCourier = (()=>{
     const readyOrders=orders.filter(o=>o.status==='ready');
     const couriers=[...new Set(readyOrders.map(o=>o.courier).filter(Boolean))];
@@ -1312,10 +1314,6 @@ function getTotalExtraShipping(){
 // ══════════════════════════════════════════════════════════════
 // STATUS VALIDATION (S1 / S2)
 // ══════════════════════════════════════════════════════════════
-// أوردر تحصيل/استرداد: S1 = Delivered، S2 = فارغ أو Returned
-// أوردر شحن إضافي:     S1 = Returned أو Ready أو Cancelled
-//                       أو S2 = Returned أو Ready
-
 const EXTRA_S1_OK = ['Returned','Ready','Cancelled'];
 const EXTRA_S2_OK = ['Returned','Ready'];
 
@@ -1324,16 +1322,13 @@ function calcStatusError(order, isExtra){
   const s2 = order.s2 || null;
 
   if(isExtra){
-    // شحن إضافي: الأوردر الملغي مقبول دائماً بدون S1/S2
     if(order.cancelled) return null;
-    // يكفي S1 في القائمة المقبولة أو S2 في القائمة المقبولة
     if(EXTRA_S1_OK.includes(s1)||EXTRA_S2_OK.includes(s2)) return null;
     return `حالة خاطئة — S1=${s1||'فارغ'}, S2=${s2||'فارغ'}`;
   } else {
-    // تحصيل/استرداد: S1=Delivered و S2 فارغ أو Returned
     const s1ok = s1==='Delivered';
     const s2ok = !s2||s2==='Returned';
-    if(s1ok&&s2ok) return null; // صح
+    if(s1ok&&s2ok) return null;
     const parts=[];
     if(!s1ok) parts.push(`S1=${s1||'فارغ'} (يجب Delivered)`);
     if(!s2ok) parts.push(`S2=${s2} (يجب فارغ أو Returned)`);
@@ -1453,7 +1448,6 @@ function renderTable(){
     else if(o.status==='ready'||o.status==='done') rowClass+=' ready-row';
     if(o.statusError) rowClass+=' status-err-row';
 
-    // S1 / S2 badges
     const isActiveOrder=(o.status==='ready'||o.status==='refund'||o.status==='done'||o.status==='refund-done');
     let s1Cell, s2Cell;
     if(!isActiveOrder||isCancelled){
@@ -1607,9 +1601,6 @@ function updateStats(){
   const chip=$('statNetChip');
   chip.style.borderColor=sumCourierCollect<0?'var(--red)':sumCourierCollect>0?'var(--green)':'var(--border-strong)';
 
-  // ── [FIX #1]: عداد الأوردرات — يعرض ready + refund كأرقام منفصلة ──
-  // مثل نافذة التأكيد: أخضر (ready) + أحمر (refund)
-  // الأوردرات الملغية/غير الموجودة/الأخطاء لا تُحسب في العداد
   const readyCount  = orders.filter(o=>o.status==='ready').length;
   const refundCount = orders.filter(o=>o.status==='refund').length;
   const countEl=$('statCount');
@@ -1620,7 +1611,6 @@ function updateStats(){
     if(refundCount>0) parts.push(`<span style="color:var(--red);font-weight:800">${refundCount}</span>`);
     countEl.innerHTML=parts.join(`<span style="color:var(--text-muted);font-size:14px;margin:0 2px">+</span>`);
   } else {
-    // لو ما فيش ready ولا refund، يعرض الكلي (scanning/loading/etc.)
     const totalVisible=orders.length+extraEntries.length;
     countEl.innerHTML=`<span>${totalVisible}</span>`;
   }
@@ -1638,12 +1628,10 @@ function getCourierCollectNet(){
   sum -= getTotalExtraShipping();
   return sum;
 }
-// الـ target الكلي = تحصيل اليوم + رصيد سابق على المندوب
 function getNetTarget(){ return getCourierCollectNet() + currentCourierBalance; }
 function getPaySum(){return(parseFloat($('pmCash').value)||0)+(parseFloat($('pmInstapay').value)||0)+(parseFloat($('pmWallet').value)||0)+(parseFloat($('pmBalance').value)||0);}
 function isPayEmpty(){return!$('pmCash').value&&!$('pmInstapay').value&&!$('pmWallet').value&&!$('pmBalance').value;}
 
-// جلب رصيد المندوب من courier-balance-worker
 async function loadCourierBalance(courierName){
   currentCourierBalance=0;
   $('balancePrevBanner').classList.remove('show');
@@ -1667,15 +1655,22 @@ function updateBalancePrevTotal(){
   $('balancePrevTotal').textContent=`${fmtSigned(total)} EGP`;
 }
 
+// ══════════════════════════════════════════════════════════════
+// [FIX v1.2.1] updatePayMethodsCard — يشمل refund orders أيضاً
+// ══════════════════════════════════════════════════════════════
 function updatePayMethodsCard(){
-  const readyOrders=orders.filter(o=>o.status==='ready');
+  const readyOrders  = orders.filter(o=>o.status==='ready');
+  const refundOrders = orders.filter(o=>o.status==='refund');
   const card=$('payMethodsCard');
-  if(!readyOrders.length){
+
+  // الكارت بتظهر لو في ready أو refund orders
+  if(!readyOrders.length && !refundOrders.length){
     card.classList.remove('show');
     currentCourierBalance=0;
     $('balancePrevBanner').classList.remove('show');
     return;
   }
+
   card.classList.add('show');
   const courier=getReadyCourier();
   const courierErr=getReadyCourierError();
@@ -1722,8 +1717,6 @@ function isPayValid(){
   return Math.abs(Math.abs(entered)-Math.abs(target))<0.01;
 }
 
-// ── [FIX #4]: getReadyCourier و getReadyCourierError تشمل refund orders ──
-// مندوب واحد لكل شيء: ready + refund + extra shipping
 function getReadyCourier(){
   const allForCourier=[
     ...orders.filter(o=>o.status==='ready'||o.status==='refund'),
@@ -1738,22 +1731,17 @@ function getReadyCourierError(){
   const refundOrders = orders.filter(o=>o.status==='refund');
   const extraOk      = extraEntries.filter(e=>e.status==='ok');
 
-  // لو مفيش أي أوردر نشط، لا يوجد خطأ
   if(!readyOrders.length&&!refundOrders.length&&!extraOk.length) return null;
 
-  // التحقق من بدون مندوب في ready
   const noCourier=readyOrders.filter(o=>!o.courier);
   if(noCourier.length) return `بدون مندوب: ${noCourier.map(o=>o.orderName||o.id).join('، ')}`;
 
-  // التحقق من بدون مندوب في refund
   const refundNoCourier=refundOrders.filter(o=>!o.courier);
   if(refundNoCourier.length) return `أوردر استرداد بدون مندوب: ${refundNoCourier.map(o=>o.orderName||o.id).join('، ')}`;
 
-  // التحقق من بدون مندوب في extra
   const extraNoCourier=extraOk.filter(e=>!e.courier);
   if(extraNoCourier.length) return `شحن إضافي بدون مندوب: ${extraNoCourier.map(e=>e.orderName||e.id).join('، ')}`;
 
-  // التحقق من مندوب واحد فقط عبر ready + refund + extra
   const allCouriers=[
     ...readyOrders.map(o=>o.courier),
     ...refundOrders.map(o=>o.courier),
@@ -1768,7 +1756,6 @@ function updatePayBtn(){
   const hasReady  =orders.filter(o=>o.status==='ready').length>0;
   const hasRefund =orders.filter(o=>o.status==='refund').length>0;
   const courierErr=getReadyCourierError();
-  // منع الدفع لو في أي أوردر عنده statusError (في الجدول الرئيسي أو الشحن الإضافي)
   const hasStatusErr=orders.some(o=>o.statusError&&(o.status==='ready'||o.status==='refund'))
     ||extraEntries.some(e=>e.statusError&&e.status==='ok');
   const btn=$('payBtn');
@@ -1940,7 +1927,6 @@ async function doBulkPayAndRefund(){
   };
   saveLogEntry(logEntry);
 
-  // لو المندوب احتجز رصيد — يُسجَّل في courier-balance-worker بعد نجاح التحصيل
   if(balanceDebit>0&&courierName&&isBalanceConfigured()){
     try{
       const cb=getConfig();
