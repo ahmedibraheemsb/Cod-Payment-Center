@@ -1759,7 +1759,8 @@ function updatePayBtn(){
   const hasStatusErr=orders.some(o=>o.statusError&&(o.status==='ready'||o.status==='refund'))
     ||extraEntries.some(e=>e.statusError&&e.status==='ok');
   const btn=$('payBtn');
-  btn.disabled=(!hasReady&&!hasRefund)||!!courierErr||!isPayValid()||isProcessing||hasStatusErr;
+  const needsPayValid=hasReady;
+  btn.disabled=(!hasReady&&!hasRefund)||!!courierErr||(needsPayValid&&!isPayValid())||isProcessing||hasStatusErr;
   if(hasReady&&hasRefund){btn.textContent='💵 تسجيل الدفع + 💸 تنفيذ الاسترداد';btn.classList.add('has-refund');}
   else if(hasRefund&&!hasReady){btn.textContent='💸 تنفيذ الاسترداد';btn.classList.add('has-refund');}
   else{btn.textContent='💵 تسجيل الدفع على شوبيفاي';btn.classList.remove('has-refund');}
